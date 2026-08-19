@@ -1,0 +1,10 @@
+{
+  "name": "mo2-map",
+  "version": "0.1.0",
+  "description": "A static, measured map of Mortal Online 2's Sarducaa",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "exports": { "./coordinates": "./src/coordinates.js" },
+  "scripts": { "test": "node --test test/" }
+}
