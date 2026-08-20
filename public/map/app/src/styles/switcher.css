@@ -1,0 +1,13 @@
+/*
+ * The map switcher button (map/switcher.js): top of the bottom-right corner
+ * stack, and unconditional - unlike the three below it, which only exist
+ * when their own manifest was found. Stack, bottom to top: L.control.zoom
+ * (bottom:12px) -> #dungeon-entry (bottom:78px) -> #style-toggle
+ * (bottom:116px, map/style.js) -> #poster-export (bottom:154px, poster.css)
+ * -> this button (bottom:192px).
+ */
+#map-switcher {
+  position: absolute; z-index: 1100; bottom: 192px; right: 12px;
+  padding: 6px 10px; font-size: 13px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .6);
+}

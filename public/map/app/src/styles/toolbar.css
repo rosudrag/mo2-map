@@ -1,0 +1,54 @@
+/* Top toolbar: search box, world-coordinate paste field, joined-match summary. */
+#top-tools {
+  position: absolute; z-index: 1150; top: 12px; left: 56px;
+  right: 12px; max-width: 560px;
+  display: flex; gap: 8px; align-items: stretch;
+  pointer-events: none;
+}
+#top-tools > * { pointer-events: auto; }
+#search {
+  flex: 1 1 180px; min-width: 120px; width: auto;
+  padding: 9px 12px; border: 1px solid var(--bronze-deep);
+  background: var(--panel); color: var(--text);
+  box-shadow: 0 2px 10px rgba(0,0,0,.55);
+  outline: none;
+}
+#search::placeholder { color: var(--muted); }
+#search:focus { border-color: var(--bronze); }
+#paste-loc-wrap {
+  display: flex; gap: 4px; flex: 0 0 auto;
+  box-shadow: 0 2px 10px rgba(0,0,0,.55);
+}
+#paste-loc {
+  width: 132px; padding: 9px 10px; border: 1px solid var(--bronze-deep);
+  background: var(--panel); color: var(--text); outline: none;
+  border-right: 0;
+}
+#paste-loc::placeholder { color: var(--muted); }
+#paste-loc:focus { border-color: var(--bronze); }
+#paste-loc-go {
+  border: 1px solid var(--bronze-deep); background: var(--panel);
+  color: var(--bronze); cursor: pointer; padding: 0 12px;
+  font: inherit; font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
+}
+#paste-loc-go:hover { border-color: var(--bronze); color: var(--text); }
+/*
+ * The joined-feedback bar under #search (manage/querybox.js): idle by default
+ * (JS sets display:flex only while the query is active), one line of text plus
+ * Fit and Clear — the query already narrowed the map and every list, so there
+ * is nothing here to pick from, unlike the dropdown this replaced.
+ */
+#search-summary {
+  position: absolute; top: 48px; left: 56px; width: min(420px, calc(100% - 220px));
+  display: none; align-items: center; gap: 8px;
+  padding: 7px 12px;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--line); box-shadow: 0 4px 16px rgba(0,0,0,.55);
+  z-index: 1150;
+}
+#search-summary .search-summary-text {
+  flex: 1 1 auto; min-width: 0;
+  color: var(--muted); font-size: 12px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#search-summary .mg-btn { flex: 0 0 auto; padding: 3px 9px; font-size: 11px; }

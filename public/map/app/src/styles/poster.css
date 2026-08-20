@@ -1,0 +1,35 @@
+/*
+ * Poster export chrome (map/poster.js): the Export button in the bottom-right
+ * corner stack, and the small progress pill shown while a render is in flight.
+ *
+ * The button borrows its look from .mg-btn (manage.css) per the page's chrome
+ * language, and is positioned like #dungeon-entry / #style-toggle - page-level
+ * absolute chrome, because L.control corners are sized for 26px buttons
+ * (dungeonmode.css). Stack, bottom to top: L.control.zoom (bottom:12px) ->
+ * #dungeon-entry (bottom:78px) -> #style-toggle (bottom:116px, map/style.js)
+ * -> this button (bottom:154px) -> #map-switcher (bottom:192px, always
+ * present, switcher.css). Each of the three page-added buttons below the
+ * switcher only exists at all when its own manifest was found, so that part
+ * of the stack is only ever as tall as what actually shipped.
+ */
+#poster-export {
+  position: absolute; z-index: 1100; bottom: 154px; right: 12px;
+  padding: 6px 10px; font-size: 13px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .6);
+}
+
+/* A render in progress, top-centre so it never collides with the corner
+   stack or the top toolbar's own controls. */
+#poster-progress {
+  position: absolute; z-index: 1200; top: 14px; left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--text); background: var(--panel);
+  border: 1px solid var(--bronze-deep);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .6);
+  pointer-events: none;
+  white-space: nowrap;
+}
+#poster-progress.show { display: block; }

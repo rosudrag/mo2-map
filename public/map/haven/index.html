@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Haven Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Modern+Antiqua&display=swap" />
+  <!--
+    Standalone on purpose (see ../unpublished.css and ../registry.js's haven
+    entry): the offline pipeline has never indexed or stitched Haven, so
+    there is nothing to load. This page never loads app/dist/app.js - no
+    Leaflet, no registry.js, nothing that could error against data that
+    doesn't exist.
+
+    The <p> below and registry.js's haven.unpublishedReason must say the
+    same thing - update both in the same commit.
+  -->
+  <link rel="stylesheet" href="../unpublished.css" />
+</head>
+<body>
+  <main class="card">
+    <h1>Haven</h1>
+    <p>Haven hasn't been mapped yet &mdash; there's nothing to show.</p>
+    <nav aria-label="Continents">
+      <a href="../sarducaa/">Sarducaa</a>
+      <a href="../myrland/">Myrland</a>
+      <a class="current" aria-current="page">Haven</a>
+    </nav>
+  </main>
+</body>
+</html>

@@ -1,0 +1,92 @@
+/* Auto-discovery pins, their cluster bubbles and popup facts. */
+
+/*
+ * Visually the inverse of .map-pin, on purpose. A curated pin is opaque with a
+ * solid bone ring: a person chose to put it there. A discovery is translucent
+ * with a dashed one: it was machine-observed and repeated sightings were merged.
+ * The two carry very different confidence, and the tell has to survive a
+ * screenshot with no popup open — not live in a tooltip nobody hovers.
+ */
+.disco-pin {
+  position: relative;
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1px dashed rgba(232, 220, 200, .6);
+  background: var(--pin, var(--bronze-dim));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .45);
+  display: flex; align-items: center; justify-content: center;
+  opacity: .72;
+}
+.disco-pin:hover { opacity: 1; border-style: solid; }
+.disco-pin img {
+  width: 13px; height: 13px;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+}
+/* The count rides the pin rather than a label: at catalogue density a text
+   label per marker is a wall of overlapping type, and the number is the one
+   fact worth reading before clicking. */
+.disco-count {
+  position: absolute; right: -6px; bottom: -5px;
+  min-width: 15px; padding: 0 3px; border-radius: 8px;
+  border: 1px solid var(--bronze-deep);
+  background: var(--panel); color: var(--text);
+  font-size: 10px; line-height: 13px; font-weight: 700; text-align: center;
+}
+
+/*
+ * Cluster bubbles, same faded treatment. filter-panel.css styles .marker-cluster-*
+ * globally WITH !important for the curated group, so these have to out-specify
+ * it — through the class Leaflet puts on our own pane (leaflet-discoveries-pane)
+ * rather than by adding a second global rule that would then race the first.
+ */
+.leaflet-discoveries-pane .marker-cluster-small,
+.leaflet-discoveries-pane .marker-cluster-medium,
+.leaflet-discoveries-pane .marker-cluster-large {
+  background-color: rgba(107, 98, 87, .34) !important;
+}
+.leaflet-discoveries-pane .marker-cluster-small div,
+.leaflet-discoveries-pane .marker-cluster-medium div,
+.leaflet-discoveries-pane .marker-cluster-large div {
+  background-color: rgba(30, 26, 20, .86) !important;
+  color: var(--text) !important;
+  border: 1px dashed var(--bronze-dim);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+}
+
+/* ---- popup ---------------------------------------------------------- */
+/*
+ * A floor under the popup, because the content cannot supply one. The class
+ * value is a single unbreakable token (`BP_MOCharacterAI_Creature_Akrep_C`),
+ * and `break-all` lets its min-content width fall to ONE CHARACTER — so the
+ * shrink-to-fit popup collapsed into a 100 px column with the class running
+ * vertically down the screen, one letter per line. Leaflet's own `minWidth`
+ * option is set alongside this in markers.js; both are needed, since Leaflet
+ * sizes the wrapper while this sizes what is inside it.
+ */
+.marker-popup.disco-popup { min-width: 196px; }
+/* Separate the facts from the write actions so Delete is not buried under the class slug. */
+.marker-popup.disco-popup .popup-actions {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.marker-popup.disco-popup .popup-actions button.danger {
+  font-weight: 600;
+}
+.marker-popup .disco-facts {
+  display: grid; grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 10px; margin: 8px 0 0; font-size: 12px;
+}
+.marker-popup .disco-facts dt { color: var(--muted); }
+.marker-popup .disco-facts dd { margin: 0; color: var(--text); }
+/* The class gets its own full-width row: it is by far the longest value here,
+   and letting it share a row forces every other value into the same narrow
+   column. `anywhere` rather than `break-all` so it only breaks when it must. */
+.marker-popup .disco-facts dt.disco-class-label { grid-column: 1 / -1; margin-top: 4px; }
+.marker-popup .disco-class {
+  grid-column: 1 / -1;
+  font-family: ui-monospace, Consolas, "Courier New", monospace;
+  font-size: 11px; color: var(--bronze); overflow-wrap: anywhere;
+}
+
+/* The filter section is rendered by manage/filters.js and styled with the
+   shared .mg-fsec-* / .cat-* rules — nothing discovery-specific is left here. */

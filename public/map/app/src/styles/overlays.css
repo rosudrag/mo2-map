@@ -1,0 +1,103 @@
+/* Transient overlays: drag/add hints, YOU / paste / draft blips. */
+#drag-hint {
+  position: absolute; z-index: 1100; bottom: 14px; left: 50%;
+  transform: translateX(-50%);
+  display: none; align-items: center; gap: 10px;
+  background: rgba(12,10,8,.92); color: var(--text);
+  border: 1px solid var(--bronze);
+  padding: 8px 12px;
+  font: 13px/1.35 var(--font-ui);
+  box-shadow: 0 2px 10px rgba(0,0,0,.45);
+  white-space: nowrap;
+}
+#drag-hint.open { display: flex; }
+#drag-hint strong { color: var(--bronze); font-family: var(--font-title); font-weight: 400; }
+#drag-hint button {
+  border: 1px solid var(--bronze-deep); background: var(--panel-2);
+  color: var(--bronze); cursor: pointer; padding: 5px 10px;
+  font: inherit; font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+}
+#drag-hint button:hover { border-color: var(--bronze); color: var(--text); }
+#add-hint.hidden { display: none; }
+.you-blip-wrap {
+  background: transparent !important;
+  border: 0 !important;
+}
+.you-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140px;
+  pointer-events: none;
+}
+.you-blip,
+.player-arrow {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  pointer-events: auto;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.85));
+}
+.you-blip svg,
+.player-arrow svg {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+.player-marker-wrap {
+  background: transparent !important;
+  border: 0 !important;
+}
+.player-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 160px;
+  pointer-events: none;
+}
+.player-label,
+.you-label {
+  margin-top: 4px;
+  max-width: 160px;
+  padding: 2px 7px;
+  font-family: var(--font-title);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: #f8f1e4;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: rgba(12,10,8,.72);
+  border: 1px solid rgba(196,165,116,.45);
+  border-radius: 3px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.9);
+  pointer-events: none;
+}
+.you-label {
+  color: var(--bronze);
+  border-color: var(--bronze);
+}
+.paste-pin {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid #e8dcc8;
+  box-shadow: 0 1px 5px rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  background: #5a7a88;
+}
+.paste-pin span {
+  font: 700 11px/1 "Segoe UI", system-ui, sans-serif;
+  color: #f0e6d4;
+}
+.draft-pin {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid #f0e6d4;
+  box-shadow: 0 0 0 2px rgba(168, 72, 50, .45), 0 1px 5px rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--danger);
+}
+.draft-pin span {
+  font: 700 14px/1 "Segoe UI", system-ui, sans-serif;
+  color: #f0e6d4;
+}

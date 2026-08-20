@@ -1,0 +1,38 @@
+/* Design tokens, reset, page shell and the #map container. */
+:root {
+  --ink: #0c0a08;
+  --panel: #16130f;
+  --panel-2: #1e1a14;
+  --bronze: #c4a574;
+  --bronze-dim: #8a6a3d;
+  --bronze-deep: #5c4524;
+  --text: #e8dcc8;
+  --muted: #9a8b78;
+  --line: #3a3228;
+  --danger: #a84832;
+  --font-ui: "Segoe UI", system-ui, sans-serif;
+  --font-title: "Modern Antiqua", "Segoe UI", serif;
+}
+* { box-sizing: border-box; }
+html, body {
+  height: 100%; margin: 0;
+  background-color: var(--ink);
+  /* Asset URLs are relative to the BUILD OUTPUT (dist/app.css), not to this
+     file: bin/build.mjs marks image URLs external so esbuild leaves them
+     verbatim instead of copying binaries into a committed dist/. */
+  background-image: url("../assets/map-bg.webp?v=sea1");
+  /* Oversized so parallax pan never flashes the ink edge */
+  background-size: 220%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  font: 14px var(--font-ui); color: var(--text);
+}
+.title-font,
+#filter-panel .panel-head strong,
+.marker-popup h5,
+#add-hint {
+  font-family: var(--font-title);
+  letter-spacing: 0.02em;
+}
+#map { position: absolute; inset: 0; background: transparent; }
+.leaflet-container { background: transparent; font: inherit; }

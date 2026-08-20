@@ -1,0 +1,12 @@
+/*
+ * Town plates (map/townplates.js). The realistic plate already blends into the
+ * tiles through its own alpha channel (town_plate.py's apron feather / artwork
+ * torn edge - see paint_town_artwork), so there is nothing to filter here. The
+ * one thing owned by CSS is the swap ITSELF: switchStyle() tears down every
+ * overlay for the old manifest and rebuilds from the new one in the same
+ * frame, and without a transition that read as a flicker rather than a style
+ * change.
+ */
+.leaflet-image-layer.town-plate {
+  transition: opacity .15s linear;
+}

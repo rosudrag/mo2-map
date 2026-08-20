@@ -1,0 +1,98 @@
+/* Category/type filter panel and marker-cluster bubbles. */
+#filter-toggle {
+  position: absolute; z-index: 1100; top: 12px; left: 12px;
+  width: 36px; height: 36px; border: 1px solid var(--bronze-deep); border-radius: 4px;
+  background: var(--panel); color: var(--bronze); cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,.55); font-size: 16px;
+}
+#filter-toggle:hover { border-color: var(--bronze); }
+#filter-panel {
+  position: absolute; z-index: 1100; top: 56px; left: 12px;
+  width: min(300px, calc(100vw - 24px)); max-height: calc(100vh - 80px);
+  overflow: auto; background: var(--panel); color: var(--text);
+  border: 1px solid var(--bronze-deep);
+  box-shadow: 0 4px 18px rgba(0,0,0,.6); display: none; padding: 10px 0 8px;
+}
+#filter-panel.open { display: block; }
+#filter-panel .panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding: 0 12px 8px; border-bottom: 1px solid var(--line);
+}
+#filter-panel .panel-head strong {
+  font-family: var(--font-title);
+  font-size: 15px; font-weight: 400; color: var(--bronze);
+  letter-spacing: .03em; text-transform: none;
+}
+#filter-panel .panel-head button {
+  border: 0; background: transparent; color: var(--bronze); cursor: pointer;
+  font: inherit; font-size: 12px; padding: 2px 4px;
+}
+#filter-panel .panel-head button:hover { color: var(--text); }
+#filter-panel .presets {
+  display: flex; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--line);
+}
+#filter-panel .presets button {
+  flex: 1; border: 1px solid var(--line); background: var(--panel-2); border-radius: 4px;
+  padding: 5px 4px; cursor: pointer; font: inherit; font-size: 12px; color: var(--muted);
+}
+#filter-panel .presets button:hover { border-color: var(--bronze-dim); color: var(--text); }
+#filter-panel .presets button.active {
+  background: rgba(138,106,61,.28); border-color: var(--bronze); color: var(--bronze);
+}
+.cat-row { border-bottom: 1px solid var(--line); }
+.cat-main {
+  display: flex; align-items: center; gap: 6px; padding: 7px 10px 7px 12px;
+}
+.cat-main .cat-toggle {
+  flex: 1; display: flex; align-items: center; gap: 8px;
+  border: 0; background: transparent; cursor: pointer; font: inherit;
+  text-align: left; padding: 0; min-width: 0; color: var(--text);
+}
+.cat-main .cat-toggle.off { opacity: .4; }
+.cat-main .cat-ico {
+  width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  background: var(--pin, var(--bronze-dim));
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(196,165,116,.35);
+}
+.cat-main .cat-ico img {
+  width: 12px; height: 12px; filter: brightness(0) invert(1);
+}
+.cat-main .cat-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-main .cat-count { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+.cat-main .only-btn, .cat-main .expand-btn {
+  border: 0; background: transparent; color: var(--muted); cursor: pointer;
+  font: inherit; font-size: 12px; padding: 2px 4px; flex-shrink: 0;
+}
+.cat-main .only-btn:hover, .cat-main .expand-btn:hover { color: var(--bronze); }
+.type-list { display: none; padding: 0 8px 8px 34px; background: var(--panel-2); }
+.type-list.open { display: block; }
+.type-row {
+  display: flex; align-items: center; gap: 6px; padding: 4px 0;
+}
+.type-row .type-toggle {
+  flex: 1; display: flex; align-items: center; gap: 6px;
+  border: 0; background: transparent; cursor: pointer; font: inherit;
+  text-align: left; padding: 0; font-size: 13px; min-width: 0; color: var(--text);
+}
+.type-row .type-toggle.off { opacity: .4; }
+.type-row .type-count { color: var(--muted); font-size: 11px; }
+.type-row .only-btn {
+  border: 0; background: transparent; color: var(--muted); cursor: pointer;
+  font: inherit; font-size: 11px; padding: 2px 4px;
+}
+.type-row .only-btn:hover { color: var(--bronze); }
+.marker-cluster {
+  background-clip: padding-box;
+  border-radius: 50%;
+}
+.marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+  background-color: rgba(138, 106, 61, .45) !important;
+}
+.marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
+  background-color: rgba(92, 69, 36, .92) !important;
+  color: #f0e6d4 !important;
+  font-weight: 700;
+  border: 1px solid var(--bronze);
+  box-shadow: 0 2px 8px rgba(0,0,0,.55);
+}

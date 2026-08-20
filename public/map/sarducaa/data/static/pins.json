@@ -1,0 +1,134 @@
+[
+  {
+    "id": "604da272-cc68-53db-a14d-684ea492c8ab",
+    "label": "Old Oak Stand",
+    "type": "Oak",
+    "category": "wood",
+    "map_x": 2180.0,
+    "map_y": 2050.0,
+    "world_x": 1500.0,
+    "world_y": -2500.0,
+    "world_z": 30.0,
+    "source": "survey",
+    "updated_by": "seed"
+  },
+  {
+    "id": "96a4d705-ab9a-5ac3-8ba4-730b5a6d1797",
+    "label": "Birch Grove",
+    "type": "Birch",
+    "category": "wood",
+    "map_x": 2340.0,
+    "map_y": 2260.0,
+    "source": "gamefile"
+  },
+  {
+    "id": "58b8cc53-314b-5a8c-a7e5-983ab63edc5c",
+    "label": "Riverside Timber",
+    "type": "Timber Stand",
+    "category": "wood",
+    "map_x": 2460.0,
+    "map_y": 2140.0,
+    "source": "survey",
+    "updated_by": "seed"
+  },
+  {
+    "id": "899e357e-2e70-575f-9bdf-86580fecd45a",
+    "label": "Bandit Camp",
+    "type": "Bandit Camp",
+    "category": "swords",
+    "map_x": 2510.0,
+    "map_y": 2510.0,
+    "world_x": 3400.0,
+    "world_y": -2900.0,
+    "source": "community",
+    "updated_by": "community",
+    "meta": {
+      "instances": 3
+    }
+  },
+  {
+    "id": "27b412ac-7661-5940-959b-b8374dff26d7",
+    "label": "Raider Outpost",
+    "type": "Raider Outpost",
+    "category": "swords",
+    "map_x": 2040.0,
+    "map_y": 2030.0,
+    "source": "gamefile"
+  },
+  {
+    "id": "53348564-6794-566e-a208-2939e71db6dc",
+    "label": "Hostile Warband",
+    "type": "Warband",
+    "category": "swords",
+    "map_x": 2620.0,
+    "map_y": 2340.0,
+    "source": "community",
+    "updated_by": "community"
+  },
+  {
+    "id": "dfaac198-6a89-5bb8-9e00-c31278709908",
+    "label": "Iron Vein",
+    "type": "Iron",
+    "category": "resource",
+    "map_x": 2210.0,
+    "map_y": 2400.0,
+    "source": "survey",
+    "updated_by": "seed"
+  },
+  {
+    "id": "42365e38-ed62-5a29-a679-ddcaf43088e7",
+    "label": "Sulfur Deposit",
+    "type": "Sulfur",
+    "category": "resource",
+    "map_x": 2380.0,
+    "map_y": 2020.0,
+    "source": "gamefile"
+  },
+  {
+    "id": "923e061c-42a3-556a-a1fc-a5741a1c2d1c",
+    "label": "Clay Pit",
+    "type": "Clay Deposit",
+    "category": "resource",
+    "map_x": 2150.0,
+    "map_y": 2270.0,
+    "source": "survey",
+    "updated_by": "seed"
+  },
+  {
+    "id": "bc50b0a2-2a7d-5588-ad12-99658c631f51",
+    "label": "Ben Jedda",
+    "type": "Town",
+    "category": "landmark",
+    "map_x": 2427.0,
+    "map_y": 2176.0,
+    "world_x": 2946.0,
+    "world_y": -1938.0,
+    "source": "survey",
+    "updated_by": "seed"
+  },
+  {
+    "id": "da53e648-1127-5361-98a0-e73bfcc7f7ad",
+    "label": "Bedia",
+    "type": "Town",
+    "category": "landmark",
+    "map_x": 2460.5,
+    "map_y": 2554.6,
+    "world_x": 3202.0,
+    "world_y": -3817.0,
+    "source": "survey",
+    "updated_by": "seed"
+  },
+  {
+    "id": "8289ee14-042a-5162-b934-2c3f296ed0d4",
+    "label": "Overlook Ridge",
+    "type": "Vista",
+    "category": "landmark",
+    "map_x": 2280.0,
+    "map_y": 2440.0,
+    "source": "community",
+    "updated_by": "community",
+    "meta": {
+      "position_source": "manual"
+    }
+  }
+]

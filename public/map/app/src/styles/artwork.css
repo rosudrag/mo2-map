@@ -1,0 +1,60 @@
+/*
+ * The artwork style (map/style.js, map/artwork-layer.js): the switch button,
+ * always in the chrome even on the realistic style, and the parchment skin
+ * that applies only under body.style-artwork.
+ *
+ * The realistic style is the default and must stay PIXEL-UNCHANGED: nothing
+ * below reaches outside `#style-toggle` or a `body.style-artwork` ancestor.
+ */
+
+/* The way to it, bottom-right ABOVE #dungeon-entry (bottom:78px, ~28px tall)
+ * and L.control.zoom under that - see dungeonmode.css for the same stacking
+ * reasoning. Only ever created when the artwork manifest exists
+ * (map/style.js's initStyle): there is nothing to switch to otherwise, so no
+ * CSS here ever needs to hide it. Same dark-card + bronze-border language as
+ * #dungeon-entry, not .mg-btn - this is corner page chrome, not a panel row. */
+#style-toggle {
+  position: absolute; z-index: 1100; bottom: 116px; right: 12px;
+  padding: 6px 10px;
+  font: 13px/1 var(--font-ui);
+  color: var(--text); background: var(--panel);
+  border: 1px solid var(--bronze-deep);
+  box-shadow: 0 4px 18px rgba(0,0,0,.6);
+  cursor: pointer;
+}
+#style-toggle:hover { border-color: var(--bronze); }
+#style-toggle strong { color: var(--bronze); font-weight: 400; }
+
+/*
+ * The parchment skin. Every panel, the coordinate readout and the map
+ * surround are themed almost entirely through the SAME custom properties
+ * tokens.css already defines (--panel/--bronze/--line/--text/--muted) - so
+ * overriding them once here, scoped under the class the map container and
+ * body both carry while artwork is active, repaints every existing component
+ * without touching a single one of their layout rules.
+ */
+body.style-artwork {
+  --panel: #241d12;
+  --panel-2: #2c2314;
+  --bronze: #d9b06a;
+  --bronze-dim: #a37f42;
+  --bronze-deep: #6e5326;
+  --text: #f2e4c8;
+  --muted: #b09b7a;
+  --line: #4a3c22;
+}
+
+/* The sea backdrop (tokens.css) is the REALISTIC island's ocean photo, which
+ * a hand-drawn map does not float on - warm the vignette at the map's own
+ * edges instead of swapping the backdrop image out from under the other
+ * style. Shadow-only, so #map's box model is untouched. */
+body.style-artwork #map {
+  box-shadow: inset 0 0 160px rgba(84, 54, 16, .38);
+}
+
+/* The coordinate readout sits directly on the parchment; the realistic
+ * style's near-black chip reads as a UI sticker on top of it. */
+body.style-artwork #coords {
+  background: rgba(52, 40, 20, .88);
+  border-color: var(--bronze-deep);
+}

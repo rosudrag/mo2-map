@@ -1,0 +1,139 @@
+/*
+ * The dungeon map mode (map/dungeonmode.js): the entry button, the level bar and
+ * what happens to the surface while you are below it.
+ *
+ * Same panel language as #filter-panel and #manage-panel - dark card, bronze
+ * border, Modern Antiqua for names - so a dungeon does not look like a different
+ * application.
+ */
+
+/* The way in, always available. Bottom-right ABOVE L.control.zoom (two 26px
+ * buttons + 10px margin = 78px), which is where the old zoom-gated Underground
+ * panel used to appear and disappear. This one never hides: a player looking for
+ * a dungeon should not have to find the right zoom first. */
+#dungeon-entry {
+  position: absolute; z-index: 1100; bottom: 78px; right: 12px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  font: 13px/1 var(--font-body, inherit);
+  color: var(--text); background: var(--panel);
+  border: 1px solid var(--bronze-deep);
+  box-shadow: 0 4px 18px rgba(0,0,0,.6);
+  cursor: pointer;
+}
+#dungeon-entry:hover { border-color: var(--bronze); }
+#dungeon-entry img { opacity: .85; }
+/* Inside a dungeon the bar owns the job, so the button would be a second way to
+ * do what `Leave` undoes. */
+body.in-dungeon #dungeon-entry { display: none; }
+
+/* The bar. Top-centre and full-width-ish, clear of #top-tools' own row: this is
+ * a MODE, and mode chrome that hides in a corner reads as a stray widget. */
+#dungeon-bar {
+  position: absolute; z-index: 1200; top: 58px; left: 50%;
+  transform: translateX(-50%);
+  display: none; align-items: center; gap: 14px;
+  max-width: calc(100vw - 24px);
+  padding: 8px 12px;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--bronze-deep);
+  box-shadow: 0 6px 26px rgba(0,0,0,.7);
+}
+body.in-dungeon #dungeon-bar { display: flex; }
+#dungeon-bar .dg-title { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+#dungeon-bar .dg-title strong {
+  font-family: var(--font-title); font-weight: 400; font-size: 16px;
+  color: var(--bronze); letter-spacing: .02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#dungeon-bar .dg-title span { font-size: 11px; opacity: .55; letter-spacing: .04em; }
+#dungeon-bar .dg-title img { align-self: center; opacity: .85; }
+
+/* One button per level, not a popover: a dungeon has two or three of them, and a
+ * mode's whole point is that the next level is one click away. */
+#dungeon-bar .dg-levels { display: flex; gap: 6px; }
+#dungeon-bar .dg-lvl {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 5px 9px;
+  font: 12px/1.1 var(--font-body, inherit);
+  color: var(--text); background: transparent;
+  border: 1px solid var(--bronze-deep);
+  cursor: pointer;
+}
+#dungeon-bar .dg-lvl small { font-size: 10px; opacity: .6; }
+#dungeon-bar .dg-lvl:hover { border-color: var(--bronze); }
+#dungeon-bar .dg-lvl.active {
+  border-color: var(--bronze);
+  background: rgba(198,156,109,.16);
+  color: var(--bronze);
+}
+#dungeon-bar .dg-exit {
+  padding: 6px 12px;
+  font: 12px/1 var(--font-body, inherit);
+  color: var(--text); background: transparent;
+  border: 1px solid var(--bronze-deep);
+  cursor: pointer;
+}
+#dungeon-bar .dg-exit:hover { border-color: var(--bronze); color: var(--bronze); }
+
+/* The popup's way in, on any pin that names a dungeon. */
+.marker-popup .dg-enter {
+  display: block; width: 100%; margin: 8px 0 0;
+  padding: 6px 10px;
+  font: 12px/1 var(--font-body, inherit);
+  color: var(--bronze); background: rgba(198,156,109,.14);
+  border: 1px solid var(--bronze);
+  cursor: pointer;
+}
+.marker-popup .dg-enter:hover { background: rgba(198,156,109,.26); }
+
+/*
+ * The surface, while you are inside a dungeon.
+ *
+ * The interior as a plain overlay was not enough: the tiles kept painting at full
+ * strength around the plate's own footprint and through the 10% backdrop the
+ * renderer leaves, so a dungeon read as the overworld with a floor plan pasted on
+ * it. Tiles are dimmed rather than removed, so the canyon you are under is still
+ * faintly there.
+ *
+ * Town plates go entirely: they are 0.25 m/px SURFACE architecture and an
+ * entrance stands inside one, so at these zooms a town plate is the brightest
+ * thing competing with the interior.
+ *
+ * Leaflet's createPane strips a trailing "Pane" from the class it builds, so the
+ * pane named townPlatePane is .leaflet-townPlate-pane; the literal name matched
+ * nothing and the town plate stayed lit under the interior.
+ */
+/* The container's own background is what dimmed tiles blend INTO, and tokens.css
+ * sets `#map { background: transparent }` - at 12% opacity the desert composited
+ * against the page and read as pale teal daylight. Black behind them first, then
+ * dim; the selector has to carry an id to outrank that rule. */
+body.in-dungeon #map { background: #0a0910; }
+.leaflet-container.in-dungeon .leaflet-tile-pane {
+  /* 0.16 alone left the hillshade reading as pale ice around the plate, because
+   * grayscale RAISES the luminance of the desert's warm tones. Brightness does
+   * the work; the opacity keeps a hint of the canyon you are under. */
+  opacity: .12;
+  filter: grayscale(.8) brightness(.45);
+  transition: opacity .18s linear, filter .18s linear;
+}
+.leaflet-container.in-dungeon .leaflet-townPlate-pane { display: none; }
+
+/*
+ * Under the artwork style (map/style.js: body.style-artwork / .artwork on the
+ * map container), the dungeon mode's OWN hardcoded tones need their own
+ * override - #dungeon-bar and #dungeon-entry already re-theme for free
+ * through the shared --panel/--bronze/--text tokens artwork.css redefines,
+ * but the suppressed surface hard-codes a near-black backdrop and a neutral
+ * grayscale filter, and the bar sits over that surface the same way
+ * artwork.css's #coords sits over the map (same reasoning, same rgba). Same
+ * structure throughout - tone only.
+ */
+body.style-artwork #dungeon-bar { background: rgba(52, 40, 20, .92); }
+
+body.style-artwork.in-dungeon #map { background: #1c140a; }
+.leaflet-container.artwork.in-dungeon .leaflet-tile-pane {
+  /* Grayscale turns warm parchment tiles to grey mud; sepia keeps the
+   * suppressed surface in the paper/iron-gall family instead. */
+  filter: sepia(.55) brightness(.42) saturate(1.15);
+}

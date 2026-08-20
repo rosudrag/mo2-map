@@ -1,0 +1,76 @@
+/*
+ * Shared look for a continent's "not published yet" page (public/map/
+ * myrland/, public/map/haven/). Self-contained on purpose, the same way
+ * public/admin/admin.css is: these pages ship even if bin/build.mjs never
+ * runs, carry zero JS, and must render correctly on their own. Tokens below
+ * echo the live map's dark bronze palette
+ * (public/map/app/src/styles/tokens.css) loosely, for visual family
+ * resemblance, but are a separate, independent copy - nothing here imports
+ * from that tree, and this file is never bundled.
+ */
+:root {
+  --ink: #0c0a08;
+  --panel: #16130f;
+  --bronze: #c4a574;
+  --bronze-dim: #8a6a3d;
+  --text: #e8dcc8;
+  --muted: #9a8b78;
+  --line: #3a3228;
+  --font-ui: "Segoe UI", system-ui, sans-serif;
+  --font-title: "Modern Antiqua", "Segoe UI", serif;
+}
+* { box-sizing: border-box; }
+html, body {
+  height: 100%; margin: 0;
+  background-color: var(--ink);
+  /* The same sea backdrop the real map uses. Relative to THIS file's own URL
+     (public/map/unpublished.css), not to whichever continent's page
+     includes it - CSS url() is stylesheet-relative, not page-relative. A
+     plain path, not a build dependency: the file is just a committed image. */
+  background-image: url("app/assets/map-bg.webp?v=sea1");
+  background-size: 220%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  font: 14px var(--font-ui); color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+}
+.card {
+  max-width: 440px; margin: 24px;
+  padding: 28px 32px;
+  background: rgba(22, 19, 15, .92);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, .6);
+  text-align: center;
+}
+.card h1 {
+  margin: 0 0 12px;
+  font-family: var(--font-title);
+  font-size: 28px;
+  letter-spacing: 0.02em;
+  color: var(--bronze);
+}
+.card p {
+  margin: 0 0 20px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.card nav {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+}
+.card nav a {
+  padding: 8px 14px;
+  border: 1px solid var(--bronze-dim);
+  border-radius: 4px;
+  color: var(--bronze);
+  text-decoration: none;
+  font-size: 13px;
+}
+.card nav a:hover { border-color: var(--bronze); color: var(--text); }
+.card nav a.current {
+  background: rgba(138, 106, 61, .28);
+  border-color: var(--bronze);
+  color: var(--muted);
+  cursor: default;
+  pointer-events: none;
+}

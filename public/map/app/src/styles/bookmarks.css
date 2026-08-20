@@ -1,0 +1,51 @@
+/*
+ * Bookmarks: the map pin and the toast host.
+ *
+ * The manager panel, list rows and editor that used to live here moved to
+ * manage.css — they were never bookmark-specific, only bookmark-shaped, and the
+ * pin catalogue and discoveries now share them. What is left is the two things
+ * bookmarks/{markers,toast}.js actually own.
+ */
+.bm-pin {
+  border: 2px solid #f0e6d4; border-radius: 5px;
+  background: var(--pin, var(--bronze));
+  box-shadow: 0 1px 5px rgba(0,0,0,.6);
+  transform: rotate(45deg);
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+}
+.bm-pin img {
+  transform: rotate(-45deg);
+  filter: brightness(0) invert(1);
+  pointer-events: none;
+}
+.bm-pin.sel {
+  border-color: var(--bronze);
+  box-shadow: 0 0 0 3px rgba(196,165,116,.7), 0 1px 5px rgba(0,0,0,.6);
+}
+body.bm-editing .bm-pin { cursor: move; border-style: dashed; }
+
+/* ---- toasts --------------------------------------------------------- */
+/* Shared by every source now (ui/toast.js is the only implementation),
+   so the host stays a single page-level element. */
+#bm-toasts {
+  position: absolute; z-index: 1400; top: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 6px; align-items: center;
+  pointer-events: none; width: min(460px, calc(100vw - 24px));
+}
+.bm-toast {
+  pointer-events: auto; width: 100%;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--bronze-deep); border-left-width: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.6);
+  padding: 8px 12px; font-size: 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.bm-toast.warn { border-left-color: var(--danger); }
+.bm-toast.ok { border-left-color: var(--bronze); }
+.bm-toast button {
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--bronze);
+  cursor: pointer; font: inherit; font-size: 11px; padding: 2px 7px; border-radius: 4px;
+  flex-shrink: 0;
+}
+.bm-toast button:hover { border-color: var(--bronze); color: var(--text); }

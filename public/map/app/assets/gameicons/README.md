@@ -1,7 +1,7 @@
 # Game icons
 
 These seven glyphs are redrawn from the shipped map-marker textures
-(`MapLocationIcon_*.png`, extracted to `auxilliary/mo2-terrain-map/work/work/icons/`),
+(`MapLocationIcon_*.png`),
 which are 20x20 px 1-bit silhouettes — too small and too soft (JPEG/mip blur) to
 upscale cleanly to the 28px marker size used here, and filled-raster art can't be
 recolored by the per-category `currentColor` theming the way the existing
