@@ -714,12 +714,32 @@ export async function exportDungeon(artwork, mode) {
   // ---- surface panel ----
   let tileStats = null;
   let surfacePlate = null;
+  let surfaceBitmap = null;
   if (wantSurface) {
     // Always the artwork plate, matching `artwork` itself: the surface panel
     // has never drawn the reader's live map style (its own comment at the
     // top of this file), only the artwork pyramid, so the plate over it is
     // the same style for the same reason.
-    surfacePlate = await surfacePlateFor(view.key, STYLES.ARTWORK);
+    //
+    // Loaded HERE, before the sizing decision below, not at draw time: a
+    // manifest entry existing is not the same guarantee as its image
+    // actually fetching and decoding, and the old version of this code drew
+    // the panel already sized and captioned for a plate, then silently drew
+    // nothing when `loadPlate` failed - a caption claiming "the game's own
+    // surface geometry" over a panel that was, in the event, plain artwork
+    // tiles. `surfacePlate` staying null on any failure here is what keeps
+    // the sizing, the draw and the caption below all agreeing with each
+    // other and with what actually got drawn.
+    const candidate = await surfacePlateFor(view.key, STYLES.ARTWORK);
+    if (candidate) {
+      try {
+        surfaceBitmap = await loadPlate(candidate.file);
+        surfacePlate = candidate;
+      } catch (err) {
+        failedPlates++;
+        console.warn("surface plate failed:", err && err.message);
+      }
+    }
     const cell = cellAt(levels.length);
     const px = cell.x;
     const py = cell.y + L.capPx;
@@ -733,8 +753,9 @@ export async function exportDungeon(artwork, mode) {
       // against a level or a door somehow sitting outside it.
       srect = unionRects([shared, rectOfBounds(canvas.height, surfacePlate.bounds)]);
     } else {
-      // No surface plate published for this dungeon yet: the old fallback,
-      // sized so the pyramid draws near its own native resolution.
+      // No surface plate published for this dungeon yet, or its image failed
+      // to load: the old fallback, sized so the pyramid draws near its own
+      // native resolution.
       srect = growRect(shared, ((shared.c1 - shared.c0) * (SURFACE_CONTEXT - 1)) / 2);
     }
     srect = fitAspect(srect, aspect, canvas);
@@ -752,19 +773,15 @@ export async function exportDungeon(artwork, mode) {
       // Over the pyramid, exactly like a level panel draws its own dungeon
       // plate above. The plate's own alpha feather (built into the PNG) is
       // what blends it into the tiles just drawn - nothing here composites
-      // an edge by hand.
+      // an edge by hand. Already loaded and verified above; drawing it here
+      // cannot fail on the network/decode the way loading can.
       const prect = rectOfBounds(canvas.height, surfacePlate.bounds);
       const pdx = px + (prect.c0 - srect.c0) * sscale;
       const pdy = py + (prect.r0 - srect.r0) * sscale;
       const pdw = (prect.c1 - prect.c0) * sscale;
       const pdh = (prect.r1 - prect.r0) * sscale;
-      try {
-        const bmp = await loadPlate(surfacePlate.file);
-        ctx.drawImage(bmp, pdx, pdy, pdw, pdh);
-        bmp.close();
-      } catch (err) {
-        console.warn("surface plate failed:", err && err.message);
-      }
+      ctx.drawImage(surfaceBitmap, pdx, pdy, pdw, pdh);
+      surfaceBitmap.close();
     }
 
     // The dungeon's own footprint, so the doors are read against the ground the
