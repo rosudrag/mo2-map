@@ -19,7 +19,7 @@ there yet*, not *nothing is there*.
 
 | Path | What |
 |---|---|
-| `src/coordinates.js` | world metres ↔ canvas pixels — the single source of truth |
+| `src/coordinates.js` | Sarducaa: world metres ↔ canvas pixels |
 | `docs/coordinates.md` | the fit, its residuals, the origin correction, and the open scale question |
 | `docs/snapshot.md` | snapshot contract: file format, field schema |
 
