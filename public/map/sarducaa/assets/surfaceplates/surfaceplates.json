@@ -5,7 +5,7 @@
    "key": "argkepher",
    "dungeon": "Arg Kepher",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates/argkepher.1f64cf0304.webp",
+   "file": "assets/surfaceplates/argkepher.6df6a7b475.webp",
    "metresPerPx": 0.25,
    "size": [
     6464,
@@ -27,7 +27,7 @@
    "key": "jungle",
    "dungeon": "Jungle",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates/jungle.5c635ebd4f.webp",
+   "file": "assets/surfaceplates/jungle.699cb376a3.webp",
    "metresPerPx": 0.25,
    "size": [
     5611,
@@ -49,7 +49,7 @@
    "key": "tuzsaltmines",
    "dungeon": "Tuz Salt Mines",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates/tuzsaltmines.4232b47749.webp",
+   "file": "assets/surfaceplates/tuzsaltmines.c1fc3b9d81.webp",
    "metresPerPx": 0.25,
    "size": [
     4568,
@@ -71,7 +71,7 @@
    "key": "yelkeskarhideout",
    "dungeon": "Yel Keskar",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates/yelkeskarhideout.7b1034c294.webp",
+   "file": "assets/surfaceplates/yelkeskarhideout.efa7480946.webp",
    "metresPerPx": 0.25,
    "size": [
     4175,

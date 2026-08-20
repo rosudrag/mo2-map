@@ -83,7 +83,7 @@
    "levels": [
     {
      "level": 1,
-     "file": "assets/dungeonplates/jungle_l1.e94ff7f045.webp",
+     "file": "assets/dungeonplates/jungle_l1.b68d2e1194.webp",
      "bounds": [
       [
        2224.257464134375,
@@ -108,7 +108,7 @@
     },
     {
      "level": 2,
-     "file": "assets/dungeonplates/jungle_l2.b70fb71f87.webp",
+     "file": "assets/dungeonplates/jungle_l2.7c2b42515f.webp",
      "bounds": [
       [
        2317.3451874171874,
@@ -149,7 +149,7 @@
    "levels": [
     {
      "level": 1,
-     "file": "assets/dungeonplates/tuzsaltmines_l1.55cd8f1363.webp",
+     "file": "assets/dungeonplates/tuzsaltmines_l1.e5de132c2e.webp",
      "bounds": [
       [
        1167.769070676875,
@@ -174,7 +174,7 @@
     },
     {
      "level": 2,
-     "file": "assets/dungeonplates/tuzsaltmines_l2.696dc7ff0e.webp",
+     "file": "assets/dungeonplates/tuzsaltmines_l2.2b8d85f214.webp",
      "bounds": [
       [
        1202.536372770156,
@@ -199,7 +199,7 @@
     },
     {
      "level": 3,
-     "file": "assets/dungeonplates/tuzsaltmines_l3.3ce5731189.webp",
+     "file": "assets/dungeonplates/tuzsaltmines_l3.a19bb733da.webp",
      "bounds": [
       [
        1225.8192360014061,
@@ -240,7 +240,7 @@
    "levels": [
     {
      "level": 1,
-     "file": "assets/dungeonplates/yelkeskarhideout_l1.9036c1c47d.webp",
+     "file": "assets/dungeonplates/yelkeskarhideout_l1.5ccb224636.webp",
      "bounds": [
       [
        3266.286100609375,
@@ -265,7 +265,7 @@
     },
     {
      "level": 2,
-     "file": "assets/dungeonplates/yelkeskarhideout_l2.7aa4e6cd1a.webp",
+     "file": "assets/dungeonplates/yelkeskarhideout_l2.f0c5f5d87c.webp",
      "bounds": [
       [
        3274.606082303125,
