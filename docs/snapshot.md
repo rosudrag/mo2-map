@@ -1,43 +1,43 @@
 # Snapshot Contract v1
 
-A snapshot is a published dataset of surveyed game world objects and curated locations. It runs in a public repository; the validator cannot be coerced to accept what it should not. Violations in this contract leak information that reconstructs individual activity; the rules exist to prevent that.
+A snapshot is a published dataset of places and things found on the game map,
+along with coverage reporting. The data is structured as JSON with a fixed field
+list and day-level date precision.
 
 ## Overview
 
 A snapshot is a directory containing four JSON files:
-- `discoveries.json` — Machine-observed game objects (anonymous, no attribution)
-- `pins.json` — Curated catalogue of significant locations (may carry provenance)
-- `coverage.json` — Survey progress: cells scanned and their count
-- `manifest.json` — Collection metadata: export date, gates applied, summary counts
+- `discoveries.json` — Player observations of game world objects
+- `pins.json` — Curated catalogue of significant locations
+- `coverage.json` — Map coverage: which grid cells have been visited and how often
+- `manifest.json` — Export metadata, summary counts, applied filters
 
-## Privacy and Precision Rules
+## Format Rules
 
-### Forbidden Fields (Denylist)
+### Published Fields
 
-These fields MUST NOT appear in any snapshot:
-- `owner`, `seq`, `cell_x`, `cell_y` — Database internal state; leaks row identity
-- `status`, `note`, `meta_json` — Audit or task state (tracks collection work)
-- `first_seen_at`, `last_seen_at` — Sub-day timestamps; see precision rule below
-- `api_key`, `user`, `account`, `ip` — Personally-identifying information
+The snapshot publishes a fixed set of fields. Internal database columns are not
+part of the published format.
 
-Rationale: The snapshot runs in a public repository. The validator is the enforcement boundary: the thing that can leak must not be the thing that decides whether it leaked.
+### Date Granularity
 
-### Day Granularity (Temporal Precision)
+Date fields use `YYYY-MM-DD` format only; no sub-day precision. The validator
+enforces this with two checks:
 
-Date fields MUST be in `YYYY-MM-DD` format only. No sub-day precision (hours, minutes, seconds, or milliseconds). This rule enforces through two layers:
+1. **Broad scan**: All strings are checked for full ISO 8601 timestamps
+   (`YYYY-MM-DD[T ]HH:MM:...`), which would violate the rule.
+2. **Strict validation**: Date fields (`first_seen_date`, `last_seen_date`,
+   `snapshot_date`) must be exactly `YYYY-MM-DD` format.
 
-1. **Broad scan**: All strings in the snapshot are checked for ISO 8601 full timestamps (`YYYY-MM-DD[T ]HH:MM:...`). This catches accidental leakage to any field.
-2. **Strict enforcement**: Date fields (`first_seen_date`, `last_seen_date`, `snapshot_date`) use strict validation requiring exactly 8601-date format with no time component.
-
-Rationale: Per-row sub-day timestamps across thousands of surveyed objects permit reconstruction of an individual's activity sessions, movement history, and behavior patterns over time. Day-level granularity preserves freshness signals and respawn-analysis value while eliminating the activity pattern leak.
-
-Bare times in free-text fields (e.g., label `"12:30 meeting"`) are permitted; they do not reconstruct activity because they lack a date component.
+Bare times in free-text fields (e.g., label `"12:30 meeting"`) are allowed; they
+lack a date component.
 
 ## Files
 
 ### discoveries.json
 
-Array of machine-observed game objects. Discoveries are anonymous—they carry no human attribution or edit history.
+Player observations of game world objects. Pooled rather than attributed, because
+the dataset is about the world, not about who found what.
 
 **Schema**: Array of objects.
 
@@ -57,12 +57,12 @@ Array of machine-observed game objects. Discoveries are anonymous—they carry n
 
 **Constraints**:
 - `additionalProperties: false` — No extra fields allowed
-- No `updated_by` (discoveries are anonymous machine observations)
-- No forbidden fields
+- No `updated_by` (pooled observations)
 
 ### pins.json
 
-Array of curated points-of-interest. Pins are a human-edited catalogue; they may carry attribution to reflect curation provenance.
+Curated points of interest. Pins are human-edited and may carry curation
+attribution.
 
 **Schema**: Array of objects.
 
@@ -93,11 +93,12 @@ Array of curated points-of-interest. Pins are a human-edited catalogue; they may
 **Constraints**:
 - `additionalProperties: false` at pin and meta level
 - `updated_by` is optional but if present must be one of `{seed, gamefiles, community}`
-- `updated_by` is the *only* field allowed to carry human-curation attribution; it is forbidden on discoveries
+- `updated_by` is the *only* field allowed to carry human-curation attribution
 
 ### coverage.json
 
-Survey coverage: which grid cells were scanned and how many observation events occurred in each.
+Map coverage: which grid cells have been visited and how many observations were
+made in each.
 
 **Schema**: Object.
 
@@ -105,18 +106,18 @@ Survey coverage: which grid cells were scanned and how many observation events o
 | Field | Type | Unit/Constraint | Required | Notes |
 |-------|------|-----------------|----------|-------|
 | `cell_size_m` | Integer | Metres | Yes | Grid cell size; typically 1000 |
-| `cells` | Array | — | Yes | List of surveyed cells |
+| `cells` | Array | — | Yes | List of visited cells |
 
 **Cell object** (`additionalProperties: false`):
 | Field | Type | Unit | Required | Notes |
 |-------|------|------|----------|-------|
 | `x` | Integer | Grid index | Yes | Column |
 | `y` | Integer | Grid index | Yes | Row |
-| `rows` | Integer | Count | Yes | Total observation events in this cell (sum across all discoveries/pins scanned here) |
+| `rows` | Integer | Count | Yes | Total observations in this cell |
 
 ### manifest.json
 
-Collection metadata and summary statistics.
+Export metadata and summary statistics.
 
 **Schema**: Object.
 
@@ -126,9 +127,9 @@ Collection metadata and summary statistics.
 | `schema_version` | String | "v1" | Yes | Contract version |
 | `snapshot_date` | ISO 8601 date | YYYY-MM-DD | Yes | Export date |
 | `counts` | Object | — | Yes | Summary counts (see below) |
-| `gates_applied` | Array of String | — | Yes | List of filter names (may be empty) |
+| `gates_applied` | Array of String | — | Yes | Included categories; empty means all |
 | `coverage` | Object | — | Yes | Coverage summary (see below) |
-| `diff_vs_previous` | Object | — | No | Changes from prior snapshot (see below) |
+| `diff_vs_previous` | Object | — | No | Changes from prior snapshot |
 
 **Counts subobject** (`additionalProperties: false`):
 | Field | Type | Notes |
@@ -140,7 +141,7 @@ Collection metadata and summary statistics.
 **Coverage subobject** (`additionalProperties: false`):
 | Field | Type | Notes |
 |-------|------|-------|
-| `surveyed_cells` | Integer | Grid cells scanned |
+| `visited_cells` | Integer | Grid cells with observations |
 | `bbox_cells` | Integer | Cells in bounding box |
 | `percent` | Number | Coverage percentage (0–100) |
 
@@ -152,29 +153,30 @@ Collection metadata and summary statistics.
 
 ## Validator Enforcement
 
-The validator (`bin/validate-snapshot.mjs`) is the enforcement boundary. It runs in this public repository precisely because it cannot be coerced to accept what it should not: the code is not under control of the snapshot producer.
-
-The validator exits 0 on pass and non-zero on failure, reporting all violations in a single run (batch error reporting, not one-at-a-time round-trips).
+The validator (`bin/validate-snapshot.mjs`) enforces this contract. It exits 0
+on pass and non-zero on failure, reporting all violations in a single run.
 
 Violations detected:
 - Missing required fields
 - Unexpected additional fields
 - Type mismatches (UUID format, integer bounds, enum membership)
-- Forbidden fields present
 - Sub-day timestamp precision
 - Date format violations
 
 ## Units Reference
 
-- **World coordinates** (discoveries, pins optional): Unreal Engine world metres, quantised to 1 m
-- **Canvas coordinates** (pins map_x, map_y): 2D image pixels on the exported map canvas
-- **Grid cells**: Cell size defined per-snapshot (typically 1000 m); x and y are grid indices
+- **World coordinates** (discoveries, pins optional): Unreal Engine world metres,
+  quantised to 1 m
+- **Canvas coordinates** (pins map_x, map_y): 2D image pixels on the exported map
+  canvas
+- **Grid cells**: Cell size defined per-snapshot (typically 1000 m); x and y are
+  grid indices
 
 ## Enum Values Reference
 
 ### source (discoveries and pins)
-- `survey` — Observed during gameplay survey
-- `gamefile` — Extracted from game data files (unofficial datamining)
+- `survey` — Observed during gameplay
+- `gamefile` — Extracted from game data files
 - `community` — Contributed by players
 
 ### kind (discoveries only)

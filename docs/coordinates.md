@@ -1,4 +1,4 @@
-# Coordinates — world metres ↔ the Sarducaa canvas
+# Sarducaa Coordinates — world metres ↔ map canvas
 
 The map draws in Leaflet `CRS.Simple` pixels on a **5120×3579** canvas (`lat` = Y
 from the bottom, `lng` = X from the left). World positions are Unreal world

@@ -1,28 +1,19 @@
 # mo2-map
 
-A static, measured map of **Mortal Online 2's Sarducaa** — terrain, water, towns,
-dungeons and a surveyed world catalogue — served as plain files. No server, no
-accounts, no API.
+A map of **Mortal Online 2** covering its three continents: **Myrland**, **Sarducaa**
+and **Haven**. Terrain and topography rendered from the game's authored data; places
+and things players have found, published as coordinates with coverage.
 
-**Status: bring-up.** This repo currently holds the coordinate contract (below).
-The map application, the tile pyramids, the town and dungeon plates and the
-versioned data snapshot land next.
+**Published:** Sarducaa (complete). **Status:** Myrland and Haven stitching and
+validation in progress.
 
 ## What this is
 
-The terrain is not a scrape of anyone's artwork. It is the shipped landscape data,
-stitched and measured: heightmaps into a world elevation model, the engine's own
-per-tile material bake as the ground colour, water surfaces at their authored
-levels. Coverage and failures are counted and published rather than assumed — a
-component whose heightmap will not read is reported as failed, never silently
-drawn as flat ground.
-
-The world catalogue is a survey: a record of where somebody has actually ridden.
-That is a weaker claim than a map of the island, and it is made honestly —
-`coverage` ships alongside the data, and unsurveyed ground is drawn as unsurveyed
-rather than as empty. In this dataset, absence almost always means *nobody has
-been there*, not *nothing is there*.
-
+The terrain is the game's shipped landscape data: heightmaps stitched into an
+elevation model, the engine's own per-tile ground colour, water surfaces at
+their authored levels. We count and report coverage; unexplored areas are drawn
+as unexplored rather than as empty. Absence usually means *nobody has been
+there yet*, not *nothing is there*.
 ## What is here today
 
 | Path | What |
@@ -35,21 +26,21 @@ been there*, not *nothing is there*.
 npm test        # no dependencies, Node 20+
 ```
 
-## The coordinate contract
+## Sarducaa coordinates
 
-The map draws in Leaflet `CRS.Simple` pixels on a 5120×3579 canvas; positions are
-Unreal world metres. Axis-aligned, uniform scale, no rotation:
+The Sarducaa map draws in Leaflet `CRS.Simple` pixels on a 5120×3579 canvas;
+world positions are Unreal engine metres. Axis-aligned, uniform scale, no
+rotation:
 
 ```text
 lng = 0.213641 * worldX + 1783.4447
 lat = 1709.1136 - 0.213641 * worldY      # map lat runs opposite world Y
 ```
 
-This is published on purpose. It is what lets anyone align their own measurements
-to this map's frame instead of guessing at it. The full derivation — three
-anchors, their residuals, an independent confirmation of the scale to 0.3%, the
-origin correction of 2026-08-10, and the unresolved 3.2% scale disagreement — is
-in [`docs/coordinates.md`](docs/coordinates.md).
+This lets anyone measure in-game and align to the map frame. The derivation — three
+ground-truth anchors, their residuals, independent scale confirmation to 0.3%, the
+2026-08-10 origin correction, and the unresolved 3.2% scale disagreement — is
+documented in [`docs/coordinates.md`](docs/coordinates.md).
 
 ## Licence
 

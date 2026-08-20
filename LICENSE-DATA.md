@@ -8,9 +8,8 @@ licensed under
 **Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)**
 <https://creativecommons.org/licenses/by-sa/4.0/>
 
-Attribute to *mo2-map contributors*. Individual contributors are not named: the
-survey is published anonymously and carries no owner, no author and no per-row
-attribution, by design.
+Contributions are pooled and credited to *mo2-map contributors* collectively
+rather than per row.
 
 Source code is separately licensed under Apache-2.0 — see `LICENSE`.
 

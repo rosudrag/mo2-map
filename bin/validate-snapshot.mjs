@@ -4,16 +4,11 @@ import fs from "fs";
 import path from "path";
 
 /*
- * Snapshot validator: structure, forbidden fields, and timestamp precision.
+ * Snapshot validator: structure, field list, and timestamp precision.
  *
- * The validator runs in the public repo so it cannot be coerced to accept what
- * it should not. It enforces the snapshot contract: files must match the schema,
- * must not contain personally-identifying or leakage-indicating fields, and must
- * quantise dates to day granularity (no sub-day timestamps that reconstruct
- * individual activity sessions and movement history).
- *
- * Exit 0 on pass, non-zero on failure. Reports every violation, not just the
- * first — people fix batch bugs faster than one round-trip per violation.
+ * Enforces the snapshot contract: files match the schema, contain only
+ * specified fields, and quantise dates to day granularity. Exit 0 on pass,
+ * non-zero on failure. Reports all violations in a single run.
  */
 
 const FORBIDDEN_FIELDS = new Set([
@@ -34,17 +29,11 @@ const FORBIDDEN_FIELDS = new Set([
 
 const ALLOWED_UPDATED_BY = new Set(["seed", "gamefiles", "community"]);
 
-// Timestamp precision check: two-layer defense against sub-day precision.
+// Timestamp precision check: day-granularity enforcement via two layers.
 // Layer 1 (this regex): scan all strings for full ISO date-times (YYYY-MM-DD[T ]digits).
-// This is necessarily broad (any field may leak a timestamp) but anchored narrowly
-// (only match date followed by time separator, not bare times or "T2" in class names).
 // Layer 2 (isValidDate): date fields (first_seen_date, last_seen_date, snapshot_date)
-// have their own strict validator requiring exactly YYYY-MM-DD, rejecting any time component.
-// Together: sub-day precision cannot reach a date field; bare times (12:30, 14:23:11)
-// in free-text fields (label, class_name) are permitted, so "12:30 meeting" is legal.
-// Rationale: per-row sub-day timestamps across thousands of rows reconstruct an
-// individual's activity sessions, movement, and behavior. Day granularity keeps
-// freshness signal and respawn analysis intact while killing the activity pattern.
+// must be exactly YYYY-MM-DD format, rejecting any time component.
+// Bare times in free-text fields (label, class_name) are permitted.
 const TIMESTAMP_PRECISION_REGEX = /\d{4}-\d{2}-\d{2}[T ]\d/;
 class Validator {
   constructor(dir) {
