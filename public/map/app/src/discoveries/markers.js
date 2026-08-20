@@ -72,13 +72,6 @@ function labelFor(row) {
   return row.count > 1 ? row.label + " \u00d7" + row.count : row.label;
 }
 
-function seenLabel(iso) {
-  if (!iso) { return "\u2014"; }
-  const t = Date.parse(iso);
-  if (!Number.isFinite(t)) { return String(iso); }
-  return new Date(t).toLocaleString();
-}
-
 /*
  * Popup buttons go through ONE delegated listener on the map container —
  * Leaflet rebuilds popup DOM on every open, so per-popup listeners would leak
@@ -97,6 +90,23 @@ let popupActions = null;
 export function setDiscoveryPopupActions(handlers) {
   popupActions = handlers;
   setActions({ details: handlers.details, delete: handlers.remove });
+}
+
+/*
+ * Extra `<dt>/<dd>` fact rows for the popup, supplied by whoever owns the row's
+ * meaning.
+ *
+ * A row's `count` means different things on either side of the seam: to the
+ * live source it is how many were seen at one time, to a published snapshot it
+ * is how many nodes were merged into the row. One renderer cannot label both
+ * honestly, and the words for the live meaning have no business in a build
+ * that never has that data. So the shared popup renders what is true of any
+ * row - what it is, and its class - and a source adds its own facts.
+ */
+let popupFacts = null;
+
+export function setDiscoveryPopupFacts(fn) {
+  popupFacts = fn;
 }
 
 // The .marker-popup wrapper is what leaflet.css styles; a string handed to
@@ -120,29 +130,13 @@ function popupHtml(row) {
         : "") +
       "</div>";
   }
-  // Observations/first-seen/last-seen only exist for a live row — the v2
-  // published snapshot no longer carries them at all (see docs/snapshot.md),
-  // so a static-source row always has observations 0 and both timestamps
-  // null. Rendering "Observations: 0" there would read as "this was seen
-  // zero times", which is false — the data was simply never published, not
-  // absent. Omit the whole fact row rather than show a number that lies.
-  const optionalFacts =
-    (row.observations
-      ? "<dt>Observations</dt><dd>" + row.observations + "</dd>"
-      : "") +
-    (row.firstSeenAt
-      ? "<dt>First seen</dt><dd>" + escapeHtml(seenLabel(row.firstSeenAt)) + "</dd>"
-      : "") +
-    (row.lastSeenAt
-      ? "<dt>Last seen</dt><dd>" + escapeHtml(seenLabel(row.lastSeenAt)) + "</dd>"
-      : "");
+  const facts = popupFacts ? popupFacts(row) : "";
   return '<div class="marker-popup disco-popup">' +
     "<h5>" + escapeHtml(labelFor(row)) + "</h5>" +
     '<div class="layer"><img src="' + TABLER + meta.icon +
     '.svg" alt="" width="14" height="14" />' + escapeHtml(meta.label) + "</div>" +
     '<dl class="disco-facts">' +
-    "<dt>Seen at once</dt><dd>" + row.count + "</dd>" +
-    optionalFacts +
+    facts +
     // Last, and on its own full-width row: the longest value in the popup and
     // the least interesting one. Leading with it is what squeezed everything
     // else into a one-character column.

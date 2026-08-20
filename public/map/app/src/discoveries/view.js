@@ -83,21 +83,21 @@ function byLabel(a, b) {
   return al < bl ? -1 : 1;
 }
 
-function seenLabel(iso) {
-  if (!iso) { return ""; }
-  const t = Date.parse(iso);
-  if (!Number.isFinite(t)) { return String(iso); }
-  return new Date(t).toLocaleString();
-}
-
+/*
+ * The fields any discovery row has, whoever supplied it. A source that knows
+ * more about its rows than this - the live one, which also holds sighting
+ * counts and timestamps - appends its own entries; the words for those belong
+ * with the data, not in a build that never receives it.
+ *
+ * `count` is deliberately labelled plainly: to a published snapshot row it is
+ * how many things are at that spot, and only the live source can call it a
+ * simultaneous sighting.
+ */
 const fields = [
   { key: "kind", label: "Kind", type: "readonly", value: function (row) { return kindMeta(row.kind).label; } },
-  { key: "count", label: "Seen at once", type: "readonly", value: function (row) { return String(row.count); } },
-  { key: "observations", label: "Observations", type: "readonly", value: function (row) { return String(row.observations); } },
-  { key: "firstSeen", label: "First seen", type: "readonly", value: function (row) { return seenLabel(row.firstSeenAt); } },
-  { key: "lastSeen", label: "Last seen", type: "readonly", value: function (row) { return seenLabel(row.lastSeenAt); } },
-  // Last, and deliberately after the dates: it is the longest value here and the
-  // least interesting one, exactly as in the pin popup.
+  { key: "count", label: "Count", type: "readonly", value: function (row) { return String(row.count); } },
+  // Last: the longest value here and the least interesting one, exactly as in
+  // the pin popup.
   { key: "className", label: "Class", type: "readonly", value: function (row) { return row.className; } },
   { key: "coords", label: "Position", type: "coords" }
 ];
@@ -122,10 +122,7 @@ export const presentation = {
   },
 
   subtitle: function (row) {
-    const bits = [kindMeta(row.kind).label];
-    if (row.observations) { bits.push(row.observations + " sightings"); }
-    if (row.lastSeenAt) { bits.push("last " + seenLabel(row.lastSeenAt)); }
-    return bits.join(" · ");
+    return kindMeta(row.kind).label;
   },
 
   iconName: function (row) {
@@ -146,21 +143,25 @@ export const presentation = {
   },
 
   /*
-   * The six kinds, in DiscoveryKind enum order (KINDS), with every count taken in
-   * ONE pass over the catalogue — six separate scans of 10^5 rows to draw six
-   * small integers is what kindCounts exists to avoid.
+   * The kinds PRESENT, in DiscoveryKind enum order (KINDS), with every count
+   * taken in ONE pass over the catalogue — six separate scans of 10^5 rows to
+   * draw six small integers is what kindCounts exists to avoid.
+   *
+   * A kind with no rows is omitted rather than listed as 0. A toggle that can
+   * only ever hide nothing is noise, and on a catalogue that deliberately
+   * excludes a kind it is worse than noise: it advertises the gap. The count is
+   * over the whole catalogue, not the filtered view, so disabling a kind never
+   * makes its own toggle disappear.
    */
   groups: function () {
     const counts = kindCounts();
-    return KINDS.map(function (k) {
-      return {
-        id: k.slug,
-        label: k.label,
-        color: k.color,
-        icon: k.icon,
-        count: counts.byKind[k.slug] || 0
-      };
-    });
+    const out = [];
+    for (const k of KINDS) {
+      const count = counts.byKind[k.slug] || 0;
+      if (!count) { continue; }
+      out.push({ id: k.slug, label: k.label, color: k.color, icon: k.icon, count: count });
+    }
+    return out;
   },
 
   groupOf: function (row) {
