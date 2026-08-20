@@ -1,0 +1,19 @@
+<!--
+source: MapLocationIcon_Relic.png (20x20 game texture), redrawn as line art for currentColor theming
+silhouette: rough-cut gem with a dark eye/socket hole and a glinting sparkle
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M9 4l7 1l3 5l-4 7l-7 2l-4 -6l1 -6z" />
+  <path d="M13.5 12a2.5 2.5 0 1 0 -5 0a2.5 2.5 0 1 0 5 0" />
+  <path d="M18 3l0.8 2l2 0.8l-2 0.8l-0.8 2l-0.8 -2l-2 -0.8l2 -0.8z" />
+</svg>

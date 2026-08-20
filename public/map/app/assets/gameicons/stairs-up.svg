@@ -1,0 +1,22 @@
+<!--
+source: none - see stairs-down.svg. The mirror of it, so the pair reads as one symbol
+with a direction: the arrow keeps its place on the left in both and the treads keep
+their place on the right, so what the eye picks up at pin size is only which way the
+two of them lean.
+silhouette: two broad treads climbing to the right, arrow up
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M5 20V9" />
+  <path d="M1.5 12.5l3.5-3.5 3.5 3.5" />
+  <path d="M11 16h5v-5h5" />
+</svg>

@@ -1,0 +1,58 @@
+{
+  "canvas": {
+    "width": 5120,
+    "height": 3579
+  },
+  "paddedHeight": 3584,
+  "tileSize": 256,
+  "minZoom": -5,
+  "maxZoom": 1,
+  "urlTemplate": "assets/tiles-art/v2/{z}/{x}/{y}.webp",
+  "levels": [
+    {
+      "z": -5,
+      "cols": 1,
+      "rows": 1,
+      "tiles": 1
+    },
+    {
+      "z": -4,
+      "cols": 2,
+      "rows": 1,
+      "tiles": 2
+    },
+    {
+      "z": -3,
+      "cols": 3,
+      "rows": 2,
+      "tiles": 6
+    },
+    {
+      "z": -2,
+      "cols": 5,
+      "rows": 4,
+      "tiles": 20
+    },
+    {
+      "z": -1,
+      "cols": 10,
+      "rows": 7,
+      "tiles": 70
+    },
+    {
+      "z": 0,
+      "cols": 20,
+      "rows": 14,
+      "tiles": 280
+    },
+    {
+      "z": 1,
+      "cols": 40,
+      "rows": 28,
+      "tiles": 1120
+    }
+  ],
+  "source": "work/world/sarducaa_step275.r32 (shape, relief) + _cover.u8 (land/lake/ocean) + work/instances/*.bin (symbols)",
+  "projection": "SARDUCAA_MAP.world applied directly: lng = 0.213641 * worldX + 1783.4447, lat = 1709.1136 - 0.213641 * worldY. Identical to the realistic raster, so the two are the same map.",
+  "note": "Hand-drawn rendering, same frame and affine as assets/tiles. Leaflet CRS.Simple, tile y NEGATIVE upwards. Every tile is opaque: this map draws its own sea, so unlike the realistic pyramid a missing file is a FAULT, not a transparent hole."
+}

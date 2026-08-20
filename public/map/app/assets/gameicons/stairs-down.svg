@@ -1,0 +1,25 @@
+<!--
+source: none - the game ships exactly 7 map glyphs (MortalOnline2/Content/UserInterface/
+Textures/Map/MapLocationIcon_{Camp,Cave,Dungeon,Outpost,Relic,Town,Wayshrine}) and a
+passage between storeys is not among them. Drawn in this set's idiom instead: same 24
+box, same 2px currentColor line, so it sits beside the seven redrawn ones without
+looking imported.
+silhouette: two broad treads falling to the right, with a long arrow beside them.
+Drawn twice: three narrow treads and a short arrow were legible at 48px and mush
+at the 15px a pin actually renders, which is the size that decides the shape
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M5 4v11" />
+  <path d="M1.5 11.5l3.5 3.5 3.5-3.5" />
+  <path d="M11 8h5v5h5" />
+</svg>

@@ -9,6 +9,10 @@
   "scripts": {
     "test": "node --test \"test/*.test.mjs\"",
     "serve": "node server/serve.mjs",
-    "validate": "node bin/validate-snapshot.mjs"
+    "validate": "node bin/validate-snapshot.mjs",
+    "build": "node bin/build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
   }
 }

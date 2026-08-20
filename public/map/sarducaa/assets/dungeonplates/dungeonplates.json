@@ -1,0 +1,294 @@
+{
+ "note": "Dungeon interior plates rendered from the game's own placed geometry at 0.25 m/px (auxilliary/mo2-terrain-map/tools/dungeon_plate.py). One plate per LEVEL, cut 6 m above that level's floor so the plan is visible rather than the rock ceiling above it. Bounds are canvas lat/lng, the same frame as the tiles and the pins, so a level sits exactly under the terrain it is beneath.",
+ "dungeons": [
+  {
+   "key": "argkepher",
+   "label": "Arg Kepher",
+   "bounds": [
+    [
+     1651.6564553575,
+     1731.8317299485548
+    ],
+    [
+     1879.9085803266405,
+     1962.4860226382032
+    ]
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "file": "assets/dungeonplates/argkepher_l1.09db7f650d.webp",
+     "bounds": [
+      [
+       1651.6564553575,
+       1731.8317299485548
+      ],
+      [
+       1879.9085803266405,
+       1962.4860226382032
+      ]
+     ],
+     "metresPerPx": 0.25,
+     "depthM": [
+      160.0,
+      306.5
+     ],
+     "sections": 11,
+     "size": [
+      4319,
+      4274
+     ],
+     "map": "sarducaa/argkepher/1"
+    },
+    {
+     "level": 2,
+     "file": "assets/dungeonplates/argkepher_l2.18056eea5b.webp",
+     "bounds": [
+      [
+       1686.0863089876757,
+       1818.5102399220702
+      ],
+      [
+       1818.3089700755468,
+       1928.0099733144532
+      ]
+     ],
+     "metresPerPx": 0.25,
+     "depthM": [
+      123.7,
+      210.5
+     ],
+     "sections": 7,
+     "size": [
+      2051,
+      2476
+     ],
+     "map": "sarducaa/argkepher/2"
+    }
+   ]
+  },
+  {
+   "key": "jungle",
+   "label": "Jungle",
+   "bounds": [
+    [
+     2224.257464134375,
+     620.26425819375
+    ],
+    [
+     2483.867064001875,
+     894.9254006137501
+    ]
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "file": "assets/dungeonplates/jungle_l1.e94ff7f045.webp",
+     "bounds": [
+      [
+       2224.257464134375,
+       620.26425819375
+      ],
+      [
+       2483.867064001875,
+       894.9254006137501
+      ]
+     ],
+     "metresPerPx": 0.25,
+     "depthM": [
+      -298.0,
+      -184.2
+     ],
+     "sections": 10,
+     "size": [
+      5143,
+      4861
+     ],
+     "map": "sarducaa/jungle/1"
+    },
+    {
+     "level": 2,
+     "file": "assets/dungeonplates/jungle_l2.b70fb71f87.webp",
+     "bounds": [
+      [
+       2317.3451874171874,
+       772.3544181771875
+      ],
+      [
+       2416.144803123437,
+       862.195866465
+      ]
+     ],
+     "metresPerPx": 0.25,
+     "depthM": [
+      -303.2,
+      -195.6
+     ],
+     "sections": 5,
+     "size": [
+      1683,
+      1850
+     ],
+     "map": "sarducaa/jungle/2"
+    }
+   ]
+  },
+  {
+   "key": "tuzsaltmines",
+   "label": "Tuz Salt Mines",
+   "bounds": [
+    [
+     1167.769070676875,
+     1089.285567415
+    ],
+    [
+     1341.2475655612498,
+     1271.89067229375
+    ]
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "file": "assets/dungeonplates/tuzsaltmines_l1.55cd8f1363.webp",
+     "bounds": [
+      [
+       1167.769070676875,
+       1089.285567415
+      ],
+      [
+       1341.2475655612498,
+       1225.3364957978124
+      ]
+     ],
+     "metresPerPx": 0.25,
+     "depthM": [
+      -304.6,
+      -241.0
+     ],
+     "sections": 14,
+     "size": [
+      2548,
+      3249
+     ],
+     "map": "sarducaa/tuzsaltmines/1"
+    },
+    {
+     "level": 2,
+     "file": "assets/dungeonplates/tuzsaltmines_l2.696dc7ff0e.webp",
+     "bounds": [
+      [
+       1202.536372770156,
+       1136.66446493375
+      ],
+      [
+       1319.2479169676562,
+       1271.89067229375
+      ]
+     ],
+     "metresPerPx": 0.25,
+     "depthM": [
+      -308.1,
+      -276.8
+     ],
+     "sections": 8,
+     "size": [
+      2532,
+      2186
+     ],
+     "map": "sarducaa/tuzsaltmines/2"
+    },
+    {
+     "level": 3,
+     "file": "assets/dungeonplates/tuzsaltmines_l3.3ce5731189.webp",
+     "bounds": [
+      [
+       1225.8192360014061,
+       1139.745835781875
+      ],
+      [
+       1305.6103106396874,
+       1249.6725757776562
+      ]
+     ],
+     "metresPerPx": 0.25,
+     "depthM": [
+      -698.0,
+      -290.8
+     ],
+     "sections": 3,
+     "size": [
+      2059,
+      1494
+     ],
+     "map": "sarducaa/tuzsaltmines/3"
+    }
+   ]
+  },
+  {
+   "key": "yelkeskarhideout",
+   "label": "Yel Keskar",
+   "bounds": [
+    [
+     3266.286100609375,
+     2448.9444933003124
+    ],
+    [
+     3509.44280649,
+     2654.861369708125
+    ]
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "file": "assets/dungeonplates/yelkeskarhideout_l1.9036c1c47d.webp",
+     "bounds": [
+      [
+       3266.286100609375,
+       2448.9444933003124
+      ],
+      [
+       3391.249795483125,
+       2654.861369708125
+      ]
+     ],
+     "metresPerPx": 0.25,
+     "depthM": [
+      -813.9,
+      -299.0
+     ],
+     "sections": 12,
+     "size": [
+      3856,
+      2340
+     ],
+     "map": "sarducaa/yelkeskarhideout/1"
+    },
+    {
+     "level": 2,
+     "file": "assets/dungeonplates/yelkeskarhideout_l2.7aa4e6cd1a.webp",
+     "bounds": [
+      [
+       3274.606082303125,
+       2471.2988193353126
+      ],
+      [
+       3509.44280649,
+       2562.2571427134376
+      ]
+     ],
+     "metresPerPx": 0.25,
+     "depthM": [
+      -408.3,
+      -347.1
+     ],
+     "sections": 9,
+     "size": [
+      1704,
+      4397
+     ],
+     "map": "sarducaa/yelkeskarhideout/2"
+    }
+   ]
+  }
+ ]
+}

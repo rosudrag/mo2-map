@@ -1,0 +1,18 @@
+<!--
+source: MapLocationIcon_Outpost.png (20x20 game texture), redrawn as line art for currentColor theming
+silhouette: pennant flag with an inward arrow notch, mounted on a full-height pole
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M6 20V4" />
+  <path d="M6 5h10l-3 3l3 3h-10" />
+</svg>

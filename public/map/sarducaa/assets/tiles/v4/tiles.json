@@ -1,0 +1,58 @@
+{
+  "canvas": {
+    "width": 5120,
+    "height": 3579
+  },
+  "paddedHeight": 3584,
+  "tileSize": 256,
+  "minZoom": -5,
+  "maxZoom": 1,
+  "urlTemplate": "assets/tiles/v4/{z}/{x}/{y}.webp",
+  "levels": [
+    {
+      "z": -5,
+      "cols": 1,
+      "rows": 1,
+      "tiles": 1
+    },
+    {
+      "z": -4,
+      "cols": 2,
+      "rows": 1,
+      "tiles": 1
+    },
+    {
+      "z": -3,
+      "cols": 3,
+      "rows": 2,
+      "tiles": 4
+    },
+    {
+      "z": -2,
+      "cols": 5,
+      "rows": 4,
+      "tiles": 16
+    },
+    {
+      "z": -1,
+      "cols": 10,
+      "rows": 7,
+      "tiles": 51
+    },
+    {
+      "z": 0,
+      "cols": 20,
+      "rows": 14,
+      "tiles": 183
+    },
+    {
+      "z": 1,
+      "cols": 40,
+      "rows": 28,
+      "tiles": 650
+    }
+  ],
+  "source": "work/world/sarducaa_step275_map.png",
+  "projection": "SARDUCAA_MAP.world applied directly: lng = 0.213641 * worldX + 1783.4447, lat = 1709.1136 - 0.213641 * worldY. No art, no fitted registration.",
+  "note": "Leaflet CRS.Simple. Zoom 0 is one canvas pixel per tile pixel. The grid is anchored at projected (0,0) = canvas lat 0, so tile y runs NEGATIVE upwards. A missing tile file is fully transparent, not an error."
+}

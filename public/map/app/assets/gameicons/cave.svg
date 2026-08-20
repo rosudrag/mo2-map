@@ -1,0 +1,19 @@
+<!--
+source: MapLocationIcon_Cave.png (20x20 game texture), redrawn as line art for currentColor theming
+silhouette: rounded mound with an arched cave mouth carved into its base
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M4 20c0 -7 3.5 -12 8 -12c4.5 0 8 5 8 12" />
+  <path d="M9.5 20v-4a2.5 2.5 0 0 1 5 0v4" />
+  <path d="M2 20h20" />
+</svg>
