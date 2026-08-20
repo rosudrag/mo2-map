@@ -137,6 +137,56 @@ test("snapshot with bad enum value fails", () => {
   assert.match(result.stderr, /kind must be one of|invalid_kind/i, "Should report bad enum value");
 });
 
+test("snapshot with a discovery row missing label fails", () => {
+  const result = runValidator("poisoned-missing-label");
+  assert.notStrictEqual(result.exitCode, 0, "Should fail");
+  assert.match(result.stderr, /Missing required field 'label'/i, "Should report missing label field");
+});
+
+test("snapshot with an empty-string label fails", () => {
+  const result = runValidator("poisoned-empty-label");
+  assert.notStrictEqual(result.exitCode, 0, "Should fail");
+  assert.match(result.stderr, /label must be a non-empty string/i, "Should report the empty label");
+});
+
+test("snapshot with a cls field fails", () => {
+  // cls carried the engine class name; the v2 contract folds it into label
+  // at export time and no longer publishes it at all.
+  const result = runValidator("poisoned-cls-field");
+  assert.notStrictEqual(result.exitCode, 0, "Should fail");
+  assert.match(result.stderr, /Forbidden field 'cls'/i, "cls is forbidden in the v2 published contract");
+});
+
+test("snapshot with a class_name field fails", () => {
+  const result = runValidator("poisoned-class-name-field");
+  assert.notStrictEqual(result.exitCode, 0, "Should fail");
+  assert.match(result.stderr, /Forbidden field 'class_name'/i, "class_name is a forbidden alias for cls");
+});
+
+test("snapshot with a className field fails", () => {
+  const result = runValidator("poisoned-classname-field");
+  assert.notStrictEqual(result.exitCode, 0, "Should fail");
+  assert.match(result.stderr, /Forbidden field 'className'/i, "className is a forbidden alias for cls");
+});
+
+test("snapshot with a raw engine class name leaked into label fails", () => {
+  // Published labels are human names folded down from class names by the
+  // exporter. A raw class token (BP_..._C, HerbNode_FicosLeaves,
+  // MiningNode_Granum) leaking through unfolded must still be rejected.
+  const result = runValidator("poisoned-class-name-in-label");
+  assert.notStrictEqual(result.exitCode, 0, "Should fail");
+  assert.match(result.stderr, /looks like a raw engine class name/i, "Should report the leaked class token");
+});
+
+test("snapshot with legitimate folded labels passes", () => {
+  // Human names folded down from class names (Iron Ore, Red Priest, Chest A,
+  // Wolf Den) must not trip the class-name-leak heuristic — it only flags
+  // underscore-joined identifier tokens, not ordinary space-separated names.
+  const result = runValidator("folded-class-labels");
+  assert.strictEqual(result.exitCode, 0, `Expected exit 0, got ${result.exitCode}. Stderr: ${result.stderr}`);
+  assert.match(result.stdout, /✓ Snapshot validation passed/, "Should output success message");
+});
+
 test("validator reports all violations, not just the first", () => {
   // The poisoned-multi-violation fixture has several independent violations:
   // bad id format, bad enum value, non-integer coordinate, non-positive

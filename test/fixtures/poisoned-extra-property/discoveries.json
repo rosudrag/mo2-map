@@ -2,7 +2,6 @@
   {
     "id": "aa11bb22",
     "kind": "spawn",
-    "cls": "BP_StartPoint_C",
     "label": "Test Spawn",
     "x": 100,
     "y": 200,

@@ -15,8 +15,9 @@ import path from "path";
 // Forbidden anywhere in any published file, at any nesting depth. This is
 // the exact denylist from the shared snapshot contract — every field that
 // would let a reader reconstruct collection activity (timestamps, sighting
-// tallies, server/account identity) or reintroduce human-curation
-// provenance (source, updated_by) the v2 model no longer publishes.
+// tallies, server/account identity), reintroduce human-curation provenance
+// (source, updated_by), or carry an engine class identifier (cls and its
+// class_name/className aliases) the v2 model no longer publishes.
 const FORBIDDEN_FIELDS = new Set([
   "first_seen",
   "first_seen_at",
@@ -39,18 +40,29 @@ const FORBIDDEN_FIELDS = new Set([
   "account",
   "ip",
   "updated_by",
-  "source"
+  "source",
+  "cls",
+  "class_name",
+  "className"
 ]);
 
 // Timestamp precision check: day-granularity enforcement via two layers.
 // Layer 1 (this regex): scan all strings for full ISO date-times (YYYY-MM-DD[T ]digits).
 // Layer 2 (isValidDate): manifest.json's `generated` field must be exactly
 // YYYY-MM-DD format, rejecting any time component.
-// Bare times in free-text fields (label, cls) are permitted.
+// Bare times in free-text fields (e.g., label) are permitted.
 const TIMESTAMP_PRECISION_REGEX = /\d{4}-\d{2}-\d{2}[T ]\d/;
 
 const DISCOVERY_KINDS = ["resource", "spawn", "npc", "structure", "container"];
 const DISCOVERY_ID_REGEX = /^[0-9a-f]{8}$/;
+
+// A published label is a folded human name, never a raw engine class token.
+// Class tokens are code identifiers: underscore-joined segments with no
+// spaces (BP_Ore_Iron_C, HerbNode_FicosLeaves, T_Rock_LOD1_D). Folded human
+// names always contain a space (or at most a bare hyphen, e.g. "Tier-2
+// Camp") — so "made only of underscore-joined word characters" reliably
+// flags a leaked class name without rejecting a legitimate folded label.
+const CLASS_NAME_LEAK_REGEX = /^[A-Za-z0-9]+(?:_[A-Za-z0-9]+)+$/;
 
 class Validator {
   constructor(dir) {
@@ -166,7 +178,7 @@ class Validator {
     }
 
     // Check required fields
-    const required = ["id", "kind", "cls", "label", "x", "y", "z", "count"];
+    const required = ["id", "kind", "label", "x", "y", "z", "count"];
     for (const field of required) {
       if (!(field in item)) {
         this.violation(
@@ -205,18 +217,18 @@ class Validator {
       );
     }
 
-    if (item.cls !== undefined && typeof item.cls !== "string") {
-      this.violation(filename, `${jsonPath}.cls`, "cls must be a string");
-    }
-    if (item.cls && item.cls.length > 160) {
-      this.violation(filename, `${jsonPath}.cls`, "cls must be ≤160 characters");
-    }
-
-    if (item.label !== undefined && typeof item.label !== "string") {
-      this.violation(filename, `${jsonPath}.label`, "label must be a string");
+    if (item.label !== undefined && (typeof item.label !== "string" || item.label.length === 0)) {
+      this.violation(filename, `${jsonPath}.label`, "label must be a non-empty string");
     }
     if (item.label && item.label.length > 128) {
       this.violation(filename, `${jsonPath}.label`, "label must be ≤128 characters");
+    }
+    if (item.label && typeof item.label === "string" && CLASS_NAME_LEAK_REGEX.test(item.label)) {
+      this.violation(
+        filename,
+        `${jsonPath}.label`,
+        `label looks like a raw engine class name, not a folded human name: '${item.label}'`
+      );
     }
 
     // Coordinates: integer world metres

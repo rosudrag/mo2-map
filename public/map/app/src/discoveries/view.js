@@ -86,8 +86,13 @@ function byLabel(a, b) {
 /*
  * The fields any discovery row has, whoever supplied it. A source that knows
  * more about its rows than this - the live one, which also holds sighting
- * counts and timestamps - appends its own entries; the words for those belong
- * with the data, not in a build that never receives it.
+ * counts, timestamps and a class name - appends its own entries; the words
+ * for those belong with the data, not in a build that never receives it.
+ *
+ * Class is deliberately NOT here: a published static row is named, not
+ * classed (the exporter folds the class into `label`), so this build never
+ * has one to show. The live source registers its own "Class" field the same
+ * way it registers Observations / First seen / Last seen below.
  *
  * `count` is deliberately labelled plainly: to a published snapshot row it is
  * how many things are at that spot, and only the live source can call it a
@@ -96,9 +101,6 @@ function byLabel(a, b) {
 const fields = [
   { key: "kind", label: "Kind", type: "readonly", value: function (row) { return kindMeta(row.kind).label; } },
   { key: "count", label: "Count", type: "readonly", value: function (row) { return String(row.count); } },
-  // Last: the longest value here and the least interesting one, exactly as in
-  // the pin popup.
-  { key: "className", label: "Class", type: "readonly", value: function (row) { return row.className; } },
   { key: "coords", label: "Position", type: "coords" }
 ];
 
@@ -139,7 +141,11 @@ export const presentation = {
   },
 
   searchText: function (row) {
-    return (row.label + " " + row.className + " " + row.kind).toLowerCase();
+    // A published row has no className (empty string): joining it in as-is
+    // is harmless today (normalize() never leaves it undefined), but the
+    // haystack should only ever carry words that actually describe the row.
+    const bits = row.className ? [row.label, row.className, row.kind] : [row.label, row.kind];
+    return bits.join(" ").toLowerCase();
   },
 
   /*

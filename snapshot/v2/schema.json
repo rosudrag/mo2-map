@@ -30,17 +30,13 @@
       "description": "Grid-aggregated discovery rows: one row per occupied (kind, cls, cell) bucket.",
       "items": {
         "type": "object",
-        "required": ["id", "kind", "cls", "label", "x", "y", "z", "count"],
+        "required": ["id", "kind", "label", "x", "y", "z", "count"],
         "properties": {
           "id": { "$ref": "#/definitions/discovery_id" },
           "kind": { "$ref": "#/definitions/discovery_kind" },
-          "cls": {
-            "type": "string",
-            "maxLength": 160,
-            "description": "Game class token"
-          },
           "label": {
             "type": "string",
+            "minLength": 1,
             "maxLength": 128,
             "description": "Human-readable label"
           },

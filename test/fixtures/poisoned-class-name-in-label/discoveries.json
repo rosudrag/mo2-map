@@ -1,0 +1,29 @@
+[
+  {
+    "id": "aa11bb22",
+    "kind": "resource",
+    "label": "BP_Ore_Iron_C",
+    "x": 1500,
+    "y": -2500,
+    "z": 30,
+    "count": 4
+  },
+  {
+    "id": "bb22cc33",
+    "kind": "resource",
+    "label": "HerbNode_FicosLeaves",
+    "x": 1600,
+    "y": -2400,
+    "z": 30,
+    "count": 2
+  },
+  {
+    "id": "cc33dd44",
+    "kind": "resource",
+    "label": "MiningNode_Granum",
+    "x": 1700,
+    "y": -2300,
+    "z": 30,
+    "count": 1
+  }
+]

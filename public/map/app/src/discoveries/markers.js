@@ -101,7 +101,8 @@ export function setDiscoveryPopupActions(handlers) {
  * is how many nodes were merged into the row. One renderer cannot label both
  * honestly, and the words for the live meaning have no business in a build
  * that never has that data. So the shared popup renders what is true of any
- * row - what it is, and its class - and a source adds its own facts.
+ * row - what it is, and its label - plus its class WHEN it has one, and a
+ * source adds its own facts.
  */
 let popupFacts = null;
 
@@ -130,19 +131,16 @@ function popupHtml(row) {
         : "") +
       "</div>";
   }
+  // Everything below the kind line comes from whoever owns the row's meaning.
+  // A published row is a name, a kind and a position, so it has no facts at
+  // all and gets no list; the live source registers its own.
   const facts = popupFacts ? popupFacts(row) : "";
   return '<div class="marker-popup disco-popup">' +
     "<h5>" + escapeHtml(labelFor(row)) + "</h5>" +
     '<div class="layer"><img src="' + TABLER + meta.icon +
     '.svg" alt="" width="14" height="14" />' + escapeHtml(meta.label) + "</div>" +
-    '<dl class="disco-facts">' +
-    facts +
-    // Last, and on its own full-width row: the longest value in the popup and
-    // the least interesting one. Leading with it is what squeezed everything
-    // else into a one-character column.
-    '<dt class="disco-class-label">Class</dt>' +
-    '<dd class="disco-class">' + escapeHtml(row.className || "\u2014") + "</dd>" +
-    "</dl>" + actions + "</div>";
+    (facts ? '<dl class="disco-facts">' + facts + "</dl>" : "") +
+    actions + "</div>";
 }
 
 /*

@@ -2,7 +2,6 @@
   {
     "id": "aa11bb22",
     "kind": "resource",
-    "cls": "BP_Ore_C",
     "label": "Test",
     "x": 100,
     "y": 200,

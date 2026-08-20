@@ -2,7 +2,6 @@
   {
     "id": "aa11bb22",
     "kind": "resource",
-    "cls": "BP_Ore_Iron_C",
     "label": "Iron Ore",
     "x": 1500.5,
     "y": -2500,

@@ -2,7 +2,6 @@
   {
     "id": "invalid-id",
     "kind": "invalid_kind",
-    "cls": "BP_StartPoint_C",
     "label": "Test",
     "x": 100.5,
     "y": 200,

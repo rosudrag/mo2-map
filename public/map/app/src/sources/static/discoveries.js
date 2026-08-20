@@ -22,18 +22,25 @@ import { attachStore, presentation, wireNotifications } from "../../discoveries/
 import { loadSnapshot } from "./data.js";
 
 /**
- * Reshapes one static snapshot row (v2 contract: id, kind, cls, label, x, y,
- * z, count) into the wire shape discoveries/state.js's normalize() and
+ * Reshapes one static snapshot row (contract: id, kind, label, x, y, z,
+ * count) into the wire shape discoveries/state.js's normalize() and
  * applyDiscoveries() already expect from a live delta payload: `x`/`y` in UE
  * world metres, `count` the number of nodes merged into the row.
- * `z` and `class_name` renamed to `cls` have no slot in that row shape —
- * discoveries/state.js has never tracked elevation, and the wire shape's
- * `class_name` key is kept for normalize()'s benefit even though the
- * published field is `cls` — so they are read from the snapshot and
- * dropped/renamed rather than invented a place to live. The snapshot no
- * longer publishes observations or first/last-seen timestamps at all (the
- * v2 contract strips them), so normalize() falls back to its own defaults
- * for those exactly as it already does for a live row that omits them.
+ *
+ * A published row is NAMED, not classed: the exporter folds the engine class
+ * name into `label` before publishing, so the snapshot never carries a `cls`
+ * (or `class_name`) field at all, and none is read or invented here.
+ * normalize() (discoveries/state.js) already treats an absent `class_name`
+ * as "this row has no class" — it falls back `className` to `""` — and the
+ * shared popup/detail-sheet/search code (markers.js, view.js) already gate
+ * on that presence, because the live source's rows (private repo) still
+ * carry a real `class_name` from the API and must keep showing it. `z` has
+ * no slot in this row shape either — discoveries/state.js has never tracked
+ * elevation — so it is read from the snapshot and dropped rather than
+ * invented a place to live. The snapshot no longer publishes observations or
+ * first/last-seen timestamps at all (the v2 contract strips them), so
+ * normalize() falls back to its own defaults for those exactly as it already
+ * does for a live row that omits them.
  */
 function reshape(raw) {
   const out = [];
@@ -42,7 +49,6 @@ function reshape(raw) {
     out.push({
       id: String(row.id),
       kind: row.kind,
-      class_name: row.cls,
       label: row.label,
       x: row.x,
       y: row.y,

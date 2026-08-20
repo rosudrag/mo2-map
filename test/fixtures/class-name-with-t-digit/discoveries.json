@@ -2,7 +2,6 @@
   {
     "id": "aa11bb22",
     "kind": "resource",
-    "cls": "BP_Camp_T2_C",
     "label": "Tier-2 Camp",
     "x": 100,
     "y": 200,
@@ -12,7 +11,6 @@
   {
     "id": "cc33dd44",
     "kind": "npc",
-    "cls": "T_Rock_LOD1_D",
     "label": "Waypoint T3 Camp",
     "x": 150,
     "y": 250,

@@ -30,10 +30,13 @@ The following never appear anywhere in a published file, at any nesting
 depth: `first_seen`, `first_seen_at`, `first_seen_date`, `last_seen`,
 `last_seen_at`, `last_seen_date`, `observations`, `seen_count`, `server_id`,
 `serverId`, `published_count`, `published_observations`, `owner`, `seq`,
-`status`, `note`, `api_key`, `user`, `account`, `ip`, `updated_by`, `source`.
-Timestamps, sighting tallies, server/account identity, and human-curation
-provenance are exactly what would let a reader reconstruct who found what and
-when — the snapshot publishes *what is on the map*, not *who mapped it*.
+`status`, `note`, `api_key`, `user`, `account`, `ip`, `updated_by`, `source`,
+`cls`, `class_name`, `className`.
+Timestamps, sighting tallies, server/account identity, human-curation
+provenance, and engine class identifiers are exactly what would let a reader
+reconstruct who found what, when, and with what engine object — the
+snapshot publishes *what is on the map*, not *who mapped it* or *what the
+game engine calls it*.
 
 ### Date Granularity
 
@@ -53,7 +56,9 @@ allowed; they lack a date component.
 ### discoveries.json
 
 Auto-discovered world objects, aggregated by grid cell — never one row per
-raw sighting.
+raw sighting. A row is a named thing at a place: a kind, a human-readable
+label, and a position. It carries no engine identifier — `label` is a
+folded human name, not a class token.
 
 **Aggregation rule**: group raw discoveries by `(kind, cls, grid cell)`, one
 published row per occupied cell. Grid quantisation, not clustering: a
@@ -79,8 +84,7 @@ furniture placed by a player is not a discovery.
 |-------|------|-----------------|----------|-------|
 | `id` | String | 8 lowercase hex chars | Yes | `sha256("kind\|cls\|x\|y")[:8]` over the published position — stable across re-exports of an unmoved row |
 | `kind` | Enum | resource, spawn, npc, structure, container | Yes | Object category |
-| `cls` | String | ≤160 chars | Yes | Game class token (e.g., `BP_Camp_T2_C`) |
-| `label` | String | ≤128 chars | Yes | Human-readable name |
+| `label` | String | non-empty, ≤128 chars | Yes | Human-readable name |
 | `x`, `y`, `z` | Integer | Metres | Yes | Cell centroid, rounded to the nearest metre |
 | `count` | Integer | ≥1 | Yes | How many nodes were merged into this row — "this many things here", not "seen this many times" |
 
@@ -139,6 +143,37 @@ There is no coverage grid, because a coverage grid is itself a record of
 where someone looked and how often. What ships is the catalogue: what is on
 the map, aggregated and de-identified from how it was found.
 
+### Excluded Rows
+
+Four rules remove rows before publication. They are applied by the exporter,
+which prints what each one removed on every run.
+
+**Player property.** Nothing a player built or hired: house stables and
+workbenches, campfires, siege equipment, guild relics, duel rings, and the
+staff installed on a plot — stewards, territory bankers, guild guards, and
+the vendors and priests standing in the yard. A holding is identified by the
+four things only an owner installs, and everything installed within 150 m of
+one goes with it. A town overrides that footprint, because a town's own
+guards and vendors are world content even when somebody has built next door.
+Note that public workbenches exist inside NPC towns, which is why a workbench
+does not mark a holding.
+
+**Player remains.** Character spirits, and the boxes spiritism keeps spirits
+in. Both record a person rather than a place.
+
+**Ubiquitous resources.** A resource class present across more than 15% of
+the surveyed area is dropped: a plant found in one of every three places
+anyone has been describes the species, not the map. The threshold sits in a
+real gap in the measured distribution — the widespread foraging plants land
+between 18% and 31% of patches, everything localised at 12.7% and below.
+Deliberately not applied to creature spawns, whose spread runs from 48%
+downward with no gap, so any cut there would be an arbitrary line presented
+as a measurement.
+
+**Unnameable rows.** Engine placeholders that reduce to no name. A row whose
+own identity is `PickableFieldInstance` tells a reader less than an absent
+row does.
+
 ## Validator Enforcement
 
 The validator (`bin/validate-snapshot.mjs`) enforces this contract. It exits
@@ -149,6 +184,7 @@ Violations detected:
 - Unexpected additional fields
 - Type mismatches (id format, integer bounds, enum membership)
 - Forbidden fields, anywhere, at any nesting depth
+- A `label` that looks like a raw engine class name instead of a folded human name
 - Sub-day timestamp precision
 - Date format violations
 

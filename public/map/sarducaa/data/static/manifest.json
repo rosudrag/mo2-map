@@ -3,14 +3,14 @@
   "schema_version": "v2",
   "generated": "2026-08-20",
   "counts": {
-    "discoveries": 9882,
+    "discoveries": 5591,
     "pins": 397,
     "by_kind": {
-      "resource": 5635,
-      "spawn": 3048,
-      "npc": 599,
-      "structure": 193,
-      "container": 407
+      "resource": 1852,
+      "spawn": 3046,
+      "npc": 274,
+      "structure": 26,
+      "container": 393
     }
   }
 }
