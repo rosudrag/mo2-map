@@ -61,18 +61,39 @@ label, and a position. It carries no engine identifier — `label` is a
 folded human name, not a class token.
 
 **Aggregation rule**: group raw discoveries by `(kind, cls, grid cell)`, one
-published row per occupied cell. Grid quantisation, not clustering: a
+published row per occupied cell — where `cls` is the exporter's *folded*
+class, not the raw engine class. A small set of variant tokens fold into
+their base class before grouping, so a variant and its base merge into one
+row whenever they land in the same cell instead of publishing as two
+identically-labelled pins metres apart: `_Baby_`/`_Alpha_` age and rank
+tokens on `spawn` classes fold into the base species (fold, not delete — an
+alpha standing far from any base row is still a real spawn point, and the
+base-species label can still carry it truthfully); a bare trailing letter
+glued to a word with nothing else distinguishing it (`ChestA`, `BarrelB`,
+`KallardA`) folds on `resource`, `container` and `npc`, because an opaque
+letter cannot mean anything to a reader even where it does correlate with
+something real. `count` on a folded row therefore sums the base creature
+*and* its variants found in that cell — still an honest "this many things
+are here", now at the species/object level rather than the exact engine
+asset. See export-snapshot.mjs's "Folding variant classes" section for the
+measurements behind each fold. Grid quantisation, not clustering: a
 single-linkage clusterer chains dense fields of adjacent nodes into one
 centroid kilometres from any real node (measured: 1,265 raw discoveries
 collapsed into one cluster on this catalogue). A fixed grid cannot do that —
 the cost is a *bounded* position error instead of an unbounded one.
 
-Cell size is per kind: 64 m for `resource` and `spawn` (fields and creature
-spawns are reported from noisy positions run to run; 64 m merges the noise
-without merging distinct spawns), 16 m for `npc`, `structure`, and
-`container` (every instance is a distinct object worth keeping separate — 16
-m only dedupes repeat reports of the *same* object). The worst-case position
-error is half the cell diagonal: ≈45 m at 64 m, ≈11 m at 16 m.
+Cell size is per kind: 128 m for `resource` (raised from 64 m — the
+per-class curve for the densest resource fields has no natural gap, so
+128 m is a judgement that keeps the worst-case error under 100 m while
+cutting the densest fields by roughly 40%), 64 m for `spawn` (creature
+spawns barely compress at any cell size that keeps the error reasonable —
+measured as a genuinely dispersed wild population rather than duplicate
+reports of one herd, so a bigger cell was measured and rejected), 16 m for
+`npc`, `structure`, and `container` (every instance is a distinct object
+worth keeping separate — 16 m only dedupes repeat reports of the *same*
+object; also measured and rejected: `structure` row count does not move at
+all between 16 m and 64 m). The worst-case position error is half the cell
+diagonal: ≈91 m at 128 m, ≈45 m at 64 m, ≈11 m at 16 m.
 
 `kind: station` (player-housing workbenches) is dropped entirely at export —
 furniture placed by a player is not a discovery.
@@ -145,8 +166,8 @@ the map, aggregated and de-identified from how it was found.
 
 ### Excluded Rows
 
-Six rules remove rows before publication. They are applied by the exporter,
-which prints what each one removed on every run.
+Eight rules remove rows before publication. They are applied by the
+exporter, which prints what each one removed on every run.
 
 **Player property.** Nothing a player built or hired: house stables and
 workbenches, campfires, siege equipment, guild relics, duel rings, and the
@@ -160,6 +181,14 @@ does not mark a holding.
 
 **Player remains.** Character spirits, and the boxes spiritism keeps spirits
 in. Both record a person rather than a place.
+
+**Tutorial content.** The tutorial island's own onboarding content: its
+"Tutor" trainers, its starter NPCs, its one quest note. Like "resources
+nobody travels for" below, this is a judgement rather than a measurement —
+recognising "this is the tutorial, not Sarducaa" takes game knowledge, not
+statistics. What the data does confirm is that this is one coherent place,
+not a scattered guess: every matching row sits inside a single roughly
+800x600 m cluster, unlike anything else this rule could be confused with.
 
 **Somebody's pet.** A creature standing in a town or on a holding is a pet or
 a parked mount, not a spawn point. Wild animals do not spawn inside a guarded

@@ -138,12 +138,16 @@ createMarkerPane("discoveries", 590);
  * of iron into a single unhelpful bubble.
  *
  * clusterAtMaxZoom, unlike the curated catalogue: a single camp legitimately
- * holds several rows because `class_name` is part of the merge key, so
- * "Nightsnatcher" and "Nightsnatcher Baby" 9 m apart are two correct rows — and
- * 9 m is 30 px even at max zoom. Unclustering there drew them smeared on top of
- * each other, which reads as "grouping is broken" when the grouping is in fact
- * right. Bubbling them is the honest picture; spiderfy is how you take them
- * apart, and map/marker-layer.js calls it explicitly.
+ * holds several rows because the exporter's merge key is (kind, folded
+ * species/class, grid cell), not "everything nearby is the same thing" - two
+ * different creatures recorded at the exact same spot ("Sarducaa Bandit A"
+ * and "Sarducaa Bandit Ranged A") are two correct rows, and even the same
+ * species can straddle a grid-cell boundary and publish as two rows a few
+ * metres apart ("Hunter Lizard" 2 m from "Hunter Lizard"). Unclustering at
+ * max zoom draws rows like these smeared on top of each other, which reads
+ * as "grouping is broken" when the grouping is in fact right. Bubbling them
+ * is the honest picture; spiderfy is how you take them apart, and
+ * map/marker-layer.js calls it explicitly.
  */
 export const discoveryCluster = createClusterGroup({
   pane: "discoveries",
