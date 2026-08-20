@@ -21,6 +21,7 @@ import "./util/legacy-prefs.js";
 import "./map/instance.js";
 import "./map/paste-location.js";
 import { initTownPlates } from "./map/townplates.js";
+import { initSurfacePlates } from "./map/surfaceplates.js";
 import { initDungeonMap } from "./map/dungeonmode.js";
 import { initStyle } from "./map/style.js";
 import { initPoster } from "./map/poster.js";
@@ -73,6 +74,10 @@ bootSource(discoveries);
 // is a static asset, so a pins-outage cannot hide the plates and a missing
 // manifest cannot hide the pins.
 initTownPlates().catch((err) => console.warn("town plates failed:", err));
+
+// Dungeon-surface plates: the same idea, over a dungeon's own entrances
+// instead of a town. Independent for the same reason.
+initSurfacePlates().catch((err) => console.warn("surface plates failed:", err));
 
 // The dungeon map. Independent of every marker source for the same reason as
 // the town plates, and entered from a pin's popup or the Dungeons button

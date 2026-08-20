@@ -56,6 +56,8 @@ import { getMarkers, isCatEnabled } from "../poi/state.js";
 import { mapOf, SURFACE_MAP } from "./active-map.js";
 import { dungeonRole, dungeonKeyOf } from "../poi/markers.js";
 import { drawTiles } from "./artwork-raster.js";
+import { surfacePlateFor } from "./surfaceplates.js";
+import { STYLES } from "./style.js";
 import {
   INK, PAPER, clamp, filenameDate, fitPixelCap, drawFrame, drawTitle, drawSubtitle,
   drawCredit, drawCompass, pickScaleBar, drawScaleBar, showProgress, savePng,
@@ -68,10 +70,16 @@ import {
 const PX_PER_M = mapMeta.world.pxPerMetre;
 const M_PER_PX = 1 / PX_PER_M;
 
-// How far past the dungeon the surface panel reaches, as a multiple of the
-// level panels' own rectangle. Big enough that the pyramid is drawn near its
-// native 2.34 m/px instead of upscaled, small enough that the doors are still
-// the subject of the picture rather than four dots in a desert.
+// How far past the dungeon the surface panel reaches when NO high-res
+// surface plate exists for it yet (dungeon_plate.py: render_dungeon_surface
+// / map/surfaceplates.js), as a multiple of the level panels' own rectangle.
+// Big enough that the pyramid is drawn near its native 2.34 m/px instead of
+// upscaled, small enough that the doors are still the subject of the
+// picture rather than four dots in a desert. When a surface plate DOES
+// exist the panel is sized around the plate's own bounds instead - it
+// already carries the same apron-plus-feather margin past its entrances
+// that this constant approximates for the fallback, so there is nothing
+// left for a multiplier to derive.
 const SURFACE_CONTEXT = 2.6;
 
 // ---- rectangles (canvas-pixel frame, row 0 at the top) --------------------
@@ -705,12 +713,30 @@ export async function exportDungeon(artwork, mode) {
 
   // ---- surface panel ----
   let tileStats = null;
+  let surfacePlate = null;
   if (wantSurface) {
+    // Always the artwork plate, matching `artwork` itself: the surface panel
+    // has never drawn the reader's live map style (its own comment at the
+    // top of this file), only the artwork pyramid, so the plate over it is
+    // the same style for the same reason.
+    surfacePlate = await surfacePlateFor(view.key, STYLES.ARTWORK);
     const cell = cellAt(levels.length);
     const px = cell.x;
     const py = cell.y + L.capPx;
     const aspect = L.panelW / L.panelH;
-    let srect = growRect(shared, ((shared.c1 - shared.c0) * (SURFACE_CONTEXT - 1)) / 2);
+    let srect;
+    if (surfacePlate) {
+      // The plate already carries its own apron-plus-feather margin past the
+      // entrances (town_plate.py's APRON_M/APRON_FEATHER_M, the same machinery
+      // a town plate uses), so the panel is sized around the plate's OWN
+      // bounds rather than a multiple of `shared` - union only as a guard
+      // against a level or a door somehow sitting outside it.
+      srect = unionRects([shared, rectOfBounds(canvas.height, surfacePlate.bounds)]);
+    } else {
+      // No surface plate published for this dungeon yet: the old fallback,
+      // sized so the pyramid draws near its own native resolution.
+      srect = growRect(shared, ((shared.c1 - shared.c0) * (SURFACE_CONTEXT - 1)) / 2);
+    }
     srect = fitAspect(srect, aspect, canvas);
     const sscale = L.panelW / (srect.c1 - srect.c0);
 
@@ -721,6 +747,25 @@ export async function exportDungeon(artwork, mode) {
     tileStats = await drawTiles(ctx, artwork, srect, px, py, sscale, function (done, total) {
       showProgress("Surface tiles\u2026 " + done + "/" + Math.max(total, done));
     });
+
+    if (surfacePlate) {
+      // Over the pyramid, exactly like a level panel draws its own dungeon
+      // plate above. The plate's own alpha feather (built into the PNG) is
+      // what blends it into the tiles just drawn - nothing here composites
+      // an edge by hand.
+      const prect = rectOfBounds(canvas.height, surfacePlate.bounds);
+      const pdx = px + (prect.c0 - srect.c0) * sscale;
+      const pdy = py + (prect.r0 - srect.r0) * sscale;
+      const pdw = (prect.c1 - prect.c0) * sscale;
+      const pdh = (prect.r1 - prect.r0) * sscale;
+      try {
+        const bmp = await loadPlate(surfacePlate.file);
+        ctx.drawImage(bmp, pdx, pdy, pdw, pdh);
+        bmp.close();
+      } catch (err) {
+        console.warn("surface plate failed:", err && err.message);
+      }
+    }
 
     // The dungeon's own footprint, so the doors are read against the ground the
     // levels above actually occupy.
@@ -756,16 +801,17 @@ export async function exportDungeon(artwork, mode) {
     ctx.strokeRect(px + 0.5, py + 0.5, L.panelW, L.panelH);
     ctx.restore();
 
-    // The source resolution is printed next to the drawn one on purpose: this
-    // panel is the finest surface raster that exists (the artwork pyramid's own
-    // native tiles) enlarged to the panel box, and a caption that hid that would
-    // be selling an upscale as a survey.
+    // The source resolution is printed next to the drawn one on purpose: a
+    // caption that hid what this panel is actually made of would be selling
+    // an upscale as a survey, whichever source it is this time.
     drawPanelCaption(
       ctx, px, cell.y + L.capPx - Math.round(captionPx * 0.5), L.panelW,
       "Surface \u2014 the doors",
-      (M_PER_PX / sscale).toFixed(2) + " m/px, from " +
-        (M_PER_PX / Math.pow(2, artwork.maxZoom)).toFixed(2) + " m/px tiles \u00b7 " +
-        (entrances.length === 1 ? "1 entrance" : entrances.length + " entrances"),
+      (surfacePlate
+        ? (M_PER_PX / sscale).toFixed(2) + " m/px, the game's own surface geometry"
+        : (M_PER_PX / sscale).toFixed(2) + " m/px, from " +
+          (M_PER_PX / Math.pow(2, artwork.maxZoom)).toFixed(2) + " m/px tiles") +
+        " \u00b7 " + (entrances.length === 1 ? "1 entrance" : entrances.length + " entrances"),
       captionPx
     );
 

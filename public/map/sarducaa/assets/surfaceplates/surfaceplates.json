@@ -1,0 +1,93 @@
+{
+ "note": "The surface directly above each dungeon, rendered from the game's own placed geometry at 0.25 m/px (auxilliary/mo2-terrain-map/tools/dungeon_plate.py: render_dungeon_surface), the same machinery town_plate.py uses for a town plate - entrance packages plus the surrounding landscape apron, two z-buffered passes, an apron feather into the 2.34 m/px tiles. Bounds are canvas lat/lng, the same frame as the tiles, the town plates and the pins.",
+ "plates": [
+  {
+   "key": "argkepher",
+   "dungeon": "Arg Kepher",
+   "kind": "dungeon-surface",
+   "file": "assets/surfaceplates/argkepher.1f64cf0304.webp",
+   "metresPerPx": 0.25,
+   "size": [
+    6464,
+    6546
+   ],
+   "entrances": 3,
+   "bounds": [
+    [
+     1587.6586914999998,
+     1679.3588048
+    ],
+    [
+     1937.2394597999998,
+     2024.5599326
+    ]
+   ]
+  },
+  {
+   "key": "jungle",
+   "dungeon": "Jungle",
+   "kind": "dungeon-surface",
+   "file": "assets/surfaceplates/jungle.5c635ebd4f.webp",
+   "metresPerPx": 0.25,
+   "size": [
+    5611,
+    5870
+   ],
+   "entrances": 3,
+   "bounds": [
+    [
+     2151.5641109999997,
+     555.4148679
+    ],
+    [
+     2465.0609144,
+     855.0890986
+    ]
+   ]
+  },
+  {
+   "key": "tuzsaltmines",
+   "dungeon": "Tuz Salt Mines",
+   "kind": "dungeon-surface",
+   "file": "assets/surfaceplates/tuzsaltmines.4232b47749.webp",
+   "metresPerPx": 0.25,
+   "size": [
+    4568,
+    5665
+   ],
+   "entrances": 3,
+   "bounds": [
+    [
+     1105.791416,
+     1030.1038058
+    ],
+    [
+     1408.3498002,
+     1274.0818278000002
+    ]
+   ]
+  },
+  {
+   "key": "yelkeskarhideout",
+   "dungeon": "Yel Keskar",
+   "kind": "dungeon-surface",
+   "file": "assets/surfaceplates/yelkeskarhideout.7b1034c294.webp",
+   "metresPerPx": 0.25,
+   "size": [
+    4175,
+    4080
+   ],
+   "entrances": 3,
+   "bounds": [
+    [
+     3192.9358014,
+     2389.757858
+    ],
+    [
+     3410.8496213999997,
+     2612.7136056
+    ]
+   ]
+  }
+ ]
+}

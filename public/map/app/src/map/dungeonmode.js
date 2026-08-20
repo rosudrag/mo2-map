@@ -34,6 +34,7 @@ import { getMarkers } from "../poi/state.js";
 import { GAMEICONS } from "../util/assets.js";
 import { STYLES, isArtwork, onStyleChange } from "./style.js";
 import { SURFACE_MAP, setActiveMap } from "./active-map.js";
+import { surfaceBoundsFor } from "./surfaceplates.js";
 
 const MANIFEST_URL = {};
 MANIFEST_URL[STYLES.REALISTIC] = "assets/dungeonplates/dungeonplates.json";
@@ -44,10 +45,13 @@ MANIFEST_URL[STYLES.ARTWORK] = "assets/dungeonplates-art/dungeonplates-art.json"
 // discoveries at 590 is the lowest - so pins stay clickable over an interior.
 const PLATE_PANE = "dungeonPlatePane";
 
-// Stepping OUT of a dungeon onto the surface: a plan is read at 0.25 m/px and
-// the island is 2.34 m/px at its finest, so carrying the dungeon's zoom out
-// would land the reader inside a single blurred tile. Close enough to see the
-// door and its surroundings instead.
+// Stepping OUT of a dungeon onto the surface: when the dungeon has a
+// high-res surface plate (map/surfaceplates.js - dungeon_plate.py's
+// render_dungeon_surface, 0.25 m/px like the interior) the view fits that
+// plate's own bounds, same as entering fits a level's bounds. Without one
+// (not yet rendered for this dungeon) it falls back to a flat zoom close
+// enough to see the door without landing inside a single blurred 2.34 m/px
+// tile.
 const SURFACE_STEP_ZOOM = 3;
 
 // Built from SURFACE_MAP rather than a literal /^sarducaa\//: a map id is
@@ -300,7 +304,13 @@ export async function initDungeonMap() {
     const level = DUNGEON_LINK_RE.exec(link.map);
     if (!level) {
       // The surface. Its own scale is nothing like a floor plan's, so the zoom
-      // the dungeon was read at is not kept.
+      // the dungeon was read at is not kept - fit the dungeon's own high-res
+      // surface plate instead, same framing enter() gives a level: fit the
+      // bounds for the right zoom, then re-centre on the actual door at that
+      // zoom. No surface plate published for this dungeon yet: the old flat
+      // zoom, close enough to see the door without landing inside one
+      // blurred 2.34 m/px tile.
+      const fromKey = state ? state.dungeon.key : null;
       if (state) {
         if (state.overlay) { map.removeLayer(state.overlay); }
         state = null;
@@ -309,7 +319,13 @@ export async function initDungeonMap() {
         map.getContainer().classList.remove(MODE_CLASS);
         closePicker();
       }
-      map.setView(target, SURFACE_STEP_ZOOM);
+      const surfaceBounds = fromKey && surfaceBoundsFor(fromKey);
+      if (surfaceBounds) {
+        map.fitBounds(surfaceBounds, { padding: [40, 40] });
+        map.setView(target, map.getZoom());
+      } else {
+        map.setView(target, SURFACE_STEP_ZOOM);
+      }
     } else {
       // enter() fits the level's bounds, which is the right zoom for a plan and
       // the wrong centre for a door: keep the one, replace the other.
