@@ -3,11 +3,11 @@
   "schema_version": "v2",
   "generated": "2026-08-20",
   "counts": {
-    "discoveries": 5591,
+    "discoveries": 4462,
     "pins": 397,
     "by_kind": {
-      "resource": 1852,
-      "spawn": 3046,
+      "resource": 1772,
+      "spawn": 1997,
       "npc": 274,
       "structure": 26,
       "container": 393

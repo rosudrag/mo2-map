@@ -145,7 +145,7 @@ the map, aggregated and de-identified from how it was found.
 
 ### Excluded Rows
 
-Four rules remove rows before publication. They are applied by the exporter,
+Six rules remove rows before publication. They are applied by the exporter,
 which prints what each one removed on every run.
 
 **Player property.** Nothing a player built or hired: house stables and
@@ -160,6 +160,20 @@ does not mark a holding.
 
 **Player remains.** Character spirits, and the boxes spiritism keeps spirits
 in. Both record a person rather than a place.
+
+**Somebody's pet.** A creature standing in a town or on a holding is a pet or
+a parked mount, not a spawn point. Wild animals do not spawn inside a guarded
+town, and the rows bear that out: what sits in the towns is the tameable
+roster — horses, gamals, panthers, terrorbirds, hunter lizards. Note the
+deliberate asymmetry with the rule above: for an installed thing a town means
+"world content, keep", because towns are full of world buildings and staff;
+for a creature a town means the opposite.
+
+**Resources nobody travels for.** Palm and Wolfbrush. Unlike every other rule
+here this one is a judgement rather than a measurement — both are localised
+enough to survive the ubiquity cut and are still noise, because the thing
+they mark is not worth the trip. It is recorded as a list precisely because
+it cannot be re-derived from the data.
 
 **Ubiquitous resources.** A resource class present across more than 15% of
 the surveyed area is dropped: a plant found in one of every three places
