@@ -39,6 +39,7 @@
   font: inherit; font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
 }
 #paste-loc-go:hover { border-color: var(--bronze); color: var(--text); }
+#paste-loc-go:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
 /*
  * The joined-feedback bar under #search (view/search.js): idle by default
  * (JS sets display:flex only while the query is active), one line of text plus

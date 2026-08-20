@@ -58,10 +58,17 @@
  * visible credit on a public page. Anchored above #coords rather than a new
  * corner: the two are the only bottom-left chrome, so stacking them keeps
  * every other corner free for the tool buttons already living there.
+ *
+ * .68 alpha measured 2.93:1 (open desert) to 3.83:1 (palest rock found) for
+ * --muted text — both fail AA's 4.5:1. Tuning to the palest sampled pixel
+ * would just move the failure to whatever is paler than that sample; .90
+ * instead clears 4.5:1 against a worst-case WHITE backdrop analytically (the
+ * measured samples pass with real margin: see artwork.css's own credit
+ * override for the same reasoning applied to that style's warmer tone).
  */
 #credit {
   position: absolute; z-index: 1000; bottom: 76px; left: 10px;
-  background: rgba(12,10,8,.68); color: var(--muted);
+  background: rgba(12,10,8,.90); color: var(--muted);
   padding: 4px 8px; white-space: nowrap;
   font: 10px/1.4 var(--font-ui);
   pointer-events: none;

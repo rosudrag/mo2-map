@@ -60,12 +60,30 @@
 .leaflet-discoveries-pane .marker-cluster-medium div,
 .leaflet-discoveries-pane .marker-cluster-large div {
   width: 26px; height: 26px; margin: 4px;
-  color: #f4ecdd !important;
+  display: flex; align-items: center; justify-content: center;
   border: 1px solid; /* colour set inline, per bubble */
   box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
-  font-size: 11px; font-weight: 600;
 }
-.leaflet-discoveries-pane .marker-cluster span { line-height: 26px; }
+/*
+ * The count's own opaque pill, independent of the kind-tinted ring around it.
+ * Measured why this has to be a second layer rather than a text colour that
+ * just sits on the ring: at the ring's shipped .58 alpha, every kind colour
+ * read under 2:1 against a light numeral over pale terrain, and pushing the
+ * ring to fully OPAQUE does not save it either — measured 3.0-4.4:1 for
+ * every kind at alpha 1, none reaching the 4.5:1 AA floor, because the kind
+ * palette itself sits too close in lightness to a light numeral no matter
+ * how much of it shows through. A translucent ring can carry the "what
+ * kind" signal or guarantee the "how many" text stays legible, never both at
+ * once — so each gets its own layer. This pill is solid enough (measured
+ * >11:1 even composited over the ring's own worst-case backdrop) that the
+ * count reads regardless of kind colour or what terrain is under the bubble.
+ */
+.leaflet-discoveries-pane .marker-cluster span.cluster-count {
+  display: inline-block; min-width: 15px; padding: 1px 4px;
+  border-radius: 8px; background: rgba(28, 22, 13, .88);
+  color: #f4ecdd; font-size: 11px; font-weight: 600; line-height: 15px;
+  text-align: center;
+}
 
 /* ---- popup ---------------------------------------------------------- */
 /*

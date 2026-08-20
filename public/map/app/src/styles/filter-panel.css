@@ -1,4 +1,24 @@
 /* Category/type filter panel and marker-cluster bubbles. */
+/*
+ * The skip link (sarducaa/index.html, first element in <body>): invisible
+ * off-screen until it receives keyboard focus, then the standard skip-link
+ * jump-into-view. Its whole reason to exist is the tab stop AFTER it — the
+ * hundreds of individually keyboard-focusable map markers a keyboard user
+ * would otherwise have to Tab through one at a time before ever reaching a
+ * single button (see index.html's own comment on #map for why those markers
+ * stay focusable rather than being stripped).
+ */
+.skip-link {
+  position: absolute; z-index: 2000; top: -100px; left: 12px;
+  padding: 8px 14px; background: var(--panel); color: var(--bronze);
+  border: 1px solid var(--bronze-deep); border-radius: 4px;
+  font: 13px var(--font-ui); text-decoration: none;
+  transition: top .15s;
+}
+.skip-link:focus {
+  top: 12px;
+  outline: 2px solid var(--bronze); outline-offset: 2px;
+}
 #filter-toggle {
   position: absolute; z-index: 1100; top: 12px; left: 12px;
   width: 36px; height: 36px; border: 1px solid var(--bronze-deep); border-radius: 4px;
@@ -6,6 +26,10 @@
   box-shadow: 0 2px 10px rgba(0,0,0,.55); font-size: 16px;
 }
 #filter-toggle:hover { border-color: var(--bronze); }
+/* Real `:focus` — see legend.css for why not `:focus-visible` (chrome70
+   target). --bronze already measures 7.4-8.2:1 against --panel/--panel-2
+   in both styles. */
+#filter-toggle:focus { outline: 2px solid var(--bronze); outline-offset: 2px; }
 #filter-panel {
   position: absolute; z-index: 1100; top: 56px; left: 12px;
   width: min(300px, calc(100vw - 24px)); max-height: calc(100vh - 80px);
@@ -28,6 +52,7 @@
   font: inherit; font-size: 12px; padding: 2px 4px;
 }
 #filter-panel .panel-head button:hover { color: var(--text); }
+#filter-panel .panel-head button:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
 #filter-panel .presets {
   display: flex; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--line);
 }
@@ -36,6 +61,7 @@
   padding: 5px 4px; cursor: pointer; font: inherit; font-size: 12px; color: var(--muted);
 }
 #filter-panel .presets button:hover { border-color: var(--bronze-dim); color: var(--text); }
+#filter-panel .presets button:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
 #filter-panel .presets button.active {
   background: rgba(138,106,61,.28); border-color: var(--bronze); color: var(--bronze);
 }
@@ -49,6 +75,7 @@
   text-align: left; padding: 0; min-width: 0; color: var(--text);
 }
 .cat-main .cat-toggle.off { opacity: .4; }
+.cat-main .cat-toggle:focus { outline: 2px solid var(--bronze); outline-offset: -2px; }
 .cat-main .cat-ico {
   width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
   background: var(--pin, var(--bronze-dim));
@@ -65,6 +92,7 @@
   font: inherit; font-size: 12px; padding: 2px 4px; flex-shrink: 0;
 }
 .cat-main .only-btn:hover, .cat-main .expand-btn:hover { color: var(--bronze); }
+.cat-main .only-btn:focus, .cat-main .expand-btn:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
 .type-list { display: none; padding: 0 8px 8px 34px; background: var(--panel-2); }
 .type-list.open { display: block; }
 .type-row {
@@ -76,12 +104,14 @@
   text-align: left; padding: 0; font-size: 13px; min-width: 0; color: var(--text);
 }
 .type-row .type-toggle.off { opacity: .4; }
+.type-row .type-toggle:focus { outline: 2px solid var(--bronze); outline-offset: -2px; }
 .type-row .type-count { color: var(--muted); font-size: 11px; }
 .type-row .only-btn {
   border: 0; background: transparent; color: var(--muted); cursor: pointer;
   font: inherit; font-size: 11px; padding: 2px 4px;
 }
 .type-row .only-btn:hover { color: var(--bronze); }
+.type-row .only-btn:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
 .marker-cluster {
   background-clip: padding-box;
   border-radius: 50%;

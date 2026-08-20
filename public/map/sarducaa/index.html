@@ -15,7 +15,12 @@
   <link rel="stylesheet" href="../app/dist/app-static.css?v=cb0f213f34" />
 </head>
 <body>
-  <div id="map"></div>
+  <!-- The map's own catalogue puts hundreds of individually keyboard-focusable
+       markers in the DOM (Leaflet's default per-marker tabindex, kept — see
+       #map's own comment below for why removing it is worse, not better).
+       This is the standard, cheap escape hatch: invisible until focused,
+       jumps straight past all of them to the first real control. -->
+  <a class="skip-link" href="#filter-toggle">Skip to map controls</a>
   <button id="filter-toggle" type="button" title="Filters" aria-expanded="false">☰</button>
   <aside id="filter-panel" aria-label="Map filters">
     <div class="panel-head">
@@ -81,6 +86,23 @@
     · <a href="https://leafletjs.com/">© Leaflet</a></div>
   <div id="coords">lat — · lng —<br /><span class="hint">click copy world</span></div>
   <div id="bm-toasts"></div>
+  <!--
+    Deliberately the LAST element in <body>, not the first: every marker
+    Leaflet places inside here (hundreds of curated pins) carries its own
+    keyboard tabindex, kept on purpose — Enter on a focused marker opens its
+    popup, the only way a keyboard-only visitor reaches that content at all,
+    so stripping it trades a navigation annoyance for a total loss of access
+    (see the skip link above for the actual fix). Being LAST in source order
+    only changes tab sequence, not layout or stacking: every element above
+    is `position: absolute` with its own explicit z-index (1000-1150, see
+    toolbar.css/filter-panel.css/legend.css/markers.css), and Leaflet's own
+    internal panes cap out in the 200-700 range (map/marker-layer.js,
+    discoveries/state.js, poi/state.js) — so which one paints "first" in the
+    DOM never decided the stacking, the explicit z-index values already did.
+    id="map" is looked up by id when main-static.js runs, at the very end of
+    this file, so its position here does not affect when Leaflet finds it.
+  -->
+  <div id="map"></div>
 
   <script src="../app/vendor/leaflet.js"></script>
   <script src="../app/vendor/leaflet.markercluster.js"></script>

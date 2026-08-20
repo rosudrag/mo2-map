@@ -21,6 +21,17 @@
   font: inherit; font-family: var(--font-title); font-size: 16px;
 }
 #legend-toggle:hover { border-color: var(--bronze); color: var(--text); }
+/*
+ * Real `:focus`, not `:focus-visible`: the build targets chrome70
+ * (bin/build.mjs) for the embedded browsers this map is also viewed
+ * through, and `:focus-visible` shipped in Chrome 86 — an unsupported
+ * pseudo-class inside a selector list drops the WHOLE rule on those
+ * engines, not just that one selector. Measured before adding this: the
+ * platform default here was outline-color rgb(17,17,17), 1.02:1 against
+ * --panel-2 — functionally invisible. --bronze against --panel/--panel-2
+ * already measures 7.4-8.2:1 in both styles, so one rule covers both.
+ */
+#legend-toggle:focus { outline: 2px solid var(--bronze); outline-offset: 2px; }
 #legend-panel {
   position: absolute; z-index: 1150; top: 56px; right: 12px;
   width: min(320px, calc(100vw - 24px)); max-height: calc(100vh - 80px);
@@ -42,6 +53,7 @@
   font: inherit; font-size: 14px; padding: 2px 6px;
 }
 #legend-panel .panel-head button:hover { color: var(--text); }
+#legend-panel .panel-head button:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
 .legend-body { padding: 10px 12px 0; }
 .legend-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
 .legend-swatch { flex: 0 0 auto; width: 28px; display: flex; justify-content: center; padding-top: 1px; }

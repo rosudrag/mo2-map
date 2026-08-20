@@ -17,6 +17,9 @@
   cursor: pointer; font: inherit; font-size: 12px; padding: 4px 8px; border-radius: 4px;
 }
 .mg-btn:hover { border-color: var(--bronze-dim); color: var(--text); }
+/* Real `:focus` — see legend.css for why not `:focus-visible` (chrome70
+   target). --bronze already measures 7.4-8.2:1 against --panel/--panel-2. */
+.mg-btn:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
 .mg-btn.active {
   background: rgba(138,106,61,.28); border-color: var(--bronze); color: var(--bronze);
 }
@@ -59,7 +62,16 @@
   padding: 7px 10px; cursor: pointer; font: inherit; font-size: 13px;
 }
 .mg-pop-item:last-child { border-bottom: 0; }
-.mg-pop-item:hover, .mg-pop-item:focus { background: rgba(138,106,61,.22); outline: none; }
+.mg-pop-item:hover { background: rgba(138,106,61,.22); }
+/*
+ * Measured the old combined `:hover, :focus { outline:none; background:
+ * rgba(138,106,61,.22) }`: the focused-vs-unfocused background delta was
+ * only 1.26:1 — well under the ~3:1 a boundary needs to read as a change at
+ * all, not just under AA text contrast. Keeping the tint (harmless, and
+ * matches hover) but restoring a real outline for the state that actually
+ * has to be seen without a pointer nearby.
+ */
+.mg-pop-item:focus { background: rgba(138,106,61,.22); outline: 2px solid var(--bronze); outline-offset: -2px; }
 .mg-pop-item.active { background: rgba(138,106,61,.32); color: var(--bronze); }
 .mg-pop-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mg-pop-form { display: flex; gap: 6px; padding: 8px 10px; }
@@ -74,6 +86,7 @@
 }
 .mg-pop-chips .mg-tag { cursor: pointer; }
 .mg-pop-chips .mg-tag:hover { border-color: var(--bronze-dim); color: var(--text); }
+.mg-pop-chips .mg-tag:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
 
 /* ---- filter-section head (view/filters.js) ---------------------------- */
 /* One head per source plus the hard-coded Players row (the private build's

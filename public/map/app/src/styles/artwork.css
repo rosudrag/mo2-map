@@ -59,6 +59,14 @@ body.style-artwork #coords {
   border-color: var(--bronze-deep);
 }
 
+/*
+ * Same worst-case-white check as the realistic style's own credit rule
+ * (markers.css): this style's warmer, lighter box tone needs MORE opacity
+ * than realistic's near-black one to hold 4.5:1 against --muted text over a
+ * bright backdrop — .74 only reached 2.3:1 analytically against pure white,
+ * even though every real terrain patch sampled happened to be dark enough
+ * to pass. .96 clears it with the same margin realistic's .90 does.
+ */
 body.style-artwork #credit {
-  background: rgba(52, 40, 20, .74);
+  background: rgba(52, 40, 20, .96);
 }

@@ -76,6 +76,20 @@ function shortCount(n) {
  * the user can see and sits in a circle that looks just like the pin's own
  * ×N badge. Summing the counts answers the question actually being asked of
  * a camp: how much is in there.
+ *
+ * The count sits in its own small opaque pill (`.cluster-count`,
+ * discoveries.css), independent of the kind-tinted ring behind it. Measured
+ * why this has to be two layers, not one: at the ring's shipped alpha (.58)
+ * over the palest realistic terrain, EVERY kind colour read under 2:1
+ * against the numeral text — and raising the ring to fully OPAQUE does not
+ * save it either (measured 3.0–4.4:1 for every kind, none reaching the 4.5:1
+ * AA floor), because the kind palette itself is too close in lightness to
+ * the numeral. A translucent ring can carry the "what kind" signal or
+ * guarantee the "how many" text stays legible, never both at once — so this
+ * gives each job its own layer: the ring stays exactly as light as the
+ * density fix needs, and the pill is opaque enough (measured 11.4:1 even
+ * composited over the ring's own worst-case backdrop) that the number reads
+ * regardless of kind colour or what terrain is under the bubble.
  */
 function clusterIcon(cluster) {
   let total = 0;
@@ -100,8 +114,8 @@ function clusterIcon(cluster) {
     // declaration beats a plain inline style regardless of specificity — only
     // an important INLINE declaration outranks it.
     html: '<div style="background-color:' + withAlpha(color, .58) +
-      " !important;border-color:" + withAlpha(color, .9) + ' !important"><span>' +
-      shortCount(total) + "</span></div>",
+      " !important;border-color:" + withAlpha(color, .9) +
+      ' !important"><span class="cluster-count">' + shortCount(total) + "</span></div>",
     className: "marker-cluster marker-cluster-" + size,
     iconSize: L.point(34, 34)
   });

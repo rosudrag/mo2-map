@@ -99,6 +99,14 @@
       filter: saturate(.9) brightness(.95);
     }
     a.map-card:hover { border-color: var(--bronze); background: rgba(30, 26, 20, .92); transform: translateY(-2px); }
+    /* Real `:focus`, not `:focus-visible` — this page ships even if the
+       bundler never runs (see the file's own header comment), so it makes
+       no assumption about which browser engine renders it; plain `:focus`
+       is the one focus pseudo-class every engine has supported since CSS2.
+       Measured before adding: the platform default here was outline-color
+       rgb(17,17,17), 1.02:1 against this page's own --panel-2 — invisible.
+       --bronze against this page's dark card background measures 7.9:1+. */
+    a.map-card:focus { outline: 2px solid var(--bronze); outline-offset: 3px; }
     a.map-card:hover .preview { filter: saturate(1) brightness(1.02); }
     .map-card h3 {
       font-family: var(--font-title); font-size: 26px; font-weight: normal;
@@ -124,6 +132,7 @@
     }
     footer a { color: var(--bronze); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
+    footer a:focus { outline: 2px solid var(--bronze); outline-offset: 2px; }
     .trademark { flex-basis: 100%; color: #6f6355; font-size: 12px; }
   </style>
 </head>
