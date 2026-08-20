@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../app/vendor/MarkerCluster.Default.css" />
   <!-- Bundled from ../app/src/styles/*.css by bin/build.mjs. The ?v= stamp is
        machine-maintained: run `npm run build`, never hand-edit the hash. -->
-  <link rel="stylesheet" href="../app/dist/app-static.css?v=861f9f3ae4" />
+  <link rel="stylesheet" href="../app/dist/app-static.css?v=84360af0a5" />
 </head>
 <body>
   <!-- The map's own catalogue puts hundreds of individually keyboard-focusable
@@ -67,9 +67,11 @@
           times it was seen.</p>
       </div>
       <div class="legend-row">
-        <span class="legend-swatch"><span class="legend-cluster"><span>12</span></span></span>
-        <p><strong>Numbered circle</strong> — a cluster of nearby pins. Click to zoom in; at
-          full zoom, click again to fan them apart.</p>
+        <span class="legend-swatch"><span class="legend-cluster"><span class="legend-cluster-ring">
+          <span class="cluster-count">12</span></span></span></span>
+        <p><strong>Numbered circle</strong> — a cluster of nearby pins, tinted by whichever
+          kind is most common inside it (the same colours as the categories in <strong>Filters</strong>).
+          Click to zoom in; at full zoom, click again to fan them apart.</p>
       </div>
       <p class="legend-note">Each category has its own colour and icon — open
         <strong>Filters</strong> (☰, top left) for the full list.</p>

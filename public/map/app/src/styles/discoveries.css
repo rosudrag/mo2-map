@@ -78,7 +78,14 @@
  * >11:1 even composited over the ring's own worst-case backdrop) that the
  * count reads regardless of kind colour or what terrain is under the bubble.
  */
-.leaflet-discoveries-pane .marker-cluster span.cluster-count {
+/*
+ * Unscoped, unlike the ring above: filter-panel.css's competing !important
+ * rule targets `.marker-cluster-* div`, never `span.cluster-count`, so this
+ * class needs no pane ancestor to win and can be dropped in anywhere -
+ * including the legend swatch (sarducaa/index.html), which reuses it
+ * verbatim rather than approximating it, so the two can never drift apart.
+ */
+.cluster-count {
   display: inline-block; min-width: 15px; padding: 1px 4px;
   border-radius: 8px; background: rgba(28, 22, 13, .88);
   color: #f4ecdd; font-size: 11px; font-weight: 600; line-height: 15px;
@@ -88,12 +95,14 @@
 /* ---- popup ---------------------------------------------------------- */
 /*
  * A floor under the popup, because the content cannot supply one. The class
- * value is a single unbreakable token (`BP_MOCharacterAI_Creature_Akrep_C`),
- * and `break-all` lets its min-content width fall to ONE CHARACTER — so the
- * shrink-to-fit popup collapsed into a 100 px column with the class running
- * vertically down the screen, one letter per line. Leaflet's own `minWidth`
- * option is set alongside this in markers.js; both are needed, since Leaflet
- * sizes the wrapper while this sizes what is inside it.
+ * value is a single unbreakable token (an engine class name, shaped like
+ * `BP_SomeCreature_C` — no real one appears here; this repo's published
+ * data never carries one either, see docs/snapshot.md's forbidden-fields
+ * list), and `break-all` lets its min-content width fall to ONE CHARACTER —
+ * so the shrink-to-fit popup collapsed into a 100 px column with the class
+ * running vertically down the screen, one letter per line. Leaflet's own
+ * `minWidth` option is set alongside this in markers.js; both are needed,
+ * since Leaflet sizes the wrapper while this sizes what is inside it.
  */
 .marker-popup.disco-popup { min-width: 196px; }
 /* Separate the facts from the write actions so Delete is not buried under the class slug. */

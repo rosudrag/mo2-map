@@ -1,9 +1,15 @@
 /*
- * The first-run legend (view/legend.js). Two of the three swatches below
- * reuse .map-pin / .disco-pin verbatim rather than approximating them, so
- * the legend can never drift from what the map actually draws; the cluster
- * swatch is hand-sized because Leaflet.markercluster sets that one's
- * dimensions at runtime, not in CSS.
+ * The first-run legend (view/legend.js). The pin swatches reuse .map-pin /
+ * .disco-pin verbatim, and the cluster swatch's count reuses .cluster-count
+ * verbatim too (discoveries.css) — the one piece of a Leaflet-generated
+ * marker that ISN'T sized by Leaflet at runtime, so it is safe to drop into
+ * static markup. The halo and the kind-tinted ring around it stay
+ * hand-approximated: reusing THEIR real selectors would mean giving this
+ * swatch Leaflet's own `.leaflet-pane` class, which is `position: absolute;
+ * left: 0; top: 0` in leaflet.css and would fly the swatch out of the
+ * legend's flex layout rather than sit in its row. Sized and coloured to
+ * match discoveries.css's real numbers (34px halo, 26px ring, the ring's own
+ * .58/.9 alpha) so drift is at least visible on inspection, not guessed at.
  */
 /*
  * Its own corner (top-right), mirroring #filter-toggle's top-left slot in
@@ -56,18 +62,20 @@
 #legend-panel .panel-head button:focus { outline: 2px solid var(--bronze); outline-offset: 1px; }
 .legend-body { padding: 10px 12px 0; }
 .legend-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
-.legend-swatch { flex: 0 0 auto; width: 28px; display: flex; justify-content: center; padding-top: 1px; }
+.legend-swatch { flex: 0 0 auto; width: 34px; display: flex; justify-content: center; padding-top: 1px; }
 .legend-row p { margin: 0; font-size: 12px; line-height: 1.45; }
 .legend-row p strong { color: var(--bronze); font-weight: 600; }
 .legend-cluster {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: rgba(138, 106, 61, .45);
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(232, 220, 200, .10);
   display: flex; align-items: center; justify-content: center;
 }
-.legend-cluster span {
-  width: 20px; height: 20px; border-radius: 50%;
-  background: rgba(92, 69, 36, .92); border: 1px solid var(--bronze);
-  color: #f0e6d4; font-size: 10px; font-weight: 700;
+/* Spawns' colour (#a05a4a), one representative kind of five — the real ring
+   picks whichever kind is most common inside each bubble; this is an
+   example, not a claim that spawns are what a reader will see most. */
+.legend-cluster-ring {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(160, 90, 74, .58); border: 1px solid rgba(160, 90, 74, .9);
   display: flex; align-items: center; justify-content: center;
 }
 .legend-note {
