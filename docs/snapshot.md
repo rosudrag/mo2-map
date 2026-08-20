@@ -72,28 +72,41 @@ base-species label can still carry it truthfully); a bare trailing letter
 glued to a word with nothing else distinguishing it (`ChestA`, `BarrelB`,
 `KallardA`) folds on `resource`, `container` and `npc`, because an opaque
 letter cannot mean anything to a reader even where it does correlate with
-something real. `count` on a folded row therefore sums the base creature
-*and* its variants found in that cell — still an honest "this many things
-are here", now at the species/object level rather than the exact engine
-asset. See export-snapshot.mjs's "Folding variant classes" section for the
-measurements behind each fold. Grid quantisation, not clustering: a
-single-linkage clusterer chains dense fields of adjacent nodes into one
-centroid kilometres from any real node (measured: 1,265 raw discoveries
-collapsed into one cluster on this catalogue). A fixed grid cannot do that —
-the cost is a *bounded* position error instead of an unbounded one.
+something real. `count` on a folded row sums the base creature *and* its
+variants found in that cell — and, since the raw cache already carries
+each record's own server-resolved simultaneous-observation count (a herd
+the discovery API already resolved to one row keeps its own size), `count`
+sums *that* figure across merged records rather than the number of records
+merged, so a 10-horse herd server-resolved to one record still publishes
+as `count: 10`, not `count: 1`. See export-snapshot.mjs's "Folding variant
+classes" section for the measurements behind each fold. Grid quantisation,
+not clustering: a single-linkage clusterer chains dense fields of adjacent
+nodes into one centroid kilometres from any real node (measured: 1,265 raw
+discoveries collapsed into one cluster on this catalogue). A fixed grid
+cannot do that — the cost is a *bounded* position error instead of an
+unbounded one.
 
 Cell size is per kind: 128 m for `resource` (raised from 64 m — the
 per-class curve for the densest resource fields has no natural gap, so
 128 m is a judgement that keeps the worst-case error under 100 m while
-cutting the densest fields by roughly 40%), 64 m for `spawn` (creature
-spawns barely compress at any cell size that keeps the error reasonable —
-measured as a genuinely dispersed wild population rather than duplicate
-reports of one herd, so a bigger cell was measured and rejected), 16 m for
-`npc`, `structure`, and `container` (every instance is a distinct object
-worth keeping separate — 16 m only dedupes repeat reports of the *same*
-object; also measured and rejected: `structure` row count does not move at
-all between 16 m and 64 m). The worst-case position error is half the cell
-diagonal: ≈91 m at 128 m, ≈45 m at 64 m, ≈11 m at 16 m.
+cutting the densest fields by roughly 40%). 128 m for `spawn` too, but for
+a different reason: the raw cache is not a raw sighting log. Trainer-web's
+discovery API already resolves a `spawn` observation to one row within a
+128 m radius before it ever reaches this cache — a harness-measured value
+("1.00 rows per real thing for that kind's modelled geometry"), verified
+directly against this cache too: zero same-class `spawn` pairs sit closer
+than 128 m. A smaller client-side cell was never resolving anything real,
+so 128 m here stops disagreeing with an already-correct upstream
+resolution rather than discarding real precision — going bigger still
+(192 m and up, measured and rejected) would re-merge camps that resolution
+already ruled distinct, which is not "acknowledging the position was never
+exact", it is discarding a real distinction. 16 m for `npc`, `structure`,
+and `container` (every instance is a distinct object worth keeping
+separate, and unlike `spawn` there is no "the position was never real"
+argument for something that stands still — 16 m only dedupes repeat
+reports of the *same* object; also measured and rejected: `structure` row
+count does not move at all between 16 m and 64 m). The worst-case position
+error is half the cell diagonal: ≈91 m at 128 m, ≈11 m at 16 m.
 
 `kind: station` (player-housing workbenches) is dropped entirely at export —
 furniture placed by a player is not a discovery.
@@ -107,7 +120,7 @@ furniture placed by a player is not a discovery.
 | `kind` | Enum | resource, spawn, npc, structure, container | Yes | Object category |
 | `label` | String | non-empty, ≤128 chars | Yes | Human-readable name |
 | `x`, `y`, `z` | Integer | Metres | Yes | Cell centroid, rounded to the nearest metre |
-| `count` | Integer | ≥1 | Yes | How many nodes were merged into this row — "this many things here", not "seen this many times" |
+| `count` | Integer | ≥1 | Yes | Sum of each merged record's own resolved simultaneous-observation count — "this many things here", not "seen this many times" |
 
 **Constraints**:
 - `additionalProperties: false` — No extra fields allowed
@@ -158,11 +171,12 @@ Export metadata and summary statistics.
 
 No row here identifies a player, a server, or a play session. No timestamp
 carries sub-day precision, so no row can be placed in a session. No count
-reports how many times something was *seen* — only how many nodes a cell's
-row merges, which is a property of the map, not of anyone's play history.
-There is no coverage grid, because a coverage grid is itself a record of
-where someone looked and how often. What ships is the catalogue: what is on
-the map, aggregated and de-identified from how it was found.
+reports how many times something was *seen* — only how many things a
+cell's row resolves to, which is a property of the map, not of anyone's
+play history. There is no coverage grid, because a coverage grid is itself
+a record of where someone looked and how often. What ships is the
+catalogue: what is on the map, aggregated and de-identified from how it
+was found.
 
 ### Excluded Rows
 

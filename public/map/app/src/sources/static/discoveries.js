@@ -23,23 +23,27 @@ import { loadSnapshot } from "./data.js";
 
 /**
  * The two facts every published row actually carries beyond its name and
- * kind: how many nodes this pin merges, and where it is. Static-build-only
- * (registered here, not in discoveries/markers.js) because `count` means
- * something else on the live source's side of the seam — see that module's
- * own popupFacts doc — and a shared renderer cannot label both meanings
- * honestly from one string.
+ * kind: how many things this pin represents, and where it is. Static-build-
+ * only (registered here, not in discoveries/markers.js) because `count`
+ * means something else on the live source's side of the seam — see that
+ * module's own popupFacts doc — and a shared renderer cannot label both
+ * meanings honestly from one string.
  *
  * The count line only earns space when it says something the ×N in the
- * title does not: that a cell merges nodes rather than recording sightings.
- * The position is metres in the same frame `?you=world:X,Y` and the
- * coordinate readout use, so a reader can walk to it. Both come straight off
- * the row snapshot.md already publishes — nothing here is invented.
+ * title does not: that this is a count of things, not of sightings of one
+ * thing. It is NOT always a grid merge — snapshot.md's `count` sums each
+ * merged record's own already-resolved simultaneous-observation figure, so
+ * a single unmerged record for one herd can carry `count > 1` on its own
+ * before any grid cell ever combines two records. The position is metres in
+ * the same frame `?you=world:X,Y` and the coordinate readout use, so a
+ * reader can walk to it. Both come straight off the row snapshot.md already
+ * publishes — nothing here is invented.
  */
 function popupFacts(row) {
   let out = "";
   if (row.count > 1) {
-    out += "<dt>Nodes here</dt><dd>" + row.count +
-      " grid-merged \u2014 nearby nodes folded into one pin, not " + row.count +
+    out += "<dt>Count</dt><dd>" + row.count +
+      " here \u2014 this many things at this spot, not " + row.count +
       " sightings</dd>";
   }
   out += '<dt title="Grid-cell centroid \u2014 the real node may sit a short walk from this point">' +
