@@ -5,7 +5,11 @@
   "license": "Apache-2.0",
   "type": "module",
   "engines": { "node": ">=20" },
-  "exports": { "./coordinates": "./src/coordinates.js" },
+  "exports": {
+    "./coordinates": "./src/coordinates.js",
+    "./app/*": "./public/map/app/*",
+    "./registry.js": "./public/map/registry.js"
+  },
   "scripts": {
     "test": "node --test \"test/*.test.mjs\"",
     "serve": "node server/serve.mjs",
