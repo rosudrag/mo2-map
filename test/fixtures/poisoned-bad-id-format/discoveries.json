@@ -1,0 +1,12 @@
+[
+  {
+    "id": "iron-ore-1",
+    "kind": "resource",
+    "cls": "BP_Ore_Iron_C",
+    "label": "Iron Ore",
+    "x": 1500,
+    "y": -2500,
+    "z": 30,
+    "count": 4
+  }
+]

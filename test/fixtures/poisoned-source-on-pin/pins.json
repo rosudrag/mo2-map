@@ -1,0 +1,11 @@
+[
+  {
+    "id": "test-town",
+    "label": "Test Town",
+    "type": "Settlement",
+    "category": "town",
+    "map_x": 1000,
+    "map_y": 800,
+    "source": "survey"
+  }
+]

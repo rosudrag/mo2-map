@@ -1,16 +1,12 @@
 [
   {
-    "id": "a1b2c3d4-e5f6-4a5b-6c7d-8e9f0a1b2c3d",
+    "id": "aa11bb22",
     "kind": "spawn",
-    "class_name": "BP_StartPoint_C",
+    "cls": "BP_StartPoint_2026-08-19T14:23:11Z_C",
     "label": "Test Spawn",
-    "world_x": 100.5,
-    "world_y": 200.3,
-    "world_z": 50.0,
-    "seen_count": 5,
-    "observations": 12,
-    "first_seen_date": "2026-08-19T14:23:11Z",
-    "last_seen_date": "2026-08-19",
-    "source": "survey"
+    "x": 100,
+    "y": 200,
+    "z": 50,
+    "count": 5
   }
 ]

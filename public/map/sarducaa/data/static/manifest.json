@@ -1,0 +1,16 @@
+{
+  "id": "sarducaa",
+  "schema_version": "v2",
+  "generated": "2026-08-20",
+  "counts": {
+    "discoveries": 9882,
+    "pins": 397,
+    "by_kind": {
+      "resource": 5635,
+      "spawn": 3048,
+      "npc": 599,
+      "structure": 193,
+      "container": 407
+    }
+  }
+}

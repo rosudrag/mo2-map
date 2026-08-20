@@ -1,1 +1,13 @@
-{"schema_version": "v1", "snapshot_date": "2026-08-19", "counts": {}, "gates_applied": [], "coverage": {"surveyed_cells": 0, "bbox_cells": 0, "percent": 0}}
+{
+  "id": "sarducaa",
+  "schema_version": "v2",
+  "generated": "2026-08-19",
+  "counts": {
+    "discoveries": 0,
+    "pins": 0,
+    "by_kind": {
+      "resource": 0,
+      "user": "TestPlayer"
+    }
+  }
+}

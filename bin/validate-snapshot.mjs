@@ -6,35 +6,52 @@ import path from "path";
 /*
  * Snapshot validator: structure, field list, and timestamp precision.
  *
- * Enforces the snapshot contract: files match the schema, contain only
- * specified fields, and quantise dates to day granularity. Exit 0 on pass,
- * non-zero on failure. Reports all violations in a single run.
+ * Enforces the v2 snapshot contract: files match the schema, contain only
+ * specified fields, and carry no field that reconstructs collection
+ * activity (who found what, when, how often). Exit 0 on pass, non-zero on
+ * failure. Reports all violations in a single run.
  */
 
+// Forbidden anywhere in any published file, at any nesting depth. This is
+// the exact denylist from the shared snapshot contract — every field that
+// would let a reader reconstruct collection activity (timestamps, sighting
+// tallies, server/account identity) or reintroduce human-curation
+// provenance (source, updated_by) the v2 model no longer publishes.
 const FORBIDDEN_FIELDS = new Set([
+  "first_seen",
+  "first_seen_at",
+  "first_seen_date",
+  "last_seen",
+  "last_seen_at",
+  "last_seen_date",
+  "observations",
+  "seen_count",
+  "server_id",
+  "serverId",
+  "published_count",
+  "published_observations",
   "owner",
   "seq",
-  "cell_x",
-  "cell_y",
   "status",
   "note",
-  "meta_json",
-  "first_seen_at",
-  "last_seen_at",
   "api_key",
   "user",
   "account",
-  "ip"
+  "ip",
+  "updated_by",
+  "source"
 ]);
-
-const ALLOWED_UPDATED_BY = new Set(["seed", "gamefiles", "community"]);
 
 // Timestamp precision check: day-granularity enforcement via two layers.
 // Layer 1 (this regex): scan all strings for full ISO date-times (YYYY-MM-DD[T ]digits).
-// Layer 2 (isValidDate): date fields (first_seen_date, last_seen_date, snapshot_date)
-// must be exactly YYYY-MM-DD format, rejecting any time component.
-// Bare times in free-text fields (label, class_name) are permitted.
+// Layer 2 (isValidDate): manifest.json's `generated` field must be exactly
+// YYYY-MM-DD format, rejecting any time component.
+// Bare times in free-text fields (label, cls) are permitted.
 const TIMESTAMP_PRECISION_REGEX = /\d{4}-\d{2}-\d{2}[T ]\d/;
+
+const DISCOVERY_KINDS = ["resource", "spawn", "npc", "structure", "container"];
+const DISCOVERY_ID_REGEX = /^[0-9a-f]{8}$/;
+
 class Validator {
   constructor(dir) {
     this.dir = dir;
@@ -48,7 +65,6 @@ class Validator {
   validate() {
     this.validateDiscoveries();
     this.validatePins();
-    this.validateCoverage();
     this.validateManifest();
 
     return {
@@ -69,8 +85,6 @@ class Validator {
   }
 
   // Recursively check for forbidden fields anywhere in the data structure.
-  // updated_by is file-scoped: never allowed on discoveries (anonymous machine observations);
-  // only allowed on pins (where human curation and provenance are meaningful).
   checkForbiddenFields(data, filename, jsonPath = "$") {
     if (data === null || data === undefined) return;
 
@@ -83,24 +97,7 @@ class Validator {
         for (const [key, value] of Object.entries(data)) {
           const currentPath = `${jsonPath}.${key}`;
 
-          // Check if this is updated_by: only allowed on pins with specific values
-          if (key === "updated_by") {
-            if (filename !== "pins.json") {
-              // Discoveries and other files cannot have updated_by
-              this.violation(
-                filename,
-                currentPath,
-                `Field 'updated_by' is not allowed in ${filename} (only allowed on pins)`
-              );
-            } else if (!ALLOWED_UPDATED_BY.has(value)) {
-              // Pins can have updated_by but only with specific values
-              this.violation(
-                filename,
-                currentPath,
-                `Field 'updated_by' has forbidden value '${value}' (allowed: seed, gamefiles, community)`
-              );
-            }
-          } else if (FORBIDDEN_FIELDS.has(key)) {
+          if (FORBIDDEN_FIELDS.has(key)) {
             this.violation(
               filename,
               currentPath,
@@ -169,12 +166,7 @@ class Validator {
     }
 
     // Check required fields
-    const required = [
-      "id", "kind", "class_name", "label",
-      "world_x", "world_y", "world_z",
-      "seen_count", "observations",
-      "first_seen_date", "last_seen_date", "source"
-    ];
+    const required = ["id", "kind", "cls", "label", "x", "y", "z", "count"];
     for (const field of required) {
       if (!(field in item)) {
         this.violation(
@@ -197,80 +189,51 @@ class Validator {
       }
     }
 
-    // Type checks
-    if (item.id && typeof item.id !== "string") {
+    // Deterministic id: first 8 hex chars of sha256("kind|cls|x|y")
+    if (item.id !== undefined && typeof item.id !== "string") {
       this.violation(filename, `${jsonPath}.id`, "id must be a string");
     }
-    if (item.id && !isUUID(item.id)) {
-      this.violation(filename, `${jsonPath}.id`, "id must be a valid UUID");
+    if (item.id && !DISCOVERY_ID_REGEX.test(item.id)) {
+      this.violation(filename, `${jsonPath}.id`, "id must be 8 lowercase hex characters");
     }
 
-    if (item.kind && !["spawn", "resource", "container", "npc", "structure"].includes(item.kind)) {
+    if (item.kind && !DISCOVERY_KINDS.includes(item.kind)) {
       this.violation(
         filename,
         `${jsonPath}.kind`,
-        `kind must be one of: spawn, resource, container, npc, structure`
+        `kind must be one of: ${DISCOVERY_KINDS.join(", ")}`
       );
     }
 
-    if (item.class_name && typeof item.class_name !== "string") {
-      this.violation(filename, `${jsonPath}.class_name`, "class_name must be a string");
+    if (item.cls !== undefined && typeof item.cls !== "string") {
+      this.violation(filename, `${jsonPath}.cls`, "cls must be a string");
     }
-    if (item.class_name && item.class_name.length > 160) {
-      this.violation(filename, `${jsonPath}.class_name`, "class_name must be ≤160 characters");
+    if (item.cls && item.cls.length > 160) {
+      this.violation(filename, `${jsonPath}.cls`, "cls must be ≤160 characters");
     }
 
-    if (item.label && typeof item.label !== "string") {
+    if (item.label !== undefined && typeof item.label !== "string") {
       this.violation(filename, `${jsonPath}.label`, "label must be a string");
     }
     if (item.label && item.label.length > 128) {
       this.violation(filename, `${jsonPath}.label`, "label must be ≤128 characters");
     }
 
-    // Coordinates
-    if (item.world_x !== undefined && typeof item.world_x !== "number") {
-      this.violation(filename, `${jsonPath}.world_x`, "world_x must be a number");
-    }
-    if (item.world_y !== undefined && typeof item.world_y !== "number") {
-      this.violation(filename, `${jsonPath}.world_y`, "world_y must be a number");
-    }
-    if (item.world_z !== undefined && typeof item.world_z !== "number") {
-      this.violation(filename, `${jsonPath}.world_z`, "world_z must be a number");
-    }
-
-    // Counts
-    if (item.seen_count !== undefined) {
-      if (typeof item.seen_count !== "number" || !Number.isInteger(item.seen_count)) {
-        this.violation(filename, `${jsonPath}.seen_count`, "seen_count must be an integer");
-      }
-      if (item.seen_count < 1) {
-        this.violation(filename, `${jsonPath}.seen_count`, "seen_count must be ≥1");
+    // Coordinates: integer world metres
+    for (const axis of ["x", "y", "z"]) {
+      if (item[axis] !== undefined && (typeof item[axis] !== "number" || !Number.isInteger(item[axis]))) {
+        this.violation(filename, `${jsonPath}.${axis}`, `${axis} must be an integer`);
       }
     }
 
-    if (item.observations !== undefined) {
-      if (typeof item.observations !== "number" || !Number.isInteger(item.observations)) {
-        this.violation(filename, `${jsonPath}.observations`, "observations must be an integer");
+    // Count: how many nodes were merged into this row
+    if (item.count !== undefined) {
+      if (typeof item.count !== "number" || !Number.isInteger(item.count)) {
+        this.violation(filename, `${jsonPath}.count`, "count must be an integer");
       }
-      if (item.observations < 1) {
-        this.violation(filename, `${jsonPath}.observations`, "observations must be ≥1");
+      if (item.count < 1) {
+        this.violation(filename, `${jsonPath}.count`, "count must be ≥1");
       }
-    }
-
-    // Dates (YYYY-MM-DD format)
-    if (item.first_seen_date && !isValidDate(item.first_seen_date)) {
-      this.violation(filename, `${jsonPath}.first_seen_date`, "first_seen_date must be YYYY-MM-DD format");
-    }
-    if (item.last_seen_date && !isValidDate(item.last_seen_date)) {
-      this.violation(filename, `${jsonPath}.last_seen_date`, "last_seen_date must be YYYY-MM-DD format");
-    }
-
-    if (item.source && !["survey", "gamefile", "community"].includes(item.source)) {
-      this.violation(
-        filename,
-        `${jsonPath}.source`,
-        `source must be one of: survey, gamefile, community`
-      );
     }
   }
 
@@ -298,8 +261,8 @@ class Validator {
       return;
     }
 
-    const required = ["id", "label", "type", "category", "map_x", "map_y", "source"];
-    const optional = ["world_x", "world_y", "world_z", "meta", "updated_by"];
+    const required = ["id", "label", "type", "category", "map_x", "map_y"];
+    const optional = ["world_x", "world_y", "world_z"];
     const allowed = new Set([...required, ...optional]);
 
     // Check required fields
@@ -321,15 +284,22 @@ class Validator {
     }
 
     // Type checks
-    if (item.id && !isUUID(item.id)) {
-      this.violation(filename, `${jsonPath}.id`, "id must be a valid UUID");
+    if (item.id !== undefined && (typeof item.id !== "string" || item.id.length === 0)) {
+      this.violation(filename, `${jsonPath}.id`, "id must be a non-empty string");
     }
 
-    if (item.label && typeof item.label !== "string") {
+    if (item.label !== undefined && typeof item.label !== "string") {
       this.violation(filename, `${jsonPath}.label`, "label must be a string");
     }
     if (item.label && item.label.length > 128) {
       this.violation(filename, `${jsonPath}.label`, "label must be ≤128 characters");
+    }
+
+    if (item.type !== undefined && typeof item.type !== "string") {
+      this.violation(filename, `${jsonPath}.type`, "type must be a string");
+    }
+    if (item.category !== undefined && typeof item.category !== "string") {
+      this.violation(filename, `${jsonPath}.category`, "category must be a string");
     }
 
     if (item.map_x !== undefined && typeof item.map_x !== "number") {
@@ -349,121 +319,6 @@ class Validator {
     if (item.world_z !== undefined && typeof item.world_z !== "number") {
       this.violation(filename, `${jsonPath}.world_z`, "world_z must be a number");
     }
-
-    if (item.source && !["survey", "gamefile", "community"].includes(item.source)) {
-      this.violation(
-        filename,
-        `${jsonPath}.source`,
-        `source must be one of: survey, gamefile, community`
-      );
-    }
-
-    // Validate meta if present
-    if (item.meta !== undefined) {
-      if (typeof item.meta !== "object" || item.meta === null || Array.isArray(item.meta)) {
-        this.violation(filename, `${jsonPath}.meta`, "meta must be an object");
-      } else {
-        const metaAllowed = new Set([
-          "position_source", "poi_id", "poi_class", "package", "anchor", "instances", "spread_m"
-        ]);
-        for (const key of Object.keys(item.meta)) {
-          if (!metaAllowed.has(key)) {
-            this.violation(
-              filename,
-              `${jsonPath}.meta.${key}`,
-              `Unexpected property '${key}' in meta (additionalProperties: false)`
-            );
-          }
-        }
-      }
-    }
-  }
-
-  validateCoverage() {
-    const data = this.readJsonFile("coverage.json");
-    if (!data) return;
-
-    if (typeof data !== "object" || data === null || Array.isArray(data)) {
-      this.violation("coverage.json", "$", "Root must be an object");
-      return;
-    }
-
-    // Check required fields
-    if (!("cell_size_m" in data)) {
-      this.violation("coverage.json", "$", "Missing required field 'cell_size_m'");
-    }
-    if (!("cells" in data)) {
-      this.violation("coverage.json", "$", "Missing required field 'cells'");
-    }
-
-    // Check additionalProperties
-    const allowed = new Set(["cell_size_m", "cells"]);
-    for (const key of Object.keys(data)) {
-      if (!allowed.has(key)) {
-        this.violation(
-          "coverage.json",
-          `$.${key}`,
-          `Unexpected property '${key}' (additionalProperties: false)`
-        );
-      }
-    }
-
-    if (data.cell_size_m !== undefined) {
-      if (typeof data.cell_size_m !== "number" || !Number.isInteger(data.cell_size_m)) {
-        this.violation("coverage.json", "$.cell_size_m", "cell_size_m must be an integer");
-      }
-    }
-
-    if (data.cells !== undefined) {
-      if (!Array.isArray(data.cells)) {
-        this.violation("coverage.json", "$.cells", "cells must be an array");
-      } else {
-        data.cells.forEach((cell, idx) => {
-          const path = `$.cells[${idx}]`;
-          if (typeof cell !== "object" || cell === null) {
-            this.violation("coverage.json", path, "Cell must be an object");
-            return;
-          }
-
-          // Check required fields
-          if (!("x" in cell)) {
-            this.violation("coverage.json", path, "Missing required field 'x'");
-          }
-          if (!("y" in cell)) {
-            this.violation("coverage.json", path, "Missing required field 'y'");
-          }
-          if (!("rows" in cell)) {
-            this.violation("coverage.json", path, "Missing required field 'rows'");
-          }
-
-          // Check additionalProperties
-          const cellAllowed = new Set(["x", "y", "rows"]);
-          for (const key of Object.keys(cell)) {
-            if (!cellAllowed.has(key)) {
-              this.violation(
-                "coverage.json",
-                `${path}.${key}`,
-                `Unexpected property '${key}' (additionalProperties: false)`
-              );
-            }
-          }
-
-          // Type checks
-          if (cell.x !== undefined && (typeof cell.x !== "number" || !Number.isInteger(cell.x))) {
-            this.violation("coverage.json", `${path}.x`, "x must be an integer");
-          }
-          if (cell.y !== undefined && (typeof cell.y !== "number" || !Number.isInteger(cell.y))) {
-            this.violation("coverage.json", `${path}.y`, "y must be an integer");
-          }
-          if (cell.rows !== undefined && (typeof cell.rows !== "number" || !Number.isInteger(cell.rows))) {
-            this.violation("coverage.json", `${path}.rows`, "rows must be an integer");
-          }
-        });
-      }
-    }
-
-    this.checkForbiddenFields(data, "coverage.json");
-    this.checkTimestampPrecision(data, "coverage.json");
   }
 
   validateManifest() {
@@ -475,9 +330,8 @@ class Validator {
       return;
     }
 
-    const required = ["schema_version", "snapshot_date", "counts", "gates_applied", "coverage"];
-    const optional = ["diff_vs_previous"];
-    const allowed = new Set([...required, ...optional]);
+    const required = ["id", "schema_version", "generated", "counts"];
+    const allowed = new Set(required);
 
     // Check required fields
     for (const field of required) {
@@ -497,20 +351,16 @@ class Validator {
       }
     }
 
-    if (data.snapshot_date && !isValidDate(data.snapshot_date)) {
-      this.violation("manifest.json", "$.snapshot_date", "snapshot_date must be YYYY-MM-DD format");
+    if (data.id !== undefined && typeof data.id !== "string") {
+      this.violation("manifest.json", "$.id", "id must be a string");
     }
 
-    if (data.gates_applied !== undefined) {
-      if (!Array.isArray(data.gates_applied)) {
-        this.violation("manifest.json", "$.gates_applied", "gates_applied must be an array");
-      } else {
-        data.gates_applied.forEach((item, idx) => {
-          if (typeof item !== "string") {
-            this.violation("manifest.json", `$.gates_applied[${idx}]`, "gates_applied items must be strings");
-          }
-        });
-      }
+    if (data.schema_version !== undefined && typeof data.schema_version !== "string") {
+      this.violation("manifest.json", "$.schema_version", "schema_version must be a string");
+    }
+
+    if (data.generated !== undefined && !isValidDate(data.generated)) {
+      this.violation("manifest.json", "$.generated", "generated must be YYYY-MM-DD format");
     }
 
     // Validate counts
@@ -528,50 +378,28 @@ class Validator {
             );
           }
         }
-      }
-    }
 
-    // Validate coverage
-    if (data.coverage !== undefined) {
-      if (typeof data.coverage !== "object" || data.coverage === null || Array.isArray(data.coverage)) {
-        this.violation("manifest.json", "$.coverage", "coverage must be an object");
-      } else {
-        if (!("surveyed_cells" in data.coverage)) {
-          this.violation("manifest.json", "$.coverage", "Missing required field 'surveyed_cells'");
+        if (data.counts.discoveries !== undefined && typeof data.counts.discoveries !== "number") {
+          this.violation("manifest.json", "$.counts.discoveries", "discoveries must be a number");
         }
-        if (!("bbox_cells" in data.coverage)) {
-          this.violation("manifest.json", "$.coverage", "Missing required field 'bbox_cells'");
-        }
-        if (!("percent" in data.coverage)) {
-          this.violation("manifest.json", "$.coverage", "Missing required field 'percent'");
+        if (data.counts.pins !== undefined && typeof data.counts.pins !== "number") {
+          this.violation("manifest.json", "$.counts.pins", "pins must be a number");
         }
 
-        const covAllowed = new Set(["surveyed_cells", "bbox_cells", "percent"]);
-        for (const key of Object.keys(data.coverage)) {
-          if (!covAllowed.has(key)) {
-            this.violation(
-              "manifest.json",
-              `$.coverage.${key}`,
-              `Unexpected property '${key}' in coverage (additionalProperties: false)`
-            );
-          }
-        }
-      }
-    }
-
-    // Validate optional diff_vs_previous
-    if (data.diff_vs_previous !== undefined) {
-      if (typeof data.diff_vs_previous !== "object" || data.diff_vs_previous === null || Array.isArray(data.diff_vs_previous)) {
-        this.violation("manifest.json", "$.diff_vs_previous", "diff_vs_previous must be an object");
-      } else {
-        const diffAllowed = new Set(["added", "removed"]);
-        for (const key of Object.keys(data.diff_vs_previous)) {
-          if (!diffAllowed.has(key)) {
-            this.violation(
-              "manifest.json",
-              `$.diff_vs_previous.${key}`,
-              `Unexpected property '${key}' in diff_vs_previous (additionalProperties: false)`
-            );
+        if (data.counts.by_kind !== undefined) {
+          if (typeof data.counts.by_kind !== "object" || data.counts.by_kind === null || Array.isArray(data.counts.by_kind)) {
+            this.violation("manifest.json", "$.counts.by_kind", "by_kind must be an object");
+          } else {
+            const byKindAllowed = new Set(DISCOVERY_KINDS);
+            for (const key of Object.keys(data.counts.by_kind)) {
+              if (!byKindAllowed.has(key)) {
+                this.violation(
+                  "manifest.json",
+                  `$.counts.by_kind.${key}`,
+                  `Unexpected property '${key}' in by_kind (additionalProperties: false)`
+                );
+              }
+            }
           }
         }
       }
@@ -583,11 +411,6 @@ class Validator {
 }
 
 // Helper functions
-function isUUID(str) {
-  if (typeof str !== "string") return false;
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-}
-
 function isValidDate(str) {
   if (typeof str !== "string") return false;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
