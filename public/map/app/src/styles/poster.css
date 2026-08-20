@@ -2,7 +2,7 @@
  * Poster export chrome (map/poster.js): the Export button in the bottom-right
  * corner stack, and the small progress pill shown while a render is in flight.
  *
- * The button borrows its look from .mg-btn (manage.css) per the page's chrome
+ * The button borrows its look from .mg-btn (styles/controls.css) per the page's chrome
  * language, and is positioned like #dungeon-entry / #style-toggle - page-level
  * absolute chrome, because L.control corners are sized for 26px buttons
  * (dungeonmode.css). Stack, bottom to top: L.control.zoom (bottom:12px) ->

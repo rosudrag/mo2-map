@@ -33,7 +33,7 @@
 }
 #paste-loc-go:hover { border-color: var(--bronze); color: var(--text); }
 /*
- * The joined-feedback bar under #search (manage/querybox.js): idle by default
+ * The joined-feedback bar under #search (view/search.js): idle by default
  * (JS sets display:flex only while the query is active), one line of text plus
  * Fit and Clear — the query already narrowed the map and every list, so there
  * is nothing here to pick from, unlike the dropdown this replaced.

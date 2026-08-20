@@ -149,7 +149,7 @@ export function currentDungeon() {
  * The bar, and the button that opens the dungeon list.
  *
  * Both are plain absolutely-positioned chrome rather than L.control: the page's
- * own panels (#filter-panel, #manage-panel) are, and a Leaflet control would put
+ * own panels (#filter-panel and, on the private build, its row-catalogue panel) are, and a Leaflet control would put
  * a full-width bar inside a corner container sized for two 26px buttons.
  */
 function buildChrome() {

@@ -1,18 +1,20 @@
 /*
  * Sarducaa map page entry point — the public, static build.
  *
- * Same manager shell, same map, same pins and discoveries as main.js. The
- * difference is entirely in what gets registered: no bookmarks (personal,
- * per-user, needs an account and a key — none of which exist here), no
- * presence (a live feed with nothing to feed it), and pins/discoveries read a
- * committed JSON snapshot instead of the live API.
+ * Same map, same marker layers, same filter panel and search box as main.js.
+ * The difference is entirely in what gets registered and mounted: no
+ * bookmarks (personal, per-user, needs an account and a key — none of which
+ * exist here), no presence (a live feed with nothing to feed it), no row
+ * list / field editor (nothing here can be authored — there is no API behind
+ * this build at all), and pins/discoveries read a committed JSON snapshot
+ * instead of the live API.
  *
  * This file, and everything it imports, MUST carry zero network code to a live
- * endpoint — no src/config.js, no src/bookmarks/, no src/presence/. That is
- * not a style preference: it is the one thing a reader of a public map is
- * entitled to assume when the page never asks them to log in. See
- * manage/sources/static/{pins,discoveries}.js and pins-view.js /
- * discoveries-view.js for how the live and static sources share everything
+ * endpoint — no src/config.js, no src/bookmarks/, no src/presence/, no write
+ * path of any kind. That is not a style preference: it is the one thing a
+ * reader of a public map is entitled to assume when the page never asks them
+ * to log in. See sources/static/{pins,discoveries}.js and poi/view.js /
+ * discoveries/view.js for how the live and static sources share everything
  * that is not transport.
  */
 import "./util/legacy-prefs.js";
@@ -24,26 +26,21 @@ import { initStyle } from "./map/style.js";
 import { initPoster } from "./map/poster.js";
 import { initSwitcher } from "./map/switcher.js";
 import { renderCoords } from "./map/coords-readout.js";
-import { register } from "./manage/sources-registry.js";
-import * as panel from "./manage/panel.js";
-import * as editor from "./manage/editor.js";
-import * as filters from "./manage/filters.js";
-import * as querybox from "./manage/querybox.js";
-import all from "./manage/sources/all.js";
-import pins from "./manage/sources/static/pins.js";
-import discoveries from "./manage/sources/static/discoveries.js";
+import { register } from "./registry/sources-registry.js";
+import * as filters from "./view/filters.js";
+import * as search from "./view/search.js";
+import pins from "./sources/static/pins.js";
+import discoveries from "./sources/static/discoveries.js";
 
-// Same order as main.js, minus bookmarks: `all` first (default tab), then the
-// two real catalogues.
-register(all);
+// The two real catalogues. main.js also registers a join tab ("All") and
+// bookmarks first; this build has neither an aggregate view nor anything
+// personal to aggregate, so it registers only what a reader can actually see.
 register(pins);
 register(discoveries);
 
 // Mounted synchronously, BEFORE the first load resolves — see main.js for why.
-panel.mount();
-editor.mount();
 filters.mount();
-querybox.mount();
+search.mount();
 
 /**
  * Boots one source on a promise chain of its own. Identical to main.js's

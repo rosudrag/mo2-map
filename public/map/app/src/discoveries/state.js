@@ -171,9 +171,10 @@ export function dropRow(id) {
 /**
  * Every row currently known, in insertion order.
  *
- * The layer used to need only counts, because a discovery had no manager and no
- * list. manage/sources/discoveries.js mirrors these into its store so the rows
- * can be listed, searched and sorted like any other source's.
+ * The layer used to need only counts, because a discovery had no row list of
+ * its own to be searched or sorted in. discoveries/view.js mirrors these into
+ * a registry store so the rows can be listed, searched and sorted like any
+ * other registered source's.
  */
 export function allRows() {
   return Object.keys(rows).map(function (id) { return rows[id]; });

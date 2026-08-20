@@ -2,12 +2,12 @@
  * Everything about the curated pin catalogue that is presentation and
  * rendering, not transport: the row<->marker bridge, the list/editor
  * descriptor pieces (title, groups, sorts, fields…) and reveal-on-the-map.
- * Both manage/sources/pins.js (the live source, full CRUD) and
- * manage/sources/static/pins.js (the read-only public build) build their
- * descriptor by spreading `presentation` over their own id/can/attach/load —
- * and, live only, save/remove/create — which is the actual difference between
- * "rows arrive from /map-data" and "rows arrive once from a committed
- * snapshot".
+ * Both the private repo's own live pins source (the live source, full CRUD)
+ * and this package's sources/static/pins.js (the read-only public build)
+ * build their descriptor by spreading `presentation` over their own
+ * id/can/attach/load — and, live only, save/remove/create — which is the
+ * actual difference between "rows arrive from /map-data" and "rows arrive
+ * once from a committed snapshot".
  *
  * TWO THINGS ARE SPECIFIC TO THIS SOURCE AND SURVIVE AS CONTRACT MEMBERS
  * RATHER THAN AS SPECIAL CASES — carried over unchanged from pins.js:
@@ -33,20 +33,20 @@
  * enabled to drag in the first place) rather than by whether a handler exists.
  * A source that never calls attachDragEnd() simply never has one to fire.
  */
-import { subscribe as subscribeQuery } from "../../map/query.js";
-import { map } from "../../map/instance.js";
-import { mapOf } from "../../map/active-map.js";
+import { subscribe as subscribeQuery } from "../map/query.js";
+import { map } from "../map/instance.js";
+import { mapOf } from "../map/active-map.js";
 import {
   addMarker, clusterGroup, getCategories, getCategory, getMarkers,
   getTypeEnabled, getTypes, isCatEnabled, notify, priorityGroup, setCatEnabled,
   setTypeEnabled, subscribe
-} from "../../poi/state.js";
+} from "./state.js";
 import {
   flushLayerRebuild, makePoiMarker, rebuildLayers, removeMarkerFromMap,
   visibleCountFor
-} from "../../poi/markers.js";
-import { rebuildDiscoveryLayer } from "../../discoveries/markers.js";
-import { GROUPS, ROWS } from "../store.js";
+} from "./markers.js";
+import { rebuildDiscoveryLayer } from "../discoveries/markers.js";
+import { GROUPS, ROWS } from "../registry/store.js";
 
 let store = null;
 

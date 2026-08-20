@@ -1,5 +1,5 @@
 /*
- * One managed source's own state: rows, selection, view, groups and the
+ * One registered source's own state: rows, selection, view, groups and the
  * inline-rename draft — plus the change channels its renderers subscribe to.
  *
  * WHY THIS EXISTS. Before the bookmark split every mutator hand-called the
@@ -21,12 +21,13 @@
  * out — map/query.js owns one query for every source at once, see docs
  * §9 — so what is left here is what stays per-tab: the group filter and sort.
  *
- * ONE INSTANCE PER SOURCE, created by manage/sources-registry.js. The channels
- * coalescing are per instance too: a bookmark poll landing must not make the pin
- * catalogue re-render, and the pin catalogue is large enough for that to show.
- * Nothing in here knows what kind of row it is holding — the three questions
- * it has to ask a row (its id, its group and its search haystack) arrive as
- * config, so this file has no per-source branch and never grows one.
+ * ONE INSTANCE PER SOURCE, created by registry/sources-registry.js. The
+ * channels coalescing are per instance too: a bookmark poll landing must not
+ * make the pin catalogue re-render, and the pin catalogue is large enough for
+ * that to show. Nothing in here knows what kind of row it is holding — the
+ * three questions it has to ask a row (its id, its group and its search
+ * haystack) arrive as config, so this file has no per-source branch and never
+ * grows one.
  *
  * THE ONE INVARIANT AN ADAPTER MUST HONOUR: a row that can be edited, renamed or
  * removed has to be IN this store, adopted by id. The whole write path is built
@@ -379,7 +380,7 @@ export function createStore(config) {
        * doing nothing at all — a bug with no error attached to it. Named here so
        * it is found while the adapter is being written.
        */
-      console.warn("manage/store: cannot rename " + id +
+      console.warn("registry/store: cannot rename " + id +
         " — the row is not in this source's store. A source whose rows can be " +
         "edited must adopt them by id; the write path (snapshot/mutateRows/" +
         "restore) is built on that cache.");

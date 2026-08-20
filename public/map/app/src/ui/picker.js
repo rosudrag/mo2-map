@@ -6,7 +6,7 @@
  * 1. Correctness in an embedded browser view. The POI editor it replaced
  *    carried the comment "native <select> popups fail in an embedded browser
  *    view" and hand-rolled its own pickers for that reason; .mg-pickbtn in
- *    styles/manage.css is that control, and this is the menu it opens. The
+ *    styles/controls.css is that control, and this is the menu it opens. The
  *    bookmark panel, meanwhile, was shipped with native <select> elements and
  *    window.prompt for every bulk edit, so in that embedded view those were
  *    its least reliable part.

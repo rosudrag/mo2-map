@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../app/vendor/MarkerCluster.Default.css" />
   <!-- Bundled from ../app/src/styles/*.css by bin/build.mjs. The ?v= stamp is
        machine-maintained: run `npm run build`, never hand-edit the hash. -->
-  <link rel="stylesheet" href="../app/dist/app-static.css?v=b79a6e9541" />
+  <link rel="stylesheet" href="../app/dist/app-static.css?v=593719dfa7" />
 </head>
 <body>
   <div id="map"></div>
@@ -25,9 +25,10 @@
         <button type="button" id="hide-all">Hide all</button>
       </span>
     </div>
-    <!-- One section per registered source, rendered by manage/filters.js. No
-         hard-coded Players row here — see index.html for that; this build
-         never registers presence, so a row for it would just sit at 0. -->
+    <!-- One section per registered source, rendered by view/filters.js. No
+         hard-coded Players row here — see the private repo's index.html for
+         that; this build never registers presence, so a row for it would
+         just sit at 0. -->
     <div id="filter-sections"></div>
   </aside>
   <div id="top-tools">
@@ -38,90 +39,14 @@
     </div>
   </div>
   <!-- Joined feedback for the query above: a match count per source, Fit and
-       Clear. Filled by manage/querybox.js. -->
+       Clear. Filled by view/search.js. -->
   <div id="search-summary"></div>
   <div id="coords">lat — · lng —<br /><span class="hint">click copy world</span></div>
-  <div id="add-hint">Right-click map to <strong>add marker</strong></div>
-  <div id="drag-hint" aria-live="polite">
-    <span class="hand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 13v-7.5a1.5 1.5 0 0 1 3 0v6.5"/><path d="M11 5.5v-1.5a1.5 1.5 0 0 1 3 0v7.5"/><path d="M14 5.5a1.5 1.5 0 0 1 3 0v6.5"/><path d="M17 8.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2a7 6 0 0 1 -5 -2.5l-1.5 -1.5a1.5 1.5 0 0 1 2 -2.25l1.5 1.5"/><path d="M2.5 13.5l4.5 1.5"/></svg></span>
-    <span id="drag-hint-msg">Drag pin to move · release to <strong>confirm</strong></span>
-    <button type="button" id="drag-hint-cancel">Cancel</button>
-  </div>
-  <!-- The marker manager. One shell for every source: manage/panel.js fills
-       #mg-tabs from the registry and everything below it follows the active
-       tab. This build registers All, Pins and Discoveries only — no
-       Bookmarks tab, no "Forget key" button (there is no key). -->
-  <div id="manage-controls">
-    <button type="button" id="manage-toggle" title="Marker manager">Manage<span class="mg-badge" id="manage-badge">0</span></button>
-    <button type="button" id="manage-edit-toggle" title="Edit mode: drag pins, right-click empty map to create">✎ Edit</button>
-  </div>
-  <aside id="manage-panel" aria-label="Marker manager">
-    <div class="mg-head">
-      <strong>Manage</strong>
-      <span>
-        <button type="button" id="mg-refresh" title="Reload the published snapshot">Refresh</button>
-        <button type="button" id="mg-close">✕</button>
-      </span>
-    </div>
-    <div id="mg-tabs" role="tablist"></div>
-    <div class="mg-tools">
-      <input id="mg-search" type="search" placeholder="Filter everything (regex)..." autocomplete="off" />
-      <!-- Picker buttons, not <select>: native select popups fail in the
-           embedded browser view this markup is shared with. See src/ui/picker.js
-           for the full reasoning. -->
-      <button type="button" class="mg-pickbtn" id="mg-group-filter" title="Filter by group">
-        <span class="val"></span><span class="caret">▾</span>
-      </button>
-      <button type="button" class="mg-pickbtn" id="mg-sort" title="Sort">
-        <span class="val"></span><span class="caret">▾</span>
-      </button>
-      <button type="button" class="mg-btn" id="mg-sort-dir" title="Ascending">↑</button>
-    </div>
-    <div class="mg-tools" id="mg-seltools">
-      <button type="button" class="mg-btn" id="mg-select-all">Select all filtered</button>
-      <button type="button" class="mg-btn" id="mg-clear-sel">Clear selection</button>
-      <button type="button" class="mg-btn" id="mg-group" title="Group rows by category">Group</button>
-      <span class="mg-count" id="mg-shown"></span>
-    </div>
-    <div id="mg-selbar"><span id="mg-selcount">0 selected</span></div>
-    <div id="mg-list"></div>
-    <div id="mg-empty"></div>
-  </aside>
-  <div id="manage-backdrop"></div>
-  <!-- The editor is field-schema driven (manage/fields.js), so the markup is
-       just the shell: #mg-fields is filled from the active source's `fields`.
-       Every field here is read-only (can.edit is false everywhere), so this
-       is a detail sheet, not a form. -->
-  <aside id="manage-editor" aria-label="Details">
-    <div class="mg-head">
-      <strong id="mg-editor-title">Edit</strong>
-      <button type="button" id="mg-editor-close">✕</button>
-    </div>
-    <div id="mg-fields"></div>
-    <div class="mg-actions">
-      <button type="button" class="mg-btn danger" id="mg-editor-delete">Delete</button>
-      <span class="mg-right">
-        <button type="button" class="mg-btn" id="mg-editor-cancel">Cancel</button>
-        <button type="button" class="mg-btn primary" id="mg-editor-save">Save</button>
-      </span>
-    </div>
-    <div id="mg-editor-status" role="status"></div>
-  </aside>
-  <div id="mg-confirm" aria-hidden="true">
-    <div class="box" role="dialog" aria-labelledby="mg-confirm-title">
-      <h4 id="mg-confirm-title">Delete?</h4>
-      <p id="mg-confirm-text">This cannot be undone.</p>
-      <div class="actions">
-        <button type="button" id="mg-confirm-no">Cancel</button>
-        <button type="button" class="danger" id="mg-confirm-yes">Delete</button>
-      </div>
-    </div>
-  </div>
   <div id="bm-toasts"></div>
 
   <script src="../app/vendor/leaflet.js"></script>
   <script src="../app/vendor/leaflet.markercluster.js"></script>
   <!-- Bundled from ../app/src/**/*.js by bin/build.mjs (entry: main-static.js). -->
-  <script src="../app/dist/app-static.js?v=3b573e78a7"></script>
+  <script src="../app/dist/app-static.js?v=573b5e50ef"></script>
 </body>
 </html>

@@ -5,9 +5,12 @@
  * single-<style>-block order exactly. Reordering these lines can change
  * which rule wins; do not sort them alphabetically.
  *
- * manage.css comes after filter-panel.css on purpose: it retargets that file's
- * per-section indent onto #filter-sections and must win. poi-editor.css is gone
- * because #marker-panel is — its pickers live on as .mg-pickbtn / .mg-pop-*.
+ * controls.css comes after filter-panel.css on purpose: it retargets that
+ * file's per-section indent onto #filter-sections and must win. poi-editor.css
+ * is gone because #marker-panel is — its pickers live on as .mg-pickbtn /
+ * .mg-pop-*. The private repo's own authoring-only panel/editor chrome
+ * lives in that repo's own styles/panel.css, layered on top of this file —
+ * see that repo's styles/main.css.
  */
 @import "./tokens.css";
 @import "./toolbar.css";
@@ -16,7 +19,7 @@
 @import "./markers.css";
 @import "./filter-panel.css";
 @import "./bookmarks.css";
-@import "./manage.css";
+@import "./controls.css";
 @import "./discoveries.css";
 @import "./dungeonmode.css";
 @import "./townplates.css";

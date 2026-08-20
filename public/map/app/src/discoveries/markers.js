@@ -4,11 +4,11 @@
  *
  * These rows are machine-made. Nobody chose to put them here — repeated
  * sightings of the same class in the same place are merged into one row.
- * Authoring is off the table (no create, no
- * drag, no field edits), but Delete IS on the popup: a bad auto-pin is noticed
- * on the map, and walking to Manage → Discoveries to tombstone it is the friction
- * this removes. The write still goes through manage/sources/discoveries.js so
- * confirm + optimistic rollback stay in one place.
+ * Authoring is off the table (no create, no drag, no field edits), but
+ * Delete IS on the popup: a bad auto-pin is noticed on the map, and walking
+ * to the private map's Discoveries tab to tombstone it is the friction this
+ * removes. The write still goes through the private repo's live discoveries
+ * source, so confirm + optimistic rollback stay in one place.
  *
  * Coordinates arrive as UE world METRES and become canvas coordinates through
  * worldToMap() and nothing else. The projection constants live with the map art
@@ -87,8 +87,15 @@ function seenLabel(iso) {
  */
 const setActions = delegatePopupActions("disco");
 
-/** Registers { details, remove } from manage/sources/discoveries.js. */
+// Set by the source's setPopupActions (the private repo's live discoveries
+// source, via its panel's mount()). The public, static build's read-only
+// source never calls this, so it stays null and popupHtml below renders no
+// action buttons at all — not even inert ones.
+let popupActions = null;
+
+/** Registers { details, remove } from the live discoveries source. */
 export function setDiscoveryPopupActions(handlers) {
+  popupActions = handlers;
   setActions({ details: handlers.details, delete: handlers.remove });
 }
 
@@ -98,28 +105,50 @@ export function setDiscoveryPopupActions(handlers) {
 function popupHtml(row) {
   const meta = kindMeta(row.kind);
   const id = escapeHtml(row.id);
+  // Details opens the read-only detail sheet; Delete tombstones via the same
+  // confirm path as the row list's 🗑 — noticed on the map, fixed without a
+  // panel hunt. Neither exists unless a source registered a handler for it.
+  let actions = "";
+  if (popupActions && (popupActions.details || popupActions.remove)) {
+    actions = '<div class="popup-actions">' +
+      (popupActions.details
+        ? '<button type="button" data-disco-pop="details" data-disco-id="' + id + '">Details</button>'
+        : "") +
+      (popupActions.remove
+        ? '<button type="button" class="danger" data-disco-pop="delete" data-disco-id="' + id +
+          '" title="Hide this pin — it is not re-added from the data feed">Delete</button>'
+        : "") +
+      "</div>";
+  }
+  // Observations/first-seen/last-seen only exist for a live row — the v2
+  // published snapshot no longer carries them at all (see docs/snapshot.md),
+  // so a static-source row always has observations 0 and both timestamps
+  // null. Rendering "Observations: 0" there would read as "this was seen
+  // zero times", which is false — the data was simply never published, not
+  // absent. Omit the whole fact row rather than show a number that lies.
+  const optionalFacts =
+    (row.observations
+      ? "<dt>Observations</dt><dd>" + row.observations + "</dd>"
+      : "") +
+    (row.firstSeenAt
+      ? "<dt>First seen</dt><dd>" + escapeHtml(seenLabel(row.firstSeenAt)) + "</dd>"
+      : "") +
+    (row.lastSeenAt
+      ? "<dt>Last seen</dt><dd>" + escapeHtml(seenLabel(row.lastSeenAt)) + "</dd>"
+      : "");
   return '<div class="marker-popup disco-popup">' +
     "<h5>" + escapeHtml(labelFor(row)) + "</h5>" +
     '<div class="layer"><img src="' + TABLER + meta.icon +
     '.svg" alt="" width="14" height="14" />' + escapeHtml(meta.label) + "</div>" +
     '<dl class="disco-facts">' +
     "<dt>Seen at once</dt><dd>" + row.count + "</dd>" +
-    "<dt>Observations</dt><dd>" + row.observations + "</dd>" +
-    "<dt>First seen</dt><dd>" + escapeHtml(seenLabel(row.firstSeenAt)) + "</dd>" +
-    "<dt>Last seen</dt><dd>" + escapeHtml(seenLabel(row.lastSeenAt)) + "</dd>" +
+    optionalFacts +
     // Last, and on its own full-width row: the longest value in the popup and
     // the least interesting one. Leading with it is what squeezed everything
     // else into a one-character column.
     '<dt class="disco-class-label">Class</dt>' +
     '<dd class="disco-class">' + escapeHtml(row.className || "\u2014") + "</dd>" +
-    "</dl>" +
-    // Details opens the read-only manager sheet; Delete tombstones via the same
-    // confirm path as the list 🗑 — noticed on the map, fixed without a panel hunt.
-    '<div class="popup-actions">' +
-    '<button type="button" data-disco-pop="details" data-disco-id="' + id + '">Details</button>' +
-    '<button type="button" class="danger" data-disco-pop="delete" data-disco-id="' + id +
-    '" title="Hide this pin — it is not re-added from the data feed">Delete</button>' +
-    "</div></div>";
+    "</dl>" + actions + "</div>";
 }
 
 /*
@@ -292,8 +321,8 @@ onMapChange(rebuildDiscoveryLayer);
  *
  * They are local-only on purpose: the request lives in the source adapter, which
  * owns the snapshot and the rollback, and this module only knows how to put a
- * pin on the map or take it off. Both are called by
- * manage/sources/discoveries.js and nothing else.
+ * pin on the map or take it off. Both are called by the private repo's live
+ * discoveries source and nothing else.
  */
 export function dropDiscovery(id) {
   const marker = markers[id];

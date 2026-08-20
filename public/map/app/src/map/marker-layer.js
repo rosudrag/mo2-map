@@ -2,8 +2,9 @@
  * The four things all three marker layers do the same way.
  *
  * WHY THIS IS NOT A GENERIC RENDERER. The obvious consolidation — one engine
- * that draws every marker system from a descriptor, the way manage/* draws
- * every management panel from one — was tried on paper and rejected. The three
+ * that draws every marker system from a descriptor, the way the registry
+ * layer draws every source's row list from one — was tried on paper and
+ * rejected. The three
  * layers differ exactly where it would have to be configurable: the pin
  * catalogue holds pre-built markers in an array across TWO groups (clustered
  * pins, unclustered towns) and rebuilds wholesale; bookmarks mutate ONE marker

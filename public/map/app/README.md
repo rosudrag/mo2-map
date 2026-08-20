@@ -184,7 +184,7 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
       have and does not fake.
     - Every panel carries its OWN scale bar: one bar for a sheet whose surface panel is a
       different scale from its level panels would be wrong on at least one panel.
-- Pins: a committed snapshot at `data/static/pins.json` (`manage/sources/static/pins.js`, `data.js`), read-only, with taxonomy derived from the rows themselves. A missing or broken snapshot no longer hides the YOU blip — the page boots an empty catalogue instead.
+- Pins: a committed snapshot at `data/static/pins.json` (`sources/static/pins.js`, `data.js`), read-only, with taxonomy derived from the rows themselves. A missing or broken snapshot no longer hides the YOU blip — the page boots an empty catalogue instead.
 - Icons: Tabler outline SVGs used by categories at `assets/tabler/` (committed). Full Tabler tree under `../tabler-icons-3.45.0/` is optional/local only.
 
 - **Maps** (`src/map/active-map.js`, `maps` table): the island's surface is one map and
@@ -198,8 +198,8 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
     levels are stacked storeys whose outlines overlap almost completely, so a bounds
     test put all three of Yel Keskar's surface doors and the boss room from the bottom
     of the dungeon onto every level.
-  - A pin created while a dungeon level is open belongs to that level (`manage/sources/`
-    stamp `activeMapId()`), so nothing has to be re-filed afterwards.
+  - A pin created while a dungeon level is open belongs to that level (the private
+    repo's live pins source stamps `activeMapId()` at create time), so nothing has to be re-filed afterwards.
   - Seeded content per level comes from the game's own files via the offline
     pipeline: the inside face of each of the
     12 doors, the 4 boss rooms moved off the surface, 4 journals, 3 sliding-wall levers
@@ -251,7 +251,7 @@ header comment for the enforced boundary).
   server to keep in sync with prod.
 - Pins and discoveries read a committed snapshot at
   `<continent>/data/static/{pins,discoveries}.json`
-  (`manage/sources/static/{pins,discoveries,data}.js`) instead of a live API;
+  (`sources/static/{pins,discoveries,data}.js`) instead of a live API;
   the taxonomy pins need is derived from the rows themselves rather than
   shipped separately, since there is no server here to own it.
 - `npm run validate` (`bin/validate-snapshot.mjs`) enforces the publish

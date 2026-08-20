@@ -1,0 +1,101 @@
+/*
+ * Shared control primitives: the generic chip button (.mg-btn), the coloured
+ * dot every group/category swatch uses, the tag chip, ui/picker.js's popover
+ * (.mg-pop*, .mg-pickbtn) and the per-source filter-section head (.mg-fsec-*).
+ *
+ * These are NOT authoring chrome. .mg-btn styles the search box's Fit/Clear
+ * buttons (view/search.js), the poster export button and the map switcher;
+ * .mg-pop*/.mg-pickbtn are built by ui/picker.js itself, which the dungeon
+ * level menu and the map switcher also open. The private repo's own
+ * row-catalogue panel imports this file too, alongside its own panel.css, for
+ * exactly the same primitives — this is the one definition, not two that can
+ * drift apart.
+ */
+
+.mg-btn {
+  border: 1px solid var(--line); background: var(--panel); color: var(--muted);
+  cursor: pointer; font: inherit; font-size: 12px; padding: 4px 8px; border-radius: 4px;
+}
+.mg-btn:hover { border-color: var(--bronze-dim); color: var(--text); }
+.mg-btn.active {
+  background: rgba(138,106,61,.28); border-color: var(--bronze); color: var(--bronze);
+}
+.mg-btn.danger { color: var(--danger); border-color: var(--danger); }
+.mg-btn.danger:hover { background: rgba(168,72,50,.22); color: #f0d6cf; }
+.mg-btn.primary { color: var(--bronze); border-color: var(--bronze-dim); }
+.mg-btn.primary:hover { background: rgba(138,106,61,.28); color: var(--text); }
+.mg-btn[disabled] { opacity: .4; cursor: default; }
+
+.mg-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--pin, var(--bronze-dim));
+}
+
+.mg-tag {
+  display: inline-block; padding: 0 6px; border-radius: 9px; font-size: 11px;
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--muted);
+}
+
+/* ---- in-panel popovers (ui/picker.js) --------------------------------- */
+/* Body-level and absolutely positioned by picker.js, which is why these carry
+   no parent selector. */
+.mg-pop {
+  position: fixed; z-index: 1500;
+  min-width: 180px; max-width: min(320px, calc(100vw - 16px));
+  max-height: min(320px, calc(100vh - 16px)); overflow: auto;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--bronze-deep); box-shadow: 0 8px 28px rgba(0,0,0,.65);
+}
+.mg-pop-head {
+  padding: 7px 10px; border-bottom: 1px solid var(--line);
+  font-size: 11px; color: var(--bronze); letter-spacing: .04em; text-transform: uppercase;
+}
+.mg-pop-empty { padding: 10px; font-size: 12px; color: var(--muted); }
+.mg-pop-item {
+  display: flex; align-items: center; gap: 6px;
+  width: 100%; text-align: left;
+  border: 0; border-bottom: 1px solid var(--line);
+  background: transparent; color: var(--text);
+  padding: 7px 10px; cursor: pointer; font: inherit; font-size: 13px;
+}
+.mg-pop-item:last-child { border-bottom: 0; }
+.mg-pop-item:hover, .mg-pop-item:focus { background: rgba(138,106,61,.22); outline: none; }
+.mg-pop-item.active { background: rgba(138,106,61,.32); color: var(--bronze); }
+.mg-pop-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mg-pop-form { display: flex; gap: 6px; padding: 8px 10px; }
+.mg-pop-form input {
+  flex: 1; min-width: 0; background: var(--panel); color: var(--text);
+  border: 1px solid var(--line); padding: 5px 8px; font: inherit; font-size: 13px; outline: none;
+}
+.mg-pop-form input:focus { border-color: var(--bronze-dim); }
+.mg-pop-chips {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  padding: 0 10px 8px; max-width: 300px;
+}
+.mg-pop-chips .mg-tag { cursor: pointer; }
+.mg-pop-chips .mg-tag:hover { border-color: var(--bronze-dim); color: var(--text); }
+
+/* ---- filter-section head (view/filters.js) ---------------------------- */
+/* One head per source plus the hard-coded Players row (the private build's
+   own HTML), which wears the same class so the generated and static
+   sections cannot drift apart. */
+.mg-fsec-head {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px; border-bottom: 1px solid var(--line);
+  background: var(--panel-2);
+}
+.mg-fsec-head strong {
+  flex: 1; min-width: 0; font-size: 12px; color: var(--bronze);
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.mg-fsec-count { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+.mg-fsec-ico {
+  width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  background: var(--pin, var(--bronze-dim));
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(196,165,116,.35);
+}
+.mg-fsec-ico img { width: 12px; height: 12px; filter: brightness(0) invert(1); }
+/* The 12px indent the bookmark and discovery sections each declared for
+   themselves; every section now gets it from one rule. */
+#filter-sections .cat-main { padding-left: 12px; }

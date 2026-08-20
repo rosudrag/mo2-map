@@ -141,36 +141,49 @@ function buildPopupNode(marker) {
     });
     root.appendChild(step);
   }
-  const actions = document.createElement("div");
-  actions.className = "popup-actions";
-  const editBtn = document.createElement("button");
-  editBtn.type = "button";
-  editBtn.textContent = "Edit";
-  editBtn.addEventListener("click", function () {
-    map.closePopup();
-    markerActions.edit(marker);
-  });
-  const dragBtn = document.createElement("button");
-  dragBtn.type = "button";
-  dragBtn.className = "drag-btn";
-  dragBtn.title = "Drag to move";
-  dragBtn.innerHTML = '<span class="hand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 13v-7.5a1.5 1.5 0 0 1 3 0v6.5"/><path d="M11 5.5v-1.5a1.5 1.5 0 0 1 3 0v7.5"/><path d="M14 5.5a1.5 1.5 0 0 1 3 0v6.5"/><path d="M17 8.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2a7 6 0 0 1 -5 -2.5l-1.5 -1.5a1.5 1.5 0 0 1 2 -2.25l1.5 1.5"/><path d="M2.5 13.5l4.5 1.5"/></svg></span><span>Drag</span>';
-  dragBtn.addEventListener("click", function () {
-    map.closePopup();
-    markerActions.drag(marker);
-  });
-  const delBtn = document.createElement("button");
-  delBtn.type = "button";
-  delBtn.className = "danger";
-  delBtn.textContent = "Delete";
-  delBtn.addEventListener("click", function () {
-    map.closePopup();
-    markerActions.askDelete(marker);
-  });
-  actions.appendChild(editBtn);
-  actions.appendChild(dragBtn);
-  actions.appendChild(delBtn);
-  root.appendChild(actions);
+  // No source registers any of these on the public, static build (there is
+  // nothing to write to), so markerActions stays null and this popup carries
+  // no authoring affordance at all — not even an inert button. A live source
+  // registers all three even before its editor exists (setMarkerActions in
+  // its attach()), so nothing here changes for it.
+  if (markerActions) {
+    const actions = document.createElement("div");
+    actions.className = "popup-actions";
+    if (markerActions.edit) {
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", function () {
+        map.closePopup();
+        markerActions.edit(marker);
+      });
+      actions.appendChild(editBtn);
+    }
+    if (markerActions.drag) {
+      const dragBtn = document.createElement("button");
+      dragBtn.type = "button";
+      dragBtn.className = "drag-btn";
+      dragBtn.title = "Drag to move";
+      dragBtn.innerHTML = '<span class="hand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 13v-7.5a1.5 1.5 0 0 1 3 0v6.5"/><path d="M11 5.5v-1.5a1.5 1.5 0 0 1 3 0v7.5"/><path d="M14 5.5a1.5 1.5 0 0 1 3 0v6.5"/><path d="M17 8.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2a7 6 0 0 1 -5 -2.5l-1.5 -1.5a1.5 1.5 0 0 1 2 -2.25l1.5 1.5"/><path d="M2.5 13.5l4.5 1.5"/></svg></span><span>Drag</span>';
+      dragBtn.addEventListener("click", function () {
+        map.closePopup();
+        markerActions.drag(marker);
+      });
+      actions.appendChild(dragBtn);
+    }
+    if (markerActions.askDelete) {
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "danger";
+      delBtn.textContent = "Delete";
+      delBtn.addEventListener("click", function () {
+        map.closePopup();
+        markerActions.askDelete(marker);
+      });
+      actions.appendChild(delBtn);
+    }
+    if (actions.childNodes.length) { root.appendChild(actions); }
+  }
   return root;
 }
 
@@ -250,7 +263,8 @@ export function buildMarkers(markers) {
  * it, so nothing about a pin's position can tell the two apart; only its map
  * can. Everything after that is an ordinary filter: a pin hidden by its own
  * category must stay hidden no matter what is typed, and a pin the filters admit
- * is still subject to the query narrowing the map along with every manager list.
+ * is still subject to the query narrowing the map along with every registered
+ * source's own list.
  */
 export function markerVisible(poi) {
   if (!onActiveMap(poi)) return false;
@@ -279,7 +293,7 @@ export function visibleCountFor(categoryId, typeLabel) {
  * TWO things make this cheap, and both were measured against the live
  * catalogue (808 pins) before and after:
  *
- * 1. COALESCED. One user gesture calls this many times — manage/filters.js
+ * 1. COALESCED. One user gesture calls this many times — view/filters.js
  *    `toggleGroup` flips a category and then every type under it, and
  *    `showAll` does that for all 14 categories — and each call used to clear
  *    and refill the whole cluster tree. Show all measured 1.9 s of frozen main

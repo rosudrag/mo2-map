@@ -1,20 +1,22 @@
 /*
  * The one global filter query — the single thing that narrows the map and
- * every manager list at once.
+ * every registered source's row list at once.
  *
  * BOTTOM OF THE STACK, same shape as poi/state.js and discoveries/state.js: it
- * imports nothing from poi/, discoveries/, bookmarks/ or manage/, so every
- * layer's own visibility predicate and the manager's list can both import IT
- * without opening a cycle. That is what makes "one query, three predicates"
- * possible — nobody has to reach sideways into another layer to read it.
+ * imports nothing from poi/, discoveries/, bookmarks/ or the registry layer,
+ * so every layer's own visibility predicate and any consumer's row list can
+ * both import IT without opening a cycle. That is what makes "one query,
+ * three predicates" possible — nobody has to reach sideways into another
+ * layer to read it.
  *
  * Before this there were two mechanisms doing overlapping jobs badly: a
- * per-tab search field in the manager (one query per source, invisible from
- * the other two tabs) and a #search box that made you PICK a suggestion,
- * which isolated ONE group and hid the other two catalogues behind an empty
- * Set (see the deleted poi/search.js). Neither could ever show "iron OR salt
- * across pins, bookmarks and discoveries at once", because there was no
- * single place holding what "the query" currently is. This is that place.
+ * per-tab search field in the old bookmark/pin panels (one query per source,
+ * invisible from the other two tabs) and a #search box that made you PICK a
+ * suggestion, which isolated ONE group and hid the other two catalogues
+ * behind an empty Set (see the deleted poi/search.js). Neither could ever
+ * show "iron OR salt across pins, bookmarks and discoveries at once", because
+ * there was no single place holding what "the query" currently is. This is
+ * that place.
  *
  * The matcher is compiled exactly ONCE PER QUERY CHANGE, not per row: a
  * catalogue of 1,562 discoveries filtered on every keystroke by a fresh
@@ -22,10 +24,10 @@
  * character typed. setQuery() compiles once and every caller of matches()
  * reuses the result.
  *
- * NOT PERSISTED to localStorage — same reasoning manage/sources-registry.js
- * gives for editMode: a reload that silently comes back with most of the map
- * hidden behind a forgotten query from last session is worse than an empty
- * box.
+ * NOT PERSISTED to localStorage — same reasoning
+ * registry/sources-registry.js gives for editMode: a reload that silently
+ * comes back with most of the map hidden behind a forgotten query from last
+ * session is worse than an empty box.
  */
 
 let raw = "";

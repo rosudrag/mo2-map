@@ -77,9 +77,9 @@ export function initState(data) {
  * a whole intent and then notify ONCE; there is no per-row mutation path to
  * burst.
  *
- * It exists because the catalogue's own filter UI is gone: manage/filters.js and
- * manage/list.js render this state now and they subscribe through
- * manage/sources/pins.js. This is how a toggle reaches them without state.js
+ * It exists because the catalogue's own filter UI is gone: view/filters.js and
+ * the row list on whichever build has one render this state now, subscribing
+ * through poi/view.js. This is how a toggle reaches them without state.js
  * knowing who draws what — the same rule the file already follows for markers.
  */
 const subscribers = [];

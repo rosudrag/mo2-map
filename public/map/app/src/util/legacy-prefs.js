@@ -24,15 +24,24 @@ import { currentMapId } from "../map/current.js";
 // open, because only Sarducaa ever had an unprefixed key to migrate FROM.
 const GLOBAL_KEYS = [["sarducaa.api-key", "mo2map.api-key"]];
 
-// Suffixes of the single-value per-map keys: sarducaa.<suffix> -> mo2map.
-// <mapId>.<suffix>.
-const PER_MAP_SUFFIXES = ["style", "manage-tab", "bm-prefs", "discovery-prefs"];
+// Suffixes of the single-value per-map keys: sarducaa.<oldSuffix> -> mo2map.
+// <mapId>.<newSuffix>. Same suffix on both sides except the tab item, which
+// the registry has since renamed (registry/sources-registry.js's TAB_ITEM).
+const PER_MAP_SUFFIX_PAIRS = [
+  ["style", "style"],
+  ["manage-tab", "active-tab"],
+  ["bm-prefs", "bm-prefs"],
+  ["discovery-prefs", "discovery-prefs"]
+];
 
-// manage/sources-registry.js's per-source view prefs: one key per registered
-// source (sarducaa.manage.pins, sarducaa.manage.bookmarks, ...), unknown in
-// advance, so migrated by walking every stored key under this prefix rather
-// than naming each source here.
-const PER_MAP_MANAGE_PREFIX = "sarducaa.manage.";
+// The registry's per-source view prefs used to live under one key per
+// registered source at sarducaa.<the old prefix below><sourceId> (e.g.
+// sarducaa.….pins), unknown in advance, so migrated by walking every stored
+// key under that OLD prefix rather than naming each source here. The target
+// prefix is registry/sources-registry.js's own PREFS_PREFIX suffix, renamed
+// since; only the literal string on the left is historical data this file
+// has to keep matching verbatim.
+const LEGACY_SOURCE_PREFS_PREFIX = "sarducaa.manage.";
 
 function copyIfAbsent(oldKey, newKey) {
   try {
@@ -53,17 +62,17 @@ function migrate() {
   const mapId = currentMapId();
   if (mapId !== "sarducaa") { return; }
 
-  for (const suffix of PER_MAP_SUFFIXES) {
-    copyIfAbsent("sarducaa." + suffix, "mo2map." + mapId + "." + suffix);
+  for (const [oldSuffix, newSuffix] of PER_MAP_SUFFIX_PAIRS) {
+    copyIfAbsent("sarducaa." + oldSuffix, "mo2map." + mapId + "." + newSuffix);
   }
 
   try {
     const keys = [];
     for (let i = 0; i < window.localStorage.length; i++) { keys.push(window.localStorage.key(i)); }
     for (const key of keys) {
-      if (key && key.indexOf(PER_MAP_MANAGE_PREFIX) === 0) {
-        const suffix = key.slice(PER_MAP_MANAGE_PREFIX.length);
-        copyIfAbsent(key, "mo2map." + mapId + ".manage." + suffix);
+      if (key && key.indexOf(LEGACY_SOURCE_PREFS_PREFIX) === 0) {
+        const suffix = key.slice(LEGACY_SOURCE_PREFS_PREFIX.length);
+        copyIfAbsent(key, "mo2map." + mapId + ".source." + suffix);
       }
     }
   } catch {

@@ -1,10 +1,11 @@
 /*
  * Bookmarks: the map pin and the toast host.
  *
- * The manager panel, list rows and editor that used to live here moved to
- * manage.css — they were never bookmark-specific, only bookmark-shaped, and the
- * pin catalogue and discoveries now share them. What is left is the two things
- * bookmarks/{markers,toast}.js actually own.
+ * The row-catalogue panel, list rows and field editor that used to live here
+ * are now the private repo's own panel.css — they were never bookmark-
+ * specific, only bookmark-shaped, and the pin catalogue and discoveries share
+ * that panel too. What is left is the two things bookmarks/{markers,toast}.js
+ * actually own.
  */
 .bm-pin {
   border: 2px solid #f0e6d4; border-radius: 5px;

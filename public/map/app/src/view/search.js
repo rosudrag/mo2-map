@@ -5,10 +5,10 @@
  *
  * The old box (poi/search.js, deleted) made you PICK a suggestion before it
  * would isolate anything, and isolating meant hiding the other two catalogues
- * behind an empty Set — see docs/marker-management.md §9. This box does the
- * opposite: every keystroke narrows the map and every manager list at once
- * (map/query.js), live, and this bar reports what matched instead of asking
- * you to choose one group out of a dropdown.
+ * behind an empty Set. This box does the opposite: every keystroke narrows the
+ * map and every registered source's list at once (map/query.js), live, and
+ * this bar reports what matched instead of asking you to choose one group out
+ * of a dropdown.
  *
  * Not a list of things to click — the query already did the narrowing — so it
  * only needs to answer "how much" (a count per source) and offer two actions:
@@ -16,14 +16,14 @@
  */
 import { map } from "../map/instance.js";
 import { img } from "../map/meta.js";
-import { sources } from "./sources-registry.js";
+import { sources } from "../registry/sources-registry.js";
 import {
   getQuery, isActive, isLiteral, matches, setQuery, subscribe as subscribeQuery
 } from "../map/query.js";
 
-// Same reasoning as manage/panel.js SEARCH_DEBOUNCE_MS: under the gap between
-// keystrokes in ordinary typing, so the map and every list settle once per
-// pause instead of once per character.
+// Same reasoning as the private build's panel SEARCH_DEBOUNCE_MS: under the
+// gap between keystrokes in ordinary typing, so the map and every list settle
+// once per pause instead of once per character.
 const SEARCH_DEBOUNCE_MS = 150;
 // Past this many matched points, Fit stops widening the bounds it flies to —
 // a query that matches most of a 1,562-row catalogue would otherwise compute
@@ -36,11 +36,12 @@ let debounceTimer = null;
 let renderScheduled = false;
 
 /*
- * An AGGREGATE source (manage/sources/all.js) holds no rows of its own — its
- * rows are every other source's rows wrapped — so counting it would report
- * every match twice: 12 pins would read "Pins 12 · All 12" and the total
- * would be double what actually matched. `aggregate` is a declared capability
- * (see sources-registry.js), not a branch on source.id.
+ * An AGGREGATE source (the private repo's own join-tab source — the public
+ * build never registers one) holds no rows of its own — its rows are every
+ * other source's rows wrapped — so counting it would report every match
+ * twice: 12 pins would read "Pins 12 · All 12" and the total would be double
+ * what actually matched. `aggregate` is a declared capability (see
+ * registry/sources-registry.js), not a branch on source.id.
  */
 function countableSources() {
   return sources().filter(function (s) { return !s.aggregate; });
@@ -148,8 +149,9 @@ export function mount() {
   });
 
   subscribeQuery(function () {
-    // Mirror a change that came from elsewhere (#mg-search) without fighting
-    // an in-flight keystroke here — same debounceTimer guard panel.js uses.
+    // Mirror a change that came from elsewhere (the private build's own
+    // #mg-search) without fighting an in-flight keystroke here — same
+    // debounceTimer guard that box uses.
     if (debounceTimer === null && input.value !== getQuery()) { input.value = getQuery(); }
     scheduleRender();
   });

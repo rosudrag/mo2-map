@@ -1,23 +1,27 @@
 /*
- * The list of manageable marker sources, the active tab, and the per-source view
- * preferences that survive a reload.
+ * The list of registered marker sources, the active tab, and the per-source
+ * view preferences that survive a reload.
  *
  * Every source describes itself (see the typedef below) and this module is the
- * only thing that knows there is more than one of them. manage/panel.js,
- * list.js, editor.js and filters.js all reach their data through here, which is
- * why none of them contains a branch on which source it is drawing: adding a
- * fourth marker system is a descriptor and one `register()` call in main.js.
+ * only thing that knows there is more than one of them. view/filters.js and
+ * view/search.js reach their data through here on every build; the private
+ * repo's own panel, list and editor modules do too, for the build that has
+ * them — none of them contains a branch on which source it is drawing, which
+ * is why adding a fourth marker system is a descriptor and one `register()`
+ * call in main.js.
  *
- * The registry also owns the two things that are per-manager rather than
- * per-source: which tab is active, and the map gestures that follow it.
+ * The registry also owns which tab is active and the per-source view prefs
+ * that follow it. It does NOT own any map gesture: a click that creates a row
+ * is an authoring feature with nowhere to write to on this, the public build,
+ * so that lives in the private repo's own create-gesture module, wired
+ * onto activeSource()/activeStore() exported below exactly the way a private
+ * row list or field editor module would be.
  */
 import { createStore, GROUPS, VIEW } from "./store.js";
-import { map } from "../map/instance.js";
-import { setMapClickClaim } from "../map/click-claim.js";
 import { currentMapId } from "../map/current.js";
 
 /**
- * @typedef {Object} ManageSource
+ * @typedef {Object} MarkerSource
  * @property {string}  id            "pins" | "bookmarks" | "discoveries"
  * @property {string}  label         tab label
  * @property {string}  icon          tabler icon name for the tab chip
@@ -50,7 +54,8 @@ import { currentMapId } from "../map/current.js";
  * @property {Sort[]} sorts   [{ value, label, compare(a, b, ctx) }]
  *                            ctx = { youWorld: {x,y}|null }
  *
- * -- editing (only what `can` allows is ever called) --------------------
+ * -- editing (only what `can` allows is ever called; the public build calls
+ *    none of these — it has no editor to call them from) --------------------
  * @property {Field[]} fields
  * @property {(row) => Object} toForm
  * @property {(id, values) => Promise<void>} save
@@ -65,8 +70,9 @@ import { currentMapId } from "../map/current.js";
  * @property {(store) => void} [attach]        the registry hands the source its
  *                                             store the moment it is created
  * @property {string} [createLabel]           "a bookmark" — names the target in
- *                                            #add-hint. Required in practice by
- *                                            any source with can.create.
+ *                                            the private build's #add-hint.
+ *                                            Required in practice by any
+ *                                            source with can.create.
  * @property {(groupId) => Group[]} [subGroups]           second taxonomy level
  * @property {(groupId, subId) => boolean} [isSubGroupEnabled]
  * @property {(groupId, subId, on) => void} [setSubGroupEnabled]
@@ -78,20 +84,23 @@ import { currentMapId } from "../map/current.js";
  * @property {(id|null) => void} [setHot]      emphasise one marker
  * @property {(fn) => void} [onHot]            marker hover -> echo in the list
  * @property {(handlers) => void} [setPopupActions] {edit, rename, remove} from a
- *                                             marker popup back into the manager
+ *                                             marker popup back into the private
+ *                                             build's panel
  * @property {() => void} [forgetKey]          drop this source's stored API key
  * @property {boolean} [aggregate]             true when this source's rows are a
  *                                             JOIN over the other registered
  *                                             sources' rows rather than a
- *                                             catalogue of its own — see
- *                                             manage/sources/all.js. Two readers,
- *                                             one meaning: manage/filters.js
- *                                             renders no section for it (the
- *                                             owners already render the same
- *                                             layer toggles) and
- *                                             manage/querybox.js leaves it out of
- *                                             the per-source match counts (it
- *                                             would report every match twice).
+ *                                             catalogue of its own — see the
+ *                                             private repo's own join-tab
+ *                                             source (the public build never
+ *                                             registers one). Two readers, one
+ *                                             meaning: view/filters.js renders
+ *                                             no section for it (the owners
+ *                                             already render the same layer
+ *                                             toggles) and view/search.js
+ *                                             leaves it out of the per-source
+ *                                             match counts (it would report
+ *                                             every match twice).
  */
 
 /** @typedef {Object} Caps
@@ -106,14 +115,14 @@ import { currentMapId } from "../map/current.js";
 // purpose: a corrupt blob in one source's prefs must not take the others down
 // with it, which is the same reason discoveries/state.js keeps its own key.
 // Per-map: computed once at import time, same as active-map.js's SURFACE_MAP.
-const TAB_ITEM = "mo2map." + currentMapId() + ".manage-tab";
-const PREFS_PREFIX = "mo2map." + currentMapId() + ".manage.";
+const TAB_ITEM = "mo2map." + currentMapId() + ".active-tab";
+const PREFS_PREFIX = "mo2map." + currentMapId() + ".source.";
 
 /*
  * editMode is deliberately NOT persisted: coming back to a page that silently
  * rewrites a pin on the next map click is a nasty surprise. panelOpen is not
- * here either — the panel is one aside shared by every tab, so it is the
- * panel's state, not a source's.
+ * here either — the private build's panel is one aside shared by every tab,
+ * so it is the panel's state, not a source's.
  */
 const VIEW_KEYS = ["groupFilter", "sortKey", "sortDesc", "group"];
 
@@ -186,8 +195,8 @@ export function register(source) {
   store.subscribe([VIEW, GROUPS], function () { savePrefs(entry); });
 
   // The stored tab wins over registration order, but only once it actually
-  // exists — a pref naming a retired source must not leave the manager pointing
-  // at nothing.
+  // exists — a pref naming a retired source must not leave the registry
+  // pointing at nothing.
   let wanted = "";
   try { wanted = window.localStorage.getItem(TAB_ITEM) || ""; } catch { wanted = ""; }
   if (!currentId || wanted === source.id) {
@@ -238,62 +247,3 @@ export function onActiveChange(fn) {
   activeListeners.push(fn);
   if (currentId) { fn(currentId); }
 }
-
-// ---- map gestures follow the active tab --------------------------------------
-/*
- * Creating a marker by pointing at the map used to be wired twice, once per
- * source, with two different gestures: bookmarks claimed the empty-map LEFT
- * click while in edit mode (map/click-claim.js), and the pin catalogue took
- * every RIGHT click unconditionally. Two systems, one map, and no way to tell
- * which one a click was about to touch.
- *
- * Both gestures now target the ACTIVE tab, and each keeps the gate it had:
- *
- *   right-click — no mode needed. It is already an unambiguous, deliberate
- *     gesture, and it is the most common authoring action on this map; putting
- *     it behind Edit would turn one action into three (open panel, pick tab,
- *     arm Edit). #add-hint has advertised the one-gesture version all along.
- *   left-click on empty map — still requires edit mode, because left-click IS
- *     ambiguous: it also pans, deselects and copies the world coordinate (that
- *     is how calibration anchors are taken, docs/map-coordinates.md).
- *
- * Because the target now depends on a tab, the hint has to name the tab — a
- * gesture whose destination is implicit produces a first surprise write the
- * user cannot explain.
- */
-function createHere(latlng) {
-  const source = activeSource();
-  if (!source || !source.can.create) { return false; }
-  Promise.resolve(source.create(latlng)).catch(function () {
-    // The source reports its own failure (toast + rollback); a rejection here
-    // only means "no marker was made", which the map already shows.
-  });
-  return true;
-}
-
-setMapClickClaim(function (latlng) {
-  const store = activeStore();
-  if (!store || !store.getView().editMode) { return false; }
-  return createHere(latlng);
-});
-
-map.on("contextmenu", function (e) {
-  // preventDefault only when the gesture is actually ours: with a source that
-  // cannot create, the browser context menu is the correct behaviour rather than
-  // a swallowed click.
-  if (!createHere(e.latlng)) { return; }
-  if (e.originalEvent) { e.originalEvent.preventDefault(); }
-});
-
-function syncAddHint() {
-  const hint = document.getElementById("add-hint");
-  if (!hint) { return; }
-  const source = activeSource();
-  const can = !!(source && source.can.create);
-  hint.classList.toggle("hidden", !can);
-  if (!can) { return; }
-  hint.innerHTML = "Right-click map to <strong>add " +
-    (source.createLabel || source.label.toLowerCase()) + "</strong>";
-}
-
-onActiveChange(syncAddHint);

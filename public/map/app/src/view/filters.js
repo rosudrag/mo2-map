@@ -27,8 +27,9 @@
  *       instead of the count: the rows on screen are still real, they are just
  *       no longer fresh, and a silently stale number is worse than a tell.
  *   aggregate: true
- *       this source's rows are a join over the other sources' rows
- *       (sources/all.js), so it renders no section at all: those rows already
+ *       this source's rows are a join over the other sources' rows (the
+ *       private repo's own join-tab source — the public build never
+ *       registers one), so it renders no section at all: those rows already
  *       have a section each, under their own owner, and a fourth block here
  *       would just repeat their layer toggles.
  *
@@ -38,7 +39,7 @@
  * and the discovery section's single delegated listener plus aria-pressed.
  */
 import { TABLER } from "../util/assets.js";
-import { sources as allSources, get as sourceById } from "./sources-registry.js";
+import { sources as allSources, get as sourceById } from "../registry/sources-registry.js";
 import { isActive as queryActive, matches, subscribe as subscribeQuery } from "../map/query.js";
 
 // Expansion and the active preset are presentation, not data: they belong to
@@ -295,9 +296,10 @@ export function renderFilters() {
 
   root.textContent = "";
   for (const source of allSources()) {
-    // A source that joins other sources' rows (manage/sources/all.js) would
-    // otherwise repeat the three layer toggles its owners already render in
-    // their own sections — `aggregate: true` is how it opts out.
+    // A source that joins other sources' rows (the private repo's own
+    // join-tab source) would otherwise repeat the three layer toggles
+    // its owners already render in their own sections — `aggregate: true` is
+    // how it opts out.
     if (source.aggregate) { continue; }
     root.appendChild(section(source));
   }
@@ -389,7 +391,8 @@ function applyOnly(source, groupId, subId) {
 }
 
 /**
- * Drive map layer visibility from the manage panel's group dropdown.
+ * Drive map layer visibility from a source's group-filter picker (the private
+ * build's toolbar dropdown).
  * Empty `groupId` restores every group (and turns the layer on); a concrete
  * id is the same as the filter panel's Show only for that group.
  */
@@ -467,8 +470,8 @@ let wired = false;
 /**
  * Builds the sections and attaches the listeners. Safe to call again.
  *
- * Named `mount` to match `panel.mount()` and `editor.mount()`; main.js mounts
- * all three identically.
+ * Named `mount` so it slots into the same lifecycle step every other viewing
+ * module uses (view/search.js, and the private build's panel/editor).
  */
 export function mount() {
   if (wired) { renderFilters(); return; }

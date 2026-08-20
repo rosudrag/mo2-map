@@ -88,5 +88,5 @@
   font-size: 11px; color: var(--bronze); overflow-wrap: anywhere;
 }
 
-/* The filter section is rendered by manage/filters.js and styled with the
+/* The filter section is rendered by view/filters.js and styled with the
    shared .mg-fsec-* / .cat-* rules — nothing discovery-specific is left here. */

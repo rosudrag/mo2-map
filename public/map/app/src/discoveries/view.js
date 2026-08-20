@@ -1,30 +1,31 @@
 /*
  * Everything about the discovery catalogue that is presentation, not transport:
  * the store mirror, the list/editor descriptor pieces (title, groups, sorts,
- * fields…) and reveal-on-the-map. Both manage/sources/discoveries.js (the live
- * source, DELETE-capable) and manage/sources/static/discoveries.js (the
- * read-only public build) build their descriptor by spreading `presentation`
- * over their own id/can/attach/load/save/create/remove — the two things that
- * actually differ between "rows arrive from a poll" and "rows arrive once from
- * a committed snapshot".
+ * fields…) and reveal-on-the-map. Both the private repo's own live
+ * discoveries source (the live source, DELETE-capable) and this
+ * package's sources/static/discoveries.js (the read-only public build) build
+ * their descriptor by spreading `presentation` over their own
+ * id/can/attach/load/save/create/remove — the two things that actually differ
+ * between "rows arrive from a poll" and "rows arrive once from a committed
+ * snapshot".
  *
  * Nothing here imports discoveries/api.js or discoveries/sync.js: every
  * function operates on rows already in discoveries/state.js, however they got
  * there, which is what lets the static build import this module with zero
  * network code in its bundle.
  */
-import { map } from "../../map/instance.js";
-import { worldToMap } from "../../map/projection.js";
-import { subscribe as subscribeQuery } from "../../map/query.js";
+import { map } from "../map/instance.js";
+import { worldToMap } from "../map/projection.js";
+import { subscribe as subscribeQuery } from "../map/query.js";
 import {
   KINDS, allRows, discoveryCluster, isKindEnabled, kindCounts, kindMeta, notify,
   setKindEnabled, subscribe
-} from "../../discoveries/state.js";
+} from "./state.js";
 import {
   clearDiscoveryIsolation, isolateDiscovery, rebuildDiscoveryLayer
-} from "../../discoveries/markers.js";
-import { rebuildLayers } from "../../poi/markers.js";
-import { GROUPS, ROWS } from "../store.js";
+} from "./markers.js";
+import { rebuildLayers } from "../poi/markers.js";
+import { GROUPS, ROWS } from "../registry/store.js";
 
 let store = null;
 

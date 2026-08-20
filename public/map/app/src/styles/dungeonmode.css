@@ -2,9 +2,9 @@
  * The dungeon map mode (map/dungeonmode.js): the entry button, the level bar and
  * what happens to the surface while you are below it.
  *
- * Same panel language as #filter-panel and #manage-panel - dark card, bronze
- * border, Modern Antiqua for names - so a dungeon does not look like a different
- * application.
+ * Same panel language as #filter-panel and the private build's own row-catalogue
+ * panel - dark card, bronze border, Modern Antiqua for names - so a dungeon does
+ * not look like a different application.
  */
 
 /* The way in, always available. Bottom-right ABOVE L.control.zoom (two 26px

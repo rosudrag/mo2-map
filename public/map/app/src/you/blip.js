@@ -6,8 +6,8 @@
 // still work) and because bookmark features want to read the live position.
 //
 // Deliberately does not import presence/publish.js: that module talks to the
-// live API, and this one is imported unconditionally by manage/list.js (for
-// the "nearest to you" sort) — including by the static, API-less build. See
+// live API, and this one is imported unconditionally by the private repo's
+// own row list (for the "nearest to you" sort) — including by the static, API-less build. See
 // onYouWorldReported below for how the two stay connected anyway.
 import { map } from "../map/instance.js";
 import { worldToMap, mapToWorld } from "../map/projection.js";
