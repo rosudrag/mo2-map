@@ -4,8 +4,8 @@ A map of **Mortal Online 2** covering its three continents: **Myrland**, **Sardu
 and **Haven**. Terrain and topography rendered from the game's authored data; places
 and things players have found, published as coordinates with coverage.
 
-**Published:** Sarducaa (complete). **Status:** Myrland and Haven stitching and
-validation in progress.
+**Data published:** Sarducaa. **Rendered:** Myrland (not yet published).
+**Not yet mapped:** Haven.
 
 ## What this is
 
@@ -14,13 +14,14 @@ elevation model, the engine's own per-tile ground colour, water surfaces at
 their authored levels. We count and report coverage; unexplored areas are drawn
 as unexplored rather than as empty. Absence usually means *nobody has been
 there yet*, not *nothing is there*.
+
 ## What is here today
 
 | Path | What |
 |---|---|
 | `src/coordinates.js` | world metres ↔ canvas pixels — the single source of truth |
 | `docs/coordinates.md` | the fit, its residuals, the origin correction, and the open scale question |
-| `docs/snapshot.md` | snapshot contract: file format, field schema, privacy rules, validator enforcement |
+| `docs/snapshot.md` | snapshot contract: file format, field schema |
 
 ```bash
 npm test        # no dependencies, Node 20+
