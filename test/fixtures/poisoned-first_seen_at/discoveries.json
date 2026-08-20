@@ -1,0 +1,17 @@
+[
+  {
+    "id": "a1b2c3d4-e5f6-4a5b-6c7d-8e9f0a1b2c3d",
+    "kind": "spawn",
+    "class_name": "BP_StartPoint_C",
+    "label": "Test Spawn",
+    "world_x": 100.5,
+    "world_y": 200.3,
+    "world_z": 50.0,
+    "seen_count": 5,
+    "observations": 12,
+    "first_seen_date": "2026-01-15",
+    "last_seen_date": "2026-08-19",
+    "source": "survey",
+    "first_seen_at": "2026-01-15T08:30:00Z"
+  }
+]

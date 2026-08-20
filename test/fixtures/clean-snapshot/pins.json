@@ -1,0 +1,23 @@
+[
+  {
+    "id": "c3d4e5f6-a7b8-6c7d-8e9f-0a1b2c3d4e5f",
+    "label": "Test Town",
+    "type": "settlement",
+    "category": "town",
+    "map_x": 1000.0,
+    "map_y": 800.0,
+    "world_x": 500.0,
+    "world_y": 400.0,
+    "world_z": 100.0,
+    "source": "survey"
+  },
+  {
+    "id": "d4e5f6a7-b8c9-7d8e-9f0a-1b2c3d4e5f60",
+    "label": "Dungeon",
+    "type": "dungeon",
+    "category": "cave",
+    "map_x": 2000.5,
+    "map_y": 1500.3,
+    "source": "community"
+  }
+]

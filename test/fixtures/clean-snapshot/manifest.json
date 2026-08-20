@@ -1,0 +1,24 @@
+{
+  "schema_version": "v1",
+  "snapshot_date": "2026-08-19",
+  "counts": {
+    "discoveries": 2,
+    "pins": 2,
+    "by_kind": {
+      "spawn": 1,
+      "resource": 1,
+      "container": 0,
+      "npc": 0,
+      "structure": 0
+    }
+  },
+  "gates_applied": [
+    "exclude_low_confidence",
+    "exclude_test_markers"
+  ],
+  "coverage": {
+    "surveyed_cells": 2,
+    "bbox_cells": 100,
+    "percent": 2.0
+  }
+}

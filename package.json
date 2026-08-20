@@ -6,5 +6,5 @@
   "type": "module",
   "engines": { "node": ">=20" },
   "exports": { "./coordinates": "./src/coordinates.js" },
-  "scripts": { "test": "node --test test/" }
+  "scripts": { "test": "node --test test/", "validate": "node bin/validate-snapshot.mjs" }
 }

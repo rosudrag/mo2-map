@@ -1,0 +1,17 @@
+[
+  {
+    "id": "invalid-uuid",
+    "kind": "invalid_kind",
+    "class_name": "BP_StartPoint_C",
+    "label": "Test",
+    "world_x": 100.5,
+    "world_y": 200.3,
+    "world_z": 50.0,
+    "seen_count": -1,
+    "observations": 12,
+    "first_seen_date": "2026-01-15",
+    "last_seen_date": "2026-08-19",
+    "source": "survey",
+    "owner": "someone"
+  }
+]

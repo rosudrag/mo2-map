@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rosudrag/mo2-map/snapshot/v1/schema.json",
+  "title": "Snapshot Contract v1",
+  "description": "Schema for versioned snapshot export. The export is defined by what the validator will accept; the validator lives in public so the validator cannot be coerced to accept what it should not.",
+
+  "definitions": {
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "discovery_kind": {
+      "type": "string",
+      "enum": ["spawn", "resource", "container", "npc", "structure"]
+    },
+    "source_kind": {
+      "type": "string",
+      "enum": ["survey", "gamefile", "community"]
+    },
+    "world_coordinate": {
+      "type": "number",
+      "description": "World metres, quantised to 1 m"
+    }
+  },
+
+  "definitions_by_file": {
+    "discoveries.json": {
+      "type": "array",
+      "description": "Array of surveyed discoveries with their properties",
+      "items": {
+        "type": "object",
+        "required": [
+          "id", "kind", "class_name", "label",
+          "world_x", "world_y", "world_z",
+          "seen_count", "observations",
+          "first_seen_date", "last_seen_date",
+          "source"
+        ],
+        "properties": {
+          "id": { "$ref": "#/definitions/uuid" },
+          "kind": { "$ref": "#/definitions/discovery_kind" },
+          "class_name": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Unreal class name of the object"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Human-readable label"
+          },
+          "world_x": { "$ref": "#/definitions/world_coordinate" },
+          "world_y": { "$ref": "#/definitions/world_coordinate" },
+          "world_z": { "$ref": "#/definitions/world_coordinate" },
+          "seen_count": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of times this discovery was observed"
+          },
+          "observations": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Total observation events for this discovery"
+          },
+          "first_seen_date": { "$ref": "#/definitions/date" },
+          "last_seen_date": { "$ref": "#/definitions/date" },
+          "source": { "$ref": "#/definitions/source_kind" }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "pins.json": {
+      "type": "array",
+      "description": "Curated POI catalogue",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "type", "category", "map_x", "map_y", "source"],
+        "properties": {
+          "id": { "$ref": "#/definitions/uuid" },
+          "label": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "type": { "type": "string" },
+          "category": { "type": "string" },
+          "map_x": {
+            "type": "number",
+            "description": "Canvas pixel X coordinate"
+          },
+          "map_y": {
+            "type": "number",
+            "description": "Canvas pixel Y coordinate"
+          },
+          "world_x": { "$ref": "#/definitions/world_coordinate" },
+          "world_y": { "$ref": "#/definitions/world_coordinate" },
+          "world_z": { "$ref": "#/definitions/world_coordinate" },
+          "updated_by": {
+            "type": "string",
+            "enum": ["seed", "gamefiles", "community"],
+            "description": "Source or curator of this pin"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "position_source": { "type": "string" },
+              "poi_id": { "type": "string" },
+              "poi_class": { "type": "string" },
+              "package": { "type": "string" },
+              "anchor": { "type": "string" },
+              "instances": { "type": "integer" },
+              "spread_m": { "type": "number" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "coverage.json": {
+      "type": "object",
+      "required": ["cell_size_m", "cells"],
+      "properties": {
+        "cell_size_m": {
+          "type": "integer",
+          "description": "Size of each surveyed cell in metres"
+        },
+        "cells": {
+          "type": "array",
+          "description": "Array of surveyed cells",
+          "items": {
+            "type": "object",
+            "required": ["x", "y", "rows"],
+            "properties": {
+              "x": { "type": "integer" },
+              "y": { "type": "integer" },
+              "rows": { "type": "integer" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "manifest.json": {
+      "type": "object",
+      "required": [
+        "schema_version", "snapshot_date", "counts", "gates_applied", "coverage"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "description": "Schema version identifier"
+        },
+        "snapshot_date": { "$ref": "#/definitions/date" },
+        "counts": {
+          "type": "object",
+          "description": "Count of items per file and per kind",
+          "properties": {
+            "discoveries": { "type": "integer" },
+            "pins": { "type": "integer" },
+            "by_kind": {
+              "type": "object",
+              "properties": {
+                "spawn": { "type": "integer" },
+                "resource": { "type": "integer" },
+                "container": { "type": "integer" },
+                "npc": { "type": "integer" },
+                "structure": { "type": "integer" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "gates_applied": {
+          "type": "array",
+          "description": "Array of strings describing filtering/culling applied",
+          "items": { "type": "string" }
+        },
+        "coverage": {
+          "type": "object",
+          "required": ["surveyed_cells", "bbox_cells", "percent"],
+          "properties": {
+            "surveyed_cells": { "type": "integer" },
+            "bbox_cells": { "type": "integer" },
+            "percent": { "type": "number" }
+          },
+          "additionalProperties": false
+        },
+        "diff_vs_previous": {
+          "type": "object",
+          "description": "Optional comparison to previous snapshot",
+          "properties": {
+            "added": { "type": "integer" },
+            "removed": { "type": "integer" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
