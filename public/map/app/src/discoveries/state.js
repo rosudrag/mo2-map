@@ -87,9 +87,23 @@ function shortCount(n) {
  * the numeral. A translucent ring can carry the "what kind" signal or
  * guarantee the "how many" text stays legible, never both at once — so this
  * gives each job its own layer: the ring stays exactly as light as the
- * density fix needs, and the pill is opaque enough (measured 11.4:1 even
- * composited over the ring's own worst-case backdrop) that the number reads
- * regardless of kind colour or what terrain is under the bubble.
+ * density fix needs, and the pill is opaque enough (measured 10.8–15.7:1
+ * across every kind and both a white and a black worst-case backdrop —
+ * discoveries.css carries the full table) that the number reads regardless
+ * of kind colour or what terrain is under the bubble.
+ *
+ * `iconSize` is 46, not the ring's own 38: the ring needs a 4 px margin
+ * inside the icon box on every side (discoveries.css), and that box is set
+ * HERE, not in CSS — Leaflet reads `iconSize` to place the marker, size its
+ * hit area, and compute cluster radii, so a CSS-only ring resize would
+ * either get silently clipped to the old 34 px box or overflow it with a
+ * hit area that no longer matches what is drawn. 38 px was sized to the
+ * count pill's own worst case (an unabbreviated "999", the largest
+ * `shortCount` will render as digits rather than "1.0k"): measured at
+ * 22 x 17 px, which needs a 19 px ring radius to keep the ring visible past
+ * the pill's corner — the OLD 13 px radius (26 px ring) was already smaller
+ * than that corner distance, which is why a three-digit bubble measured as
+ * reading almost entirely black instead of kind-tinted.
  */
 function clusterIcon(cluster) {
   let total = 0;
@@ -117,7 +131,7 @@ function clusterIcon(cluster) {
       " !important;border-color:" + withAlpha(color, .9) +
       ' !important"><span class="cluster-count">' + shortCount(total) + "</span></div>",
     className: "marker-cluster marker-cluster-" + size,
-    iconSize: L.point(34, 34)
+    iconSize: L.point(46, 46)
   });
 }
 

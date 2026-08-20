@@ -50,6 +50,23 @@
  * scans colour first — green ground cover, red-brown spawns — the same
  * language the pin dots and the filter panel already use, before ever
  * reading the count.
+ *
+ * Ring diameter is sized to the count pill, not the other way round - it
+ * used to be the reverse (26 px, fixed) and a 3-digit count silently broke
+ * it: measured, `.cluster-count` at "999" is 22-26 px wide depending on
+ * padding, i.e. AS WIDE AS the old 26 px ring, so the tint read as a bare
+ * rim on small counts and vanished entirely under the pill on anything with
+ * three digits - every double- and triple-digit bubble in the actual
+ * catalogue (Brownwood-scale spawn/resource clusters routinely total in the
+ * hundreds). 38 px keeps a measured ~5 px tint margin past the pill's own
+ * corner at its widest ("999" at the tightened padding below, 22 x 17 px,
+ * half-diagonal 14.1 px; ring radius 19 px) in every direction, so the ring
+ * cannot be fully covered by any un-abbreviated count (`shortCount` still
+ * abbreviates anything >= 1000, discoveries/state.js). iconSize grows to
+ * match (46 px = 38 px ring + the same 4 px margin as before) in
+ * discoveries/state.js's clusterIcon - Leaflet sizes the marker's hit area
+ * and cluster radius off that number, not off anything CSS declares, so the
+ * geometry change could not be made in this file alone.
  */
 .leaflet-discoveries-pane .marker-cluster-small,
 .leaflet-discoveries-pane .marker-cluster-medium,
@@ -59,24 +76,44 @@
 .leaflet-discoveries-pane .marker-cluster-small div,
 .leaflet-discoveries-pane .marker-cluster-medium div,
 .leaflet-discoveries-pane .marker-cluster-large div {
-  width: 26px; height: 26px; margin: 4px;
+  width: 38px; height: 38px; margin: 4px;
   display: flex; align-items: center; justify-content: center;
   border: 1px solid; /* colour set inline, per bubble */
   box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
 }
 /*
- * The count's own opaque pill, independent of the kind-tinted ring around it.
- * Measured why this has to be a second layer rather than a text colour that
- * just sits on the ring: at the ring's shipped .58 alpha, every kind colour
- * read under 2:1 against a light numeral over pale terrain, and pushing the
- * ring to fully OPAQUE does not save it either — measured 3.0-4.4:1 for
+ * The count's own opaque pill, independent of the kind-tinted ring behind
+ * it. Measured why this has to be a second layer rather than a text colour
+ * that just sits on the ring: at the ring's shipped alpha (.58), every kind
+ * colour composited over pure white reads 10.8-12.6:1 for THIS pill (see
+ * below) but under 2:1 for bare numeral text at the same alpha, and pushing
+ * the ring to fully OPAQUE does not save it either - measured 3.0-4.4:1 for
  * every kind at alpha 1, none reaching the 4.5:1 AA floor, because the kind
  * palette itself sits too close in lightness to a light numeral no matter
  * how much of it shows through. A translucent ring can carry the "what
- * kind" signal or guarantee the "how many" text stays legible, never both at
- * once — so each gets its own layer. This pill is solid enough (measured
- * >11:1 even composited over the ring's own worst-case backdrop) that the
- * count reads regardless of kind colour or what terrain is under the bubble.
+ * kind" signal or guarantee the "how many" text stays legible, never both
+ * at once - so each gets its own layer.
+ *
+ * Padding tightened from `1px 4px` to `1px 2px`: every pixel shaved off the
+ * pill's own footprint is a pixel less the ring above has to grow to stay
+ * visible around it, measured on the worst case ("999", the largest
+ * unabbreviated count) at 22.4 px wide instead of 26.4 px.
+ *
+ * Contrast re-measured for THIS geometry, not assumed from the old one:
+ * numeral (#f4ecdd) against the pill (rgba(28,22,13,.88)) composited over
+ * every kind's ring-over-white and ring-over-black worst cases, and over
+ * bare white/black terrain directly (the pill can render straight over
+ * terrain again if a bubble somehow exceeds `large` sizing this file does
+ * not otherwise expect):
+ *   resource  12.26 : 1 (white)  14.39 : 1 (black)
+ *   container 12.21 : 1 (white)  14.33 : 1 (black)
+ *   npc       12.18 : 1 (white)  14.32 : 1 (black)
+ *   structure 12.27 : 1 (white)  14.39 : 1 (black)
+ *   spawn     12.55 : 1 (white)  14.53 : 1 (black)
+ *   bare terrain (no ring at all): 10.83 : 1 (white)  15.70 : 1 (black)
+ * Every figure clears the 4.5:1 AA floor by more than double, because the
+ * pill's own .88 alpha dominates whatever sits behind it - this held before
+ * the geometry change too, it is re-verified here rather than re-asserted.
  */
 /*
  * Unscoped, unlike the ring above: filter-panel.css's competing !important
@@ -86,7 +123,7 @@
  * verbatim rather than approximating it, so the two can never drift apart.
  */
 .cluster-count {
-  display: inline-block; min-width: 15px; padding: 1px 4px;
+  display: inline-block; min-width: 15px; padding: 1px 2px;
   border-radius: 8px; background: rgba(28, 22, 13, .88);
   color: #f4ecdd; font-size: 11px; font-weight: 600; line-height: 15px;
   text-align: center;

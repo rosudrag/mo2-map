@@ -65,8 +65,15 @@ published row per occupied cell — where `cls` is the exporter's *folded*
 class, not the raw engine class. A small set of variant tokens fold into
 their base class before grouping, so a variant and its base merge into one
 row whenever they land in the same cell instead of publishing as two
-identically-labelled pins metres apart: `_Baby_`/`_Alpha_` age and rank
-tokens on `spawn` classes fold into the base species (fold, not delete — an
+identically-labelled pins metres apart: `_Baby_`/`_Adult_`/`_Alpha_` age and
+rank tokens on `spawn` classes fold into the base species. `Adult` is folded
+because it is the same base form the raw data sometimes omits entirely, not
+a variant — leaving it unfolded (an earlier version of this rule) meant an
+explicitly-`_Adult_C` class and whatever bare form a Baby/Alpha fold
+produced never shared a grouping key, publishing as two same-label rows
+near each other though they were the same species: a whole-catalogue
+proximity sweep found every same-label pair under 64 m apart in `spawn`
+was exactly this, 198 of 204. `Baby`/`Alpha` are folded, not deleted (an
 alpha standing far from any base row is still a real spawn point, and the
 base-species label can still carry it truthfully); a bare trailing letter
 glued to a word with nothing else distinguishing it (`ChestA`, `BarrelB`,
@@ -84,7 +91,16 @@ not clustering: a single-linkage clusterer chains dense fields of adjacent
 nodes into one centroid kilometres from any real node (measured: 1,265 raw
 discoveries collapsed into one cluster on this catalogue). A fixed grid
 cannot do that — the cost is a *bounded* position error instead of an
-unbounded one.
+unbounded one. A whole-catalogue proximity sweep after every fix above
+still finds same-`(kind, label)` pairs closer than each kind's own cell
+size — `npc`/`container` have none within their own 16 m, `spawn` has 4
+within 12.5% of its 128 m, `resource`/`spawn` have more approaching the
+full cell size, concentrated in the densest veins (Brownwood, Granum...)
+already accounted for in the cell-size choice below. Left as-is: `resource`
+and `spawn` each carry a server-side identity radius the discovery API
+already resolves at (16 m, 128 m respectively — see the cell-size note
+below), so a same-class pair the grid did not merge is a real, distinct,
+already-verified location, not a splitting bug to coalesce away.
 
 Cell size is per kind: 128 m for `resource` (raised from 64 m — the
 per-class curve for the densest resource fields has no natural gap, so
