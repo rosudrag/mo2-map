@@ -1,5 +1,5 @@
 {
- "note": "Dungeon interior plates rendered from the game's own placed geometry at 0.25 m/px, built by the offline pipeline. One plate per LEVEL, cut 6 m above that level's floor so the plan is visible rather than the rock ceiling above it. Bounds are canvas lat/lng, the same frame as the tiles and the pins, so a level sits exactly under the terrain it is beneath.",
+ "note": "Dungeon interior plates rendered from the game's own placed geometry at 0.25 m/px (auxilliary/mo2-terrain-map/tools/dungeon_plate.py). One plate per LEVEL, cut 6 m above that level's floor so the plan is visible rather than the rock ceiling above it. Bounds are canvas lat/lng, the same frame as the tiles and the pins, so a level sits exactly under the terrain it is beneath.",
  "dungeons": [
   {
    "key": "argkepher",
@@ -17,7 +17,7 @@
    "levels": [
     {
      "level": 1,
-     "file": "assets/dungeonplates/argkepher_l1.09db7f650d.webp",
+     "file": "assets/dungeonplates/argkepher_l1.8ff678501e.webp",
      "bounds": [
       [
        1651.6564553575,
@@ -42,7 +42,7 @@
     },
     {
      "level": 2,
-     "file": "assets/dungeonplates/argkepher_l2.18056eea5b.webp",
+     "file": "assets/dungeonplates/argkepher_l2.bea6fb621a.webp",
      "bounds": [
       [
        1686.0863089876757,
