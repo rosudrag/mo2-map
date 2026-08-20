@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mortal Online 2 — Maps</title>
+  <meta name="description" content="Measured maps of Mortal Online 2: terrain from the game's own landscape data, towns and dungeons rendered from their placed geometry, and the places players have found." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Modern+Antiqua&display=swap" />
+  <!--
+    Self-contained on purpose, like public/map/unpublished.css: this page ships
+    even if the bundler never runs, carries no JavaScript, and must render on
+    its own. The tokens echo the map's dark bronze palette
+    (public/map/app/src/styles/tokens.css) for family resemblance; they are an
+    independent copy, and nothing here is bundled.
+  -->
+  <style>
+    :root {
+      --ink: #0c0a08;
+      --panel: #16130f;
+      --panel-2: #1e1a14;
+      --bronze: #c4a574;
+      --bronze-dim: #8a6a3d;
+      --text: #e8dcc8;
+      --muted: #9a8b78;
+      --line: #3a3228;
+      --font-ui: "Segoe UI", system-ui, sans-serif;
+      --font-title: "Modern Antiqua", "Segoe UI", serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background-color: var(--ink);
+      /* The same sea backdrop the map itself uses, so arriving here and
+         opening a continent feels like one place. */
+      background-image: url("map/app/assets/map-bg.webp?v=sea1");
+      background-size: cover;
+      background-position: 50% 40%;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      font: 15px/1.6 var(--font-ui);
+      color: var(--text);
+    }
+    /* Ink wash over the sea: the art is busy and text has to win, but the
+       backdrop is the map's own sea and hiding it entirely wastes it. */
+    body::before {
+      content: ""; position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(12,10,8,.30) 0%, rgba(12,10,8,.72) 55%, rgba(12,10,8,.92) 100%);
+    }
+    main { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 72px 24px 56px; }
+
+    header { text-align: center; margin-bottom: 56px; }
+    h1 {
+      font-family: var(--font-title);
+      font-size: clamp(34px, 6vw, 54px);
+      line-height: 1.1;
+      margin: 0 0 8px;
+      color: var(--bronze);
+      letter-spacing: .02em;
+    }
+    .sub { margin: 0 auto; max-width: 62ch; color: var(--text); font-size: 17px; }
+    .rule {
+      width: 132px; height: 1px; margin: 26px auto 0;
+      background: linear-gradient(90deg, transparent, var(--bronze-dim), transparent);
+    }
+
+    h2 {
+      font-family: var(--font-title); font-size: 13px; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--muted);
+      margin: 0 0 18px; font-weight: normal;
+    }
+
+    /* ---- continents ---- */
+    /* align-items: start so a card is only as tall as it needs to be - the
+       continents with nothing to show should not be padded out to match the
+       one that has a preview. */
+    .maps { display: grid; gap: 16px; align-items: start; grid-template-columns: repeat(auto-fit, minmax(272px, 1fr)); }
+    .map-card {
+      display: flex; flex-direction: column;
+      background: rgba(22, 19, 15, .86);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      text-decoration: none; color: inherit;
+      transition: border-color .15s, transform .15s, background-color .15s;
+    }
+    .map-card > .body { padding: 22px 22px 20px; display: flex; flex-direction: column; flex: 1; }
+    /*
+     * The published continent shows its own island, cropped from the coarsest
+     * artwork tile it already ships (11 KB, no new asset). Describing a map is
+     * weaker than showing one, and the continents with nothing to show get no
+     * preview - which is the status difference, stated visually.
+     */
+    .map-card .preview {
+      display: block; width: 100%; height: 152px;
+      object-fit: cover; object-position: 50% 50%;
+      border-bottom: 1px solid var(--line);
+      filter: saturate(.9) brightness(.95);
+    }
+    a.map-card:hover { border-color: var(--bronze); background: rgba(30, 26, 20, .92); transform: translateY(-2px); }
+    a.map-card:hover .preview { filter: saturate(1) brightness(1.02); }
+    .map-card h3 {
+      font-family: var(--font-title); font-size: 26px; font-weight: normal;
+      margin: 0 0 6px; color: var(--bronze);
+    }
+    .map-card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .chip {
+      align-self: flex-start; margin-bottom: 14px;
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 99px;
+      border: 1px solid var(--bronze-dim); color: var(--bronze);
+    }
+    .chip.pending { border-color: var(--line); color: var(--muted); }
+    .map-card .go { margin-top: auto; padding-top: 16px; font-size: 13px; color: var(--bronze); }
+    .map-card.is-pending { opacity: .72; }
+
+    /* ---- what it is ---- */
+    section { margin-top: 54px; }
+    .facts { display: grid; gap: 22px 34px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .facts h4 {
+      margin: 0 0 5px; font-size: 15px; color: var(--text);
+      font-family: var(--font-title); font-weight: normal; letter-spacing: .01em;
+    }
+    .facts p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .note {
+      margin-top: 40px; padding: 18px 20px;
+      border-left: 2px solid var(--bronze-dim);
+      background: rgba(22, 19, 15, .7);
+      color: var(--muted); font-size: 14px;
+    }
+    .note strong { color: var(--text); font-weight: normal; }
+
+    footer {
+      position: relative; z-index: 1;
+      max-width: 980px; margin: 0 auto; padding: 26px 24px 44px;
+      border-top: 1px solid var(--line);
+      color: var(--muted); font-size: 13px;
+      display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: space-between;
+    }
+    footer a { color: var(--bronze); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .trademark { flex-basis: 100%; color: #6f6355; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Mortal Online 2 — Maps</h1>
+      <p class="sub">
+        Terrain measured from the game's own landscape data, towns and dungeons
+        drawn from their placed geometry, and the places players have found on top.
+      </p>
+      <div class="rule"></div>
+    </header>
+
+    <section>
+      <h2>Continents</h2>
+      <div class="maps">
+        <a class="map-card" href="map/sarducaa/">
+          <img class="preview" src="map/sarducaa/assets/tiles-art/v2/-4/0/-1.webp"
+               alt="The island of Sarducaa drawn as period cartography" width="256" height="256" />
+          <div class="body">
+            <span class="chip">Published</span>
+            <h3>Sarducaa</h3>
+            <p>
+              The southern continent: 17.3 km across, nine towns rendered at
+              quarter-metre detail, four dungeons cut away level by level, and a
+              hand-drawn style you can export as a poster.
+            </p>
+            <span class="go">Open the map →</span>
+          </div>
+        </a>
+
+        <a class="map-card is-pending" href="map/myrland/">
+          <div class="body">
+            <span class="chip pending">Not published yet</span>
+            <h3>Myrland</h3>
+            <p>
+              The largest continent, 20 km across. Its terrain is measured and
+              rendered, but it is not published here yet.
+            </p>
+            <span class="go">What's the status →</span>
+          </div>
+        </a>
+
+        <a class="map-card is-pending" href="map/haven/">
+          <div class="body">
+            <span class="chip pending">Not mapped yet</span>
+            <h3>Haven</h3>
+            <p>
+              The starter island. Nothing has been extracted for it, so there is
+              nothing to show.
+            </p>
+            <span class="go">What's the status →</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2>How it is made</h2>
+      <div class="facts">
+        <div>
+          <h4>The terrain is measured, not traced</h4>
+          <p>
+            Heightmaps stitched into an elevation model, coloured with the
+            engine's own per-tile material bake. Rivers, roads and shorelines
+            appear because they are in the data, not because someone drew them.
+          </p>
+        </div>
+        <div>
+          <h4>Towns at quarter-metre detail</h4>
+          <p>
+            A town is buildings, and buildings are objects the ground bake
+            cannot contain. Each town is rendered from its own placed meshes and
+            laid over the island at the zoom where it starts to matter.
+          </p>
+        </div>
+        <div>
+          <h4>Dungeons as cutaways</h4>
+          <p>
+            Levels of one dungeon overlap almost exactly from above, so each
+            floor gets its own plate and its own map you step into — not a pile
+            of overlapping pins.
+          </p>
+        </div>
+        <div>
+          <h4>Two ways to look at it</h4>
+          <p>
+            The measured render, or the same measurements drawn as period
+            cartography — contours, hachures and ink — which the page will
+            export as a framed poster.
+          </p>
+        </div>
+        <div>
+          <h4>Coordinates you can use</h4>
+          <p>
+            The transform between world metres and map pixels is published,
+            with its fit and its residuals, so anyone can align their own
+            measurements to this frame.
+          </p>
+        </div>
+        <div>
+          <h4>Everything is a plain file</h4>
+          <p>
+            Tiles, plates and data are static files with no server behind them.
+            Clone the repository and the whole map runs on your own machine.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <p class="note">
+      <strong>About the places on the map.</strong> Resource nodes, camps and
+      landmarks come from what players have actually found while playing, so the
+      catalogue is uneven: an empty stretch usually means nobody has been there
+      yet rather than that there is nothing to find. Coverage ships alongside
+      the data, and unexplored ground is drawn as unexplored.
+    </p>
+  </main>
+
+  <footer>
+    <span>
+      Code <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache-2.0</a> ·
+      Data <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+    </span>
+    <span>
+      <a href="https://github.com/rosudrag/mo2-map">Source and documentation</a>
+    </span>
+    <span class="trademark">
+      Mortal Online 2 is a trademark of Star Vault AB. This project is
+      unaffiliated with and unendorsed by Star Vault.
+    </span>
+  </footer>
+</body>
+</html>

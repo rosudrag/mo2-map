@@ -6,13 +6,13 @@
  *   src/styles/main.css -> app/dist/app-static.css
  *
  * The application source lives once, at public/map/app/ — continents are thin
- * directories (public/map/<mapId>/) holding only a static.html that
+ * directories (public/map/<mapId>/) holding only an index.html that
  * references ../app/dist/*, plus that continent's own tile/plate assets.
- * TARGETS below still names exactly the Sarducaa static.html file: it grows
+ * TARGETS below still names exactly the Sarducaa index.html file: it grows
  * one entry per continent only once that continent ships its own published
  * registry entry and assets, not before.
  *
- * Then stamps a content hash into the dist references of static.html.
+ * Then stamps a content hash into the dist references of index.html.
  *
  * Why a hash in the html rather than hashed FILENAMES: deployment is a plain
  * `rsync --delete` of the working tree onto a server with no Node, so dist/
@@ -46,7 +46,7 @@ const sarducaaDir = join(mapsDir, "sarducaa");
 
 // `name` is both the esbuild output basename (app-static.js / app-static.css)
 // and the html-attribute match key, so the two can never drift apart.
-const TARGET = { name: "app-static", entry: join(srcDir, "main-static.js"), html: join(sarducaaDir, "static.html") };
+const TARGET = { name: "app-static", entry: join(srcDir, "main-static.js"), html: join(sarducaaDir, "index.html") };
 
 const mode = process.argv.includes("--watch")
   ? "watch"
@@ -114,7 +114,7 @@ function stampInPlace(outdir, target) {
   const jsHash = shortHash(readOut(outdir, target.name + ".js"));
   const cssHash = shortHash(readOut(outdir, target.name + ".css"));
   const html = readFileSync(target.html, "utf8");
-  const htmlName = "static.html";
+  const htmlName = "index.html";
   assertStamped(html, target.name, htmlName);
   const next = stampHtml(html, jsHash, cssHash, target.name);
   if (next !== html) { writeFileSync(target.html, next); }
@@ -177,7 +177,7 @@ async function verify() {
         problems.push("dist/" + name + " does not match a fresh build of src/");
       }
     }
-    const htmlName = "static.html";
+    const htmlName = "index.html";
     const html = readFileSync(TARGET.html, "utf8");
     assertStamped(html, TARGET.name, htmlName);
     const expected = stampHtml(
@@ -192,11 +192,11 @@ async function verify() {
     if (problems.length) {
       console.error("build output has drifted from source:");
       for (const p of problems) { console.error("  - " + p); }
-      console.error("\nRun `npm run build` and commit dist/ + static.html.");
+      console.error("\nRun `npm run build` and commit dist/ + index.html.");
       process.exitCode = 1;
       return;
     }
-    console.log("dist/ matches src/ and static.html stamps are current");
+    console.log("dist/ matches src/ and index.html stamps are current");
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

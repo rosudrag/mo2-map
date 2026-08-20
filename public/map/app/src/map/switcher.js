@@ -17,22 +17,35 @@
  * the door. See public/map/<mapId>/index.html for what that page shows -
  * this menu's label carries the same `unpublishedReason` text.
  *
- * Preserves which BUILD the reader is on (the live build, or the
- * public static build) when moving to another PUBLISHED continent.
- * window.__MO2_BUILD__ is set inline by index.html/static.html, before this
- * bundle even loads, because the URL alone cannot say which build served it:
- * a bare "/map/sarducaa/" request serves index.html by default (router.php),
- * so the live build's own address bar very often carries no filename at
- * all. An unpublished continent has no such split - one page, not two - so
- * it is always reached at its bare directory URL regardless of build.
+ * Carries the reader's OWN page filename across to the next continent, which
+ * is how the same bundle serves two deployments without being told which one
+ * it is in. This repo publishes each continent as `<mapId>/index.html`, so a
+ * reader is on a bare directory URL and the next continent is too. A
+ * deployment that adds a second page per continent alongside it - a live
+ * build at index.html and this static one at static.html, say - keeps the
+ * reader on the page they were already on, because the filename they arrived
+ * at is the filename they leave with.
+ *
+ * Reading the filename beats a build flag set inline by each page: the flag
+ * had to be maintained in every HTML shell in every deployment, and could
+ * disagree with the file actually being served. The URL cannot lie about it.
+ *
+ * An unpublished continent has one page, not two, so it is always reached at
+ * its bare directory URL.
  */
 import { openMenu } from "../ui/picker.js";
 import { mapMeta } from "./meta.js";
 import { MAPS } from "../../../registry.js";
 
-function hrefFor(entry, build) {
+/** This page's own filename, or "" when it was served from a directory URL. */
+function pageFile() {
+  const last = window.location.pathname.split("/").pop();
+  return last && last.indexOf(".") !== -1 ? last : "";
+}
+
+function hrefFor(entry) {
   if (!entry.published) { return "../" + entry.id + "/"; }
-  return build === "static" ? "../" + entry.id + "/static.html" : "../" + entry.id + "/";
+  return "../" + entry.id + "/" + pageFile();
 }
 
 function menuItems(currentId) {
@@ -55,7 +68,6 @@ function menuItems(currentId) {
  * nothing to show.
  */
 export function initSwitcher() {
-  const build = window.__MO2_BUILD__ === "static" ? "static" : "live";
   const currentId = mapMeta.id;
 
   const btn = document.createElement("button");
@@ -74,7 +86,7 @@ export function initSwitcher() {
         if (value === currentId) { return; }
         const entry = MAPS[value];
         if (!entry) { return; }
-        window.location.href = hrefFor(entry, build);
+        window.location.href = hrefFor(entry);
       }
     });
   });
