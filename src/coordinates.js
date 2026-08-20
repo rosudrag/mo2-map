@@ -3,8 +3,12 @@
  *
  * The map draws in Leaflet `CRS.Simple` pixels on a 5120x3579 canvas (`lat` = Y
  * from the bottom, `lng` = X from the left). World positions are Unreal world
- * METRES. This module is the whole transform between them, and it is the single
- * source of truth: no consumer may hold a second copy of the constants.
+ * METRES. This module is the whole transform between them, for anything
+ * outside the browser bundle (scripts, tests, external tooling).
+ * `public/map/registry.js`'s `sarducaa.world` block carries its own copy of
+ * these exact numbers for the app to use at runtime — the two are kept in
+ * sync by hand, not by import, so a re-fit has to update both. `test/
+ * coordinates.test.mjs` checks this module, not that one.
  *
  * The constants describe THIS canvas. Re-cut the canvas without re-fitting and
  * every consumer is silently wrong — see docs/coordinates.md for the fit, its

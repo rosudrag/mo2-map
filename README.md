@@ -29,6 +29,7 @@ cannot currently show you which.
 | `docs/coordinates.md` | the fit, its residuals, the origin correction, and the open scale question |
 | `docs/snapshot.md` | snapshot contract: file format, field schema |
 | `server/serve.mjs` · `local.ps1` | the site server and the local runner — [`docs/running.md`](docs/running.md) |
+| `docs/release-checklist.md` | what's verified, how, and what's a known open gap before publishing |
 
 ```bash
 npm test        # no dependencies, Node 20+
