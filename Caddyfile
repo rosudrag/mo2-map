@@ -1,0 +1,57 @@
+# Production front end for the map site.
+#
+# Caddy owns TLS, HTTP/2, HTTP/3 and compression. The Node server upstream
+# owns the filesystem and the cache policy. That division is deliberate: doing
+# compression in both places would spend CPU twice for identical bytes, and
+# doing cache policy in the proxy would put the rules that decide whether a
+# visitor sees a stale deploy somewhere other than the code that knows which
+# files are versioned.
+#
+#   caddy run --config Caddyfile
+#
+# Replace the site address with your own domain.
+
+map.example.com {
+	encode zstd gzip
+
+	# The upstream binds to loopback by default, so it is not reachable from
+	# outside this host even if the proxy is bypassed.
+	reverse_proxy 127.0.0.1:8788
+
+	header {
+		# The site is static files and its own JavaScript; it loads no
+		# third-party script and posts nowhere.
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Content-Type-Options "nosniff"
+		# Map tiles are same-origin images; framing the page gains an
+		# attacker nothing, but there is no reason to permit it either.
+		X-Frame-Options "SAMEORIGIN"
+	}
+
+	log {
+		output stderr
+		format console
+	}
+}
+
+# ---------------------------------------------------------------------------
+# The alternative, and why we do not use it.
+#
+# For a purely static tree Caddy can serve the files itself, with no upstream
+# process at all:
+#
+#     map.example.com {
+#     	encode zstd gzip
+#     	root * /srv/mo2-map/public
+#     	file_server
+#     	header /map/*/assets/tiles/* Cache-Control "public, max-age=31536000, immutable"
+#     	header *.html Cache-Control "no-cache"
+#     }
+#
+# That works, and it is one fewer moving part. What it costs is that the cache
+# rules above now live in deployment configuration rather than beside the code
+# that generates the versioned filenames — so local development serves
+# different headers than production, and a caching mistake is invisible until
+# it reaches users. Running the same small server in both places means the
+# bytes and the headers are identical everywhere, and the proxy stays
+# interchangeable: nothing here is Caddy-specific.

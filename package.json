@@ -1,10 +1,14 @@
 {
   "name": "mo2-map",
   "version": "0.1.0",
-  "description": "A static, measured map of Mortal Online 2's Sarducaa",
+  "description": "A map of Mortal Online 2: Myrland, Sarducaa and Haven",
   "license": "Apache-2.0",
   "type": "module",
   "engines": { "node": ">=20" },
   "exports": { "./coordinates": "./src/coordinates.js" },
-  "scripts": { "test": "node --test test/", "validate": "node bin/validate-snapshot.mjs" }
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "serve": "node server/serve.mjs",
+    "validate": "node bin/validate-snapshot.mjs"
+  }
 }
