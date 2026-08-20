@@ -435,7 +435,12 @@ function applyPreset(source, presetId) {
   scheduleRender();
 }
 
-function showAll() {
+/**
+ * Switches every source's layer and every group/sub-group back on. Exported
+ * so view/search.js can offer the same reset as the one-way escape from "the
+ * filter panel hid everything and the map has no other way to say so".
+ */
+export function showAll() {
   for (const source of allSources()) {
     // The layer comes back on too: "Show all" that leaves a layer switched off
     // does nothing visible, which reads as broken.

@@ -1,7 +1,9 @@
 /* Top toolbar: search box, world-coordinate paste field, joined-match summary. */
 #top-tools {
   position: absolute; z-index: 1150; top: 12px; left: 56px;
-  right: 12px; max-width: 560px;
+  /* 56px clears #legend-toggle's own 36px + 12px right offset + 8px gap,
+     the same arithmetic left:56px already uses for #filter-toggle. */
+  right: 56px; max-width: 560px;
   display: flex; gap: 8px; align-items: stretch;
   pointer-events: none;
 }
@@ -16,11 +18,16 @@
 #search::placeholder { color: var(--muted); }
 #search:focus { border-color: var(--bronze); }
 #paste-loc-wrap {
-  display: flex; gap: 4px; flex: 0 0 auto;
+  display: flex; gap: 4px;
+  /* Shrinks below its natural ~182px on a narrow viewport instead of
+     overflowing #top-tools's own right edge — grow:0 keeps it compact on a
+     wide one, where #search already claims the slack. */
+  flex: 0 1 182px; min-width: 90px;
   box-shadow: 0 2px 10px rgba(0,0,0,.55);
 }
 #paste-loc {
-  width: 132px; padding: 9px 10px; border: 1px solid var(--bronze-deep);
+  flex: 1 1 auto; min-width: 40px; width: auto;
+  padding: 9px 10px; border: 1px solid var(--bronze-deep);
   background: var(--panel); color: var(--text); outline: none;
   border-right: 0;
 }
@@ -38,8 +45,15 @@
  * Fit and Clear — the query already narrowed the map and every list, so there
  * is nothing here to pick from, unlike the dropdown this replaced.
  */
+/*
+ * width's right margin matches every other top-row control (12px, same as
+ * #top-tools's own right offset before it reserves room for #legend-toggle):
+ * a leftover 220px reservation here left as little as 40px for the text on a
+ * phone-width viewport, so "12 match · Pins 3 · Discoveries 9" truncated to
+ * "12 m…" flush against the Fit button with no room to say anything.
+ */
 #search-summary {
-  position: absolute; top: 48px; left: 56px; width: min(420px, calc(100% - 220px));
+  position: absolute; top: 48px; left: 56px; width: min(420px, calc(100% - 68px));
   display: none; align-items: center; gap: 8px;
   padding: 7px 12px;
   background: var(--panel); color: var(--text);

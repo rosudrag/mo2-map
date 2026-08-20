@@ -17,9 +17,36 @@
  * built there renders no Details / Delete button (see popupHtml's
  * popupActions guard).
  */
-import { applyDiscoveries } from "../../discoveries/markers.js";
+import { applyDiscoveries, setDiscoveryPopupFacts } from "../../discoveries/markers.js";
 import { attachStore, presentation, wireNotifications } from "../../discoveries/view.js";
 import { loadSnapshot } from "./data.js";
+
+/**
+ * The two facts every published row actually carries beyond its name and
+ * kind: how many nodes this pin merges, and where it is. Static-build-only
+ * (registered here, not in discoveries/markers.js) because `count` means
+ * something else on the live source's side of the seam — see that module's
+ * own popupFacts doc — and a shared renderer cannot label both meanings
+ * honestly from one string.
+ *
+ * The count line only earns space when it says something the ×N in the
+ * title does not: that a cell merges nodes rather than recording sightings.
+ * The position is metres in the same frame `?you=world:X,Y` and the
+ * coordinate readout use, so a reader can walk to it. Both come straight off
+ * the row snapshot.md already publishes — nothing here is invented.
+ */
+function popupFacts(row) {
+  let out = "";
+  if (row.count > 1) {
+    out += "<dt>Nodes here</dt><dd>" + row.count +
+      " grid-merged \u2014 nearby nodes folded into one pin, not " + row.count +
+      " sightings</dd>";
+  }
+  out += '<dt title="Grid-cell centroid \u2014 the real node may sit a short walk from this point">' +
+    "World position</dt><dd>X " + Math.round(row.x) + " \u00b7 Y " + Math.round(row.y) + "</dd>";
+  return out;
+}
+setDiscoveryPopupFacts(popupFacts);
 
 /**
  * Reshapes one static snapshot row (contract: id, kind, label, x, y, z,

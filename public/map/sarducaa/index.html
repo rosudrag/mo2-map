@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../app/vendor/MarkerCluster.Default.css" />
   <!-- Bundled from ../app/src/styles/*.css by bin/build.mjs. The ?v= stamp is
        machine-maintained: run `npm run build`, never hand-edit the hash. -->
-  <link rel="stylesheet" href="../app/dist/app-static.css?v=593719dfa7" />
+  <link rel="stylesheet" href="../app/dist/app-static.css?v=964d105d87" />
 </head>
 <body>
   <div id="map"></div>
@@ -31,6 +31,7 @@
          just sit at 0. -->
     <div id="filter-sections"></div>
   </aside>
+  <button type="button" id="legend-toggle" title="Legend" aria-expanded="false">?</button>
   <div id="top-tools">
     <input id="search" type="search" placeholder="Filter everything (regex)..." autocomplete="off" />
     <div id="paste-loc-wrap">
@@ -38,15 +39,52 @@
       <button type="button" id="paste-loc-go" title="Add marker at world location">Pin</button>
     </div>
   </div>
+  <!-- What a pin's ring style, its count badge and a numbered bubble mean.
+       Opens itself once per browser on first load — view/legend.js. -->
+  <aside id="legend-panel" aria-label="Map legend">
+    <div class="panel-head">
+      <strong>Legend</strong>
+      <button type="button" data-legend-close aria-label="Close legend">✕</button>
+    </div>
+    <div class="legend-body">
+      <div class="legend-row">
+        <span class="legend-swatch"><span class="map-pin" style="--pin: var(--bronze-dim)">
+          <img src="../app/assets/tabler/map-pin.svg" alt="" width="15" height="15" /></span></span>
+        <p><strong>Solid pin</strong> — curated: a place from the game's own files (a town, a
+          dungeon door, a vendor…).</p>
+      </div>
+      <div class="legend-row">
+        <span class="legend-swatch"><span class="disco-pin" style="--pin: var(--bronze-dim)">
+          <img src="../app/assets/tabler/diamond.svg" alt="" width="13" height="13" />
+          <span class="disco-count">5</span></span></span>
+        <p><strong>Dashed, faded pin</strong> — auto-discovered: nodes seen while playing,
+          merged by grid cell. The number is how many nodes are in this cell, not how many
+          times it was seen.</p>
+      </div>
+      <div class="legend-row">
+        <span class="legend-swatch"><span class="legend-cluster"><span>12</span></span></span>
+        <p><strong>Numbered circle</strong> — a cluster of nearby pins. Click to zoom in; at
+          full zoom, click again to fan them apart.</p>
+      </div>
+      <p class="legend-note">Each category has its own colour and icon — open
+        <strong>Filters</strong> (☰, top left) for the full list.</p>
+      <p class="legend-note">Only part of the island has ever been surveyed, and a blank
+        patch looks the same whether it is unexplored or genuinely empty — treat the absence
+        of a pin as "nobody has reported anything here yet", not as "there is nothing here".</p>
+    </div>
+  </aside>
   <!-- Joined feedback for the query above: a match count per source, Fit and
        Clear. Filled by view/search.js. -->
   <div id="search-summary"></div>
+  <div id="credit">Map data © contributors,
+    <a href="https://github.com/rosudrag/mo2-map/blob/main/LICENSE-DATA.md">CC BY-SA 4.0</a>
+    · © <a href="https://leafletjs.com/">Leaflet</a> contributors</div>
   <div id="coords">lat — · lng —<br /><span class="hint">click copy world</span></div>
   <div id="bm-toasts"></div>
 
   <script src="../app/vendor/leaflet.js"></script>
   <script src="../app/vendor/leaflet.markercluster.js"></script>
   <!-- Bundled from ../app/src/**/*.js by bin/build.mjs (entry: main-static.js). -->
-  <script src="../app/dist/app-static.js?v=db9c7d6079"></script>
+  <script src="../app/dist/app-static.js?v=20823de060"></script>
 </body>
 </html>

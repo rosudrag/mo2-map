@@ -29,6 +29,7 @@ import { renderCoords } from "./map/coords-readout.js";
 import { register } from "./registry/sources-registry.js";
 import * as filters from "./view/filters.js";
 import * as search from "./view/search.js";
+import * as legend from "./view/legend.js";
 import pins from "./sources/static/pins.js";
 import discoveries from "./sources/static/discoveries.js";
 
@@ -41,6 +42,7 @@ register(discoveries);
 // Mounted synchronously, BEFORE the first load resolves — see main.js for why.
 filters.mount();
 search.mount();
+legend.mount();
 
 /**
  * Boots one source on a promise chain of its own. Identical to main.js's

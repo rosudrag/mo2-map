@@ -18,8 +18,8 @@ import { map } from "../map/instance.js";
 import { worldToMap } from "../map/projection.js";
 import { subscribe as subscribeQuery } from "../map/query.js";
 import {
-  KINDS, allRows, discoveryCluster, isKindEnabled, kindCounts, kindMeta, notify,
-  setKindEnabled, subscribe
+  KINDS, allRows, discoveryCluster, discoveryVisible, isKindEnabled, kindCounts,
+  kindMeta, notify, setKindEnabled, subscribe
 } from "./state.js";
 import {
   clearDiscoveryIsolation, isolateDiscovery, rebuildDiscoveryLayer
@@ -173,6 +173,14 @@ export const presentation = {
   groupOf: function (row) {
     return row.kind;
   },
+
+  /**
+   * Whether `row` earns a marker right now — kind toggle, active map and the
+   * global query, the exact gate markers.js applies when it rebuilds the
+   * cluster. Shared rather than re-derived so the search summary (view/search.js)
+   * can never report a match the map itself does not draw.
+   */
+  visible: discoveryVisible,
 
   /*
    * The kind toggles stay in discoveries/state.js, which owns and persists them

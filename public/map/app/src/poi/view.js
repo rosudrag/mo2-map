@@ -42,8 +42,8 @@ import {
   setTypeEnabled, subscribe
 } from "./state.js";
 import {
-  flushLayerRebuild, makePoiMarker, rebuildLayers, removeMarkerFromMap,
-  visibleCountFor
+  flushLayerRebuild, makePoiMarker, markerVisible, rebuildLayers,
+  removeMarkerFromMap, visibleCountFor
 } from "./markers.js";
 import { rebuildDiscoveryLayer } from "../discoveries/markers.js";
 import { GROUPS, ROWS } from "../registry/store.js";
@@ -344,6 +344,14 @@ export const presentation = {
   groupOf: function (row) {
     return row.category;
   },
+
+  /**
+   * Whether `row` earns a marker right now — category/type toggle, active
+   * map and the global query, the exact gate markers.js applies when it
+   * rebuilds the layer. Shared rather than re-derived so the search summary
+   * (view/search.js) can never report a match the map itself does not draw.
+   */
+  visible: markerVisible,
 
   isGroupEnabled: function (groupId) {
     return isCatEnabled(groupId);

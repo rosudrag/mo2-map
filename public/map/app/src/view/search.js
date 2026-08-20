@@ -17,6 +17,7 @@
 import { map } from "../map/instance.js";
 import { img } from "../map/meta.js";
 import { sources } from "../registry/sources-registry.js";
+import { showAll } from "./filters.js";
 import {
   getQuery, isActive, isLiteral, matches, setQuery, subscribe as subscribeQuery
 } from "../map/query.js";
@@ -56,7 +57,17 @@ function scheduleRender() {
   });
 }
 
-/** One pass per source: a match count and up to MAX_FIT_POINTS positions. */
+/**
+ * One pass per source: a count of rows that actually earn a marker right now
+ * and up to MAX_FIT_POINTS of their positions.
+ *
+ * `source.visible(row)` — discoveries/view.js, poi/view.js — is the SAME
+ * predicate the marker layer rebuilds from (kind/category toggle, active map,
+ * then the query last). Counting anything looser would let this bar claim a
+ * match the map does not draw, which is exactly the bug a category toggle
+ * used to cause: a query narrowed to a hidden kind still reported "8 match"
+ * with nothing on screen.
+ */
 function collect() {
   let total = 0;
   const bits = [];
@@ -64,7 +75,8 @@ function collect() {
   for (const source of countableSources()) {
     let n = 0;
     for (const row of source.rows()) {
-      if (!matches(source.searchText(row))) { continue; }
+      const hit = source.visible ? source.visible(row) : matches(source.searchText(row));
+      if (!hit) { continue; }
       n++;
       if (bounds.length < MAX_FIT_POINTS) {
         const at = source.latLng(row);
@@ -91,40 +103,63 @@ function flyToBounds(bounds) {
   });
 }
 
+/*
+ * Two things can leave the map showing nothing, and both are worth saying
+ * out loud rather than leaving a reader to wonder whether the site is
+ * broken: a query with no matches (the query IS active, so `collect` already
+ * ran for it), or a category/layer toggle in the filter panel hiding
+ * everything with no query at all. The bar is idle only when neither is
+ * true — the ordinary case, or before anything has loaded.
+ */
 function render() {
   if (!summary) { return; }
-  if (!isActive()) {
+  const active = isActive();
+  const hit = collect();
+  const loaded = countableSources().some(function (s) { return s.rows().length > 0; });
+
+  if (!active && (hit.total > 0 || !loaded)) {
     summary.style.display = "none";
     summary.textContent = "";
     return;
   }
 
-  const hit = collect();
   summary.style.display = "flex";
   summary.textContent = "";
 
   const text = document.createElement("span");
   text.className = "search-summary-text";
-  text.textContent = hit.total + " match \u00b7 " + hit.bits.join(" \u00b7 ") +
-    (isLiteral() ? " \u00b7 matching literally" : "");
+  text.textContent = active
+    ? hit.total + " match \u00b7 " + hit.bits.join(" \u00b7 ") +
+      (isLiteral() ? " \u00b7 matching literally" : "")
+    : "Filters hide everything on the map \u00b7 " + hit.bits.join(" \u00b7 ");
   summary.appendChild(text);
 
-  const fit = document.createElement("button");
-  fit.type = "button";
-  fit.className = "mg-btn";
-  fit.textContent = "Fit";
-  fit.disabled = !hit.bounds.length;
-  fit.title = "Fly the map to every match";
-  fit.addEventListener("click", function () { flyToBounds(hit.bounds); });
-  summary.appendChild(fit);
+  if (active) {
+    const fit = document.createElement("button");
+    fit.type = "button";
+    fit.className = "mg-btn";
+    fit.textContent = "Fit";
+    fit.disabled = !hit.bounds.length;
+    fit.title = "Fly the map to every match";
+    fit.addEventListener("click", function () { flyToBounds(hit.bounds); });
+    summary.appendChild(fit);
 
-  const clear = document.createElement("button");
-  clear.type = "button";
-  clear.className = "mg-btn";
-  clear.textContent = "\u2715";
-  clear.title = "Clear the filter";
-  clear.addEventListener("click", function () { setQuery(""); });
-  summary.appendChild(clear);
+    const clear = document.createElement("button");
+    clear.type = "button";
+    clear.className = "mg-btn";
+    clear.textContent = "\u2715";
+    clear.title = "Clear the filter";
+    clear.addEventListener("click", function () { setQuery(""); });
+    summary.appendChild(clear);
+  } else {
+    const reset = document.createElement("button");
+    reset.type = "button";
+    reset.className = "mg-btn";
+    reset.textContent = "Show all";
+    reset.title = "Turn every category and layer back on";
+    reset.addEventListener("click", showAll);
+    summary.appendChild(reset);
+  }
 }
 
 /** Binds #search and #search-summary. Safe to call once; no-ops without them. */

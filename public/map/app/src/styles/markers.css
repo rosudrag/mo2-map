@@ -53,6 +53,25 @@
   pointer-events: none; min-width: 14em;
 }
 #coords .hint { color: var(--muted); font-size: 11px; }
+/*
+ * The data is CC BY-SA 4.0 and the app bundles Leaflet (BSD-2) — both need a
+ * visible credit on a public page. Anchored above #coords rather than a new
+ * corner: the two are the only bottom-left chrome, so stacking them keeps
+ * every other corner free for the tool buttons already living there.
+ */
+#credit {
+  position: absolute; z-index: 1000; bottom: 76px; left: 10px;
+  /* Capped to half the viewport too: the bottom-right corner runs its own
+     stack of tool buttons (switcher.css) down to this same height on a
+     narrow screen, and a wide credit line would run into it. */
+  max-width: min(280px, 46vw);
+  background: rgba(12,10,8,.68); color: var(--muted);
+  padding: 4px 8px;
+  font: 10px/1.4 var(--font-ui);
+  pointer-events: none;
+}
+#credit a { color: var(--muted); pointer-events: auto; }
+#credit a:hover { color: var(--text); }
 #add-hint {
   position: absolute; z-index: 1000; bottom: 14px; left: 50%;
   transform: translateX(-50%);

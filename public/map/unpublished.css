@@ -58,7 +58,7 @@ html, body {
 .card nav {
   display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
 }
-.card nav a {
+.card nav a, .card nav .current {
   padding: 8px 14px;
   border: 1px solid var(--bronze-dim);
   border-radius: 4px;
@@ -67,10 +67,9 @@ html, body {
   font-size: 13px;
 }
 .card nav a:hover { border-color: var(--bronze); color: var(--text); }
-.card nav a.current {
+.card nav .current {
   background: rgba(138, 106, 61, .28);
   border-color: var(--bronze);
   color: var(--muted);
   cursor: default;
-  pointer-events: none;
 }

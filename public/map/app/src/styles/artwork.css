@@ -58,3 +58,7 @@ body.style-artwork #coords {
   background: rgba(52, 40, 20, .88);
   border-color: var(--bronze-deep);
 }
+
+body.style-artwork #credit {
+  background: rgba(52, 40, 20, .74);
+}
