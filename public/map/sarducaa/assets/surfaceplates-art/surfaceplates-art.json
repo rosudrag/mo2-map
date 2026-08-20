@@ -27,7 +27,7 @@
    "key": "jungle",
    "dungeon": "Jungle",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates-art/jungle.39cd3e42f1.webp",
+   "file": "assets/surfaceplates-art/jungle.b41432c225.webp",
    "metresPerPx": 0.25,
    "size": [
     5611,
@@ -49,7 +49,7 @@
    "key": "tuzsaltmines",
    "dungeon": "Tuz Salt Mines",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates-art/tuzsaltmines.eafc39d01b.webp",
+   "file": "assets/surfaceplates-art/tuzsaltmines.bbb25be217.webp",
    "metresPerPx": 0.25,
    "size": [
     4568,
@@ -71,7 +71,7 @@
    "key": "yelkeskarhideout",
    "dungeon": "Yel Keskar",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates-art/yelkeskarhideout.b052cf1d7d.webp",
+   "file": "assets/surfaceplates-art/yelkeskarhideout.af4d4e9130.webp",
    "metresPerPx": 0.25,
    "size": [
     4175,
