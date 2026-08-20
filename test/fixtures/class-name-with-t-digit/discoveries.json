@@ -1,0 +1,30 @@
+[
+  {
+    "id": "a1b2c3d4-e5f6-4a5b-6c7d-8e9f0a1b2c3d",
+    "kind": "resource",
+    "class_name": "BP_Camp_T2_C",
+    "label": "Tier-2 Camp",
+    "world_x": 100.5,
+    "world_y": 200.3,
+    "world_z": 50.0,
+    "seen_count": 3,
+    "observations": 7,
+    "first_seen_date": "2026-01-15",
+    "last_seen_date": "2026-08-19",
+    "source": "survey"
+  },
+  {
+    "id": "b2c3d4e5-f6a7-5b6c-7d8e-9f0a1b2c3d4e",
+    "kind": "npc",
+    "class_name": "T_Rock_LOD1_D",
+    "label": "Waypoint T3 Camp",
+    "world_x": 150.0,
+    "world_y": 250.0,
+    "world_z": 75.0,
+    "seen_count": 2,
+    "observations": 5,
+    "first_seen_date": "2026-02-10",
+    "last_seen_date": "2026-08-19",
+    "source": "survey"
+  }
+]

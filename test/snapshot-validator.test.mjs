@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, "..");
 const validatorPath = path.join(repoRoot, "bin", "validate-snapshot.mjs");
-const nodeExe = "C:\\Program Files\\nodejs\\node.exe";
+const nodeExe = process.execPath;
 
 function runValidator(fixtureDir) {
   const fullPath = path.join(__dirname, "fixtures", fixtureDir);
@@ -56,6 +56,15 @@ test("snapshot with ISO timestamp fails", () => {
   const result = runValidator("poisoned-timestamp");
   assert.notStrictEqual(result.exitCode, 0, "Should fail");
   assert.match(result.stderr, /sub-day timestamp precision/i, "Should report timestamp precision violation");
+});
+
+test("snapshot with class names containing T# pattern passes (regression)", () => {
+  // The old regex /T\d/ would reject BP_Camp_T2_C, T_Rock_LOD1_D, Waypoint T3.
+  // This regression test ensures the fixed regex only matches YYYY-MM-DD[T ]digits,
+  // not T followed by digit in arbitrary text. This fixture MUST PASS.
+  const result = runValidator("class-name-with-t-digit");
+  assert.strictEqual(result.exitCode, 0, `Expected exit 0, got ${result.exitCode}. Stderr: ${result.stderr}`);
+  assert.match(result.stdout, /✓ Snapshot validation passed/, "Should output success message");
 });
 
 test("snapshot with forbidden updated_by value fails", () => {
