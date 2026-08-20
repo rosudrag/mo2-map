@@ -1,6 +1,6 @@
 # Snapshot Contract v1
 
-The snapshot export format captures surveyed discoveries and curated points-of-interest, with metadata about coverage and collection. This document defines the contract enforced by the validator.
+A snapshot is a published dataset of surveyed game world objects and curated locations. It runs in a public repository; the validator cannot be coerced to accept what it should not. Violations in this contract leak information that reconstructs individual activity; the rules exist to prevent that.
 
 ## Overview
 
@@ -49,8 +49,8 @@ Array of machine-observed game objects. Discoveries are anonymous—they carry n
 | `class_name` | String | — | Yes | Unreal engine class; max 160 chars (e.g., `BP_Camp_T2_C`) |
 | `label` | String | — | Yes | Human-readable name; max 128 chars |
 | `world_x`, `world_y`, `world_z` | Number | Metres | Yes | World position; quantised to 1 m |
-| `seen_count` | Integer | — | Yes | Number of separate observations of this object; ≥1 |
-| `observations` | Integer | — | Yes | Total observation events; ≥1 |
+| `observations` | Integer | — | Yes | Number of separate sightings (samples); ≥1. Example: three sightings of the same object yields `observations = 3` |
+| `seen_count` | Integer | — | Yes | Maximum instances seen simultaneously in a single sample; ≥1. Example: one sample sees three instances at once yields `seen_count = 3`. Note: `observations < seen_count` is legal (a consumer assuming otherwise will silently drop valid rows) |
 | `first_seen_date` | ISO 8601 date | YYYY-MM-DD | Yes | Date of first observation |
 | `last_seen_date` | ISO 8601 date | YYYY-MM-DD | Yes | Date of most recent observation |
 | `source` | Enum | survey, gamefile, community | Yes | Discovery provenance |
@@ -87,7 +87,7 @@ Array of curated points-of-interest. Pins are a human-edited catalogue; they may
 | `poi_class` | String | External classification |
 | `package` | String | Game package name |
 | `anchor` | String | Specific bone or point on object |
-| `instances` | Integer | Spawn count if applicable |
+| `instances` | Integer | Number of distinct simultaneous instances at this location; ≥1 if present. Example: a spawn point with three characters at once yields `instances = 3` |
 | `spread_m` | Number | Spatial spread in metres |
 
 **Constraints**:
@@ -112,7 +112,7 @@ Survey coverage: which grid cells were scanned and how many observation events o
 |-------|------|------|----------|-------|
 | `x` | Integer | Grid index | Yes | Column |
 | `y` | Integer | Grid index | Yes | Row |
-| `rows` | Integer | Count | Yes | Observation events in this cell |
+| `rows` | Integer | Count | Yes | Total observation events in this cell (sum across all discoveries/pins scanned here) |
 
 ### manifest.json
 
