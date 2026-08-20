@@ -25,7 +25,7 @@ Myrland and Haven are registered but unpublished — see their entries in
 Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
 
 - Map image config: `../registry.js`'s `sarducaa` entry (`MAPS.sarducaa` — image bounds/zoom + the `world` calibration block)
-- World→pixel projection: that same entry's `world` block, the ONLY copy of the constants — see [../../../docs/map-coordinates.md](../../../docs/map-coordinates.md). Re-fit it whenever the map art changes.
+- World→pixel projection: that same entry's `world` block, the ONLY copy of the constants — see [../../../docs/coordinates.md](../../../docs/coordinates.md). Re-fit it whenever the map art changes.
 - Page sea backdrop (shared, not Sarducaa-specific): CSS on `body` → `../app/assets/map-bg.webp`
 - Map layers: `../registry.js`'s `sarducaa.tiles` — `tiles` = the zoomable island pyramid at
   `assets/tiles/v4/{z}/{x}/{y}.webp`, and that is the ONLY art layer. `image` is now just the

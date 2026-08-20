@@ -7,7 +7,7 @@ import { TABLER, GAMEICONS } from "../util/assets.js";
 const iconCache = {};
 
 /*
- * Glyph resolution order (docs/improve-map-pois.md §3/§4): a marker's own
+ * Glyph resolution order: a marker's own
  * type-level icon wins over its category icon, which falls back to the
  * generic pin — a type is a narrower classification than its category, so it
  * is always the more specific glyph when one is set. `game:<name>` names one

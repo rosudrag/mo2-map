@@ -65,7 +65,7 @@ import {
 } from "./sheet.js";
 
 // Canvas pixels per metre, and its inverse - the projection constant the
-// artwork manifest shares with the realistic one (docs/map-coordinates.md),
+// artwork manifest shares with the realistic one (docs/coordinates.md),
 // never a hardcoded number.
 const PX_PER_M = mapMeta.world.pxPerMetre;
 const M_PER_PX = 1 / PX_PER_M;

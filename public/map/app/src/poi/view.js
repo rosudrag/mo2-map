@@ -13,7 +13,7 @@
  * RATHER THAN AS SPECIAL CASES — carried over unchanged from pins.js:
  *
  *   Rows are CANVAS PIXELS, not world metres. `map_markers.map_x/map_y` are
- *   positions on the map art (docs/map-coordinates.md), so latLng returns them
+ *   positions on the map art (docs/coordinates.md), so latLng returns them
  *   as they are and the coords field converts the other way for the readout.
  *
  *   The taxonomy has TWO levels. A category has types, each with its own toggle

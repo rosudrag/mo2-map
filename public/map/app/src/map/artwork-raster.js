@@ -12,7 +12,7 @@
  * assets/tiles/v4/ (the realistic pyramid) at all.
  *
  * Rectangles are in the pyramid's own canvas-pixel frame, top-down like any
- * ordinary image: row 0 is the TOP. docs/map-coordinates.md is explicit that
+ * ordinary image: row 0 is the TOP. docs/coordinates.md is explicit that
  * "lat = Y from the bottom", so a caller converting from map coordinates flips
  * with `canvasHeight - lat` - the same flip instance.js leaves to Leaflet's
  * CRS.Simple transform, done by hand here because there is no live TileLayer

@@ -3,7 +3,7 @@
  *
  * The click gesture has two owners: with bookmark edit mode OFF it copies the
  * world coordinate to the clipboard (that is how calibration anchors are taken
- * — docs/map-coordinates.md), and with edit mode ON it places a bookmark.
+ * — docs/coordinates.md), and with edit mode ON it places a bookmark.
  *
  * Before the split those two lived in one handler, which meant the map core
  * referenced bookmark internals (`bookmarkEditMode`, `bmCreateAt`). The

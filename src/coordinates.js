@@ -3,34 +3,40 @@
  *
  * The map draws in Leaflet `CRS.Simple` pixels on a 5120x3579 canvas (`lat` = Y
  * from the bottom, `lng` = X from the left). World positions are Unreal world
- * METRES. This module is the whole transform between them, for anything
- * outside the browser bundle (scripts, tests, external tooling).
- * `public/map/registry.js`'s `sarducaa.world` block carries its own copy of
- * these exact numbers for the app to use at runtime — the two are kept in
- * sync by hand, not by import, so a re-fit has to update both. `test/
- * coordinates.test.mjs` checks this module, not that one.
+ * METRES. This module is the transform between them, for anything outside the
+ * browser bundle (scripts, tests, external tooling) — `CANVAS` and `WORLD`
+ * below are read straight off `public/map/registry.js`'s `MAPS.sarducaa`
+ * entry, which is what the running app actually draws with, rather than
+ * restating the same numbers by hand: two copies that drift silently is
+ * worse than one import. `FIT`, `ANCHORS` and the functions below are this
+ * module's own — the registry carries no fit history or residuals, only the
+ * numbers a re-fit already landed on.
  *
  * The constants describe THIS canvas. Re-cut the canvas without re-fitting and
  * every consumer is silently wrong — see docs/coordinates.md for the fit, its
  * residuals, and the one open question about the scale.
  */
+import { MAPS } from "../public/map/registry.js";
 
-/** The pixel frame the constants below were fitted against. */
+const sarducaa = MAPS.sarducaa;
+
+/** The pixel frame the constants below were fitted against — registry.js's own. */
 export const CANVAS = Object.freeze({
-  width: 5120,
-  height: 3579,
+  width: sarducaa.image.width,
+  height: sarducaa.image.height,
   /** Metres per canvas pixel at the fitted scale. */
-  metresPerPixel: 1 / 0.213641
+  metresPerPixel: 1 / sarducaa.world.pxPerMetre
 });
 
 /**
  * Axis-aligned, uniform scale, NO rotation. World +X is map east, world +Y is
- * map SOUTH — which is why `lat` carries the minus sign.
+ * map SOUTH — which is why `lat` carries the minus sign. Read from
+ * `registry.js`'s `sarducaa.world`, not restated — see the module header.
  */
 export const WORLD = Object.freeze({
-  pxPerMetre: 0.213641,
-  originLng: 1783.4447,
-  originLat: 1709.1136
+  pxPerMetre: sarducaa.world.pxPerMetre,
+  originLng: sarducaa.world.originLng,
+  originLat: sarducaa.world.originLat
 });
 
 /**

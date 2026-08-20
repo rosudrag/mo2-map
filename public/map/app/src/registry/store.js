@@ -61,9 +61,10 @@ function defaultSearchText() {
 }
 
 /*
- * `status: "deleted"` is the tombstone convention of every cursored source on
- * this API (see docs/api.md): a delta reader is told about a removal by getting
- * the row back with that status, so the row must stay in the store — it is what
+ * `status: "deleted"` is the tombstone convention of every cursored source
+ * this build's shared row-store code was written for: a delta reader is
+ * told about a removal by getting the row back with that status, so the
+ * row must stay in the store — it is what
  * makes an Undo a correct write rather than a guess — while never appearing in a
  * list. A source with no tombstones simply has no `status` and is always active.
  */

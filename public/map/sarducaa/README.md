@@ -17,5 +17,5 @@ the world↔canvas transform) is documented in `../app/README.md`'s `## Data`
 section, which is itself Sarducaa-specific — this is the only continent with
 anything published yet. See [`../registry.js`](../registry.js) for the
 declarative version of the same facts, and
-[`../../../docs/map-coordinates.md`](../../../docs/map-coordinates.md) for
+[`../../../docs/coordinates.md`](../../../docs/coordinates.md) for
 the coordinate transform.

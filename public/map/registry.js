@@ -55,15 +55,16 @@ export const MAPS = {
     },
     // Which optional layers this continent has published, for anything that
     // wants to know without probing a manifest (e.g. a future map switcher).
-    // style.js/townplates.js/dungeonmode.js still probe their own manifests
-    // to init - this is a declared capability, not a substitute for that.
-    layers: { artwork: true, townplates: true, dungeonplates: true },
+    // style.js/townplates.js/dungeonmode.js/surfaceplates.js still probe
+    // their own manifests to init - this is a declared capability, not a
+    // substitute for that.
+    layers: { artwork: true, townplates: true, dungeonplates: true, surfaceplates: true },
     // UE world metres -> this canvas. Axis-aligned, uniform scale, no rotation:
     //   lng = pxPerMetre * worldX + originLng
     //   lat = originLat - pxPerMetre * worldY      (map lat runs opposite world Y)
     // `kind: "fitted"` means these numbers were DERIVED by least-squares
     // regression against in-game anchors, not chosen to fit a canvas we
-    // defined ourselves - see docs/map-coordinates.md for what "fitted" vs
+    // defined ourselves - see docs/coordinates.md for what "fitted" vs
     // "defined" means and why the distinction matters. Scale fitted
     // 2026-07-28 over the anchors below (in-game bookmark world position vs.
     // the same place clicked on this canvas), and independently confirmed to
@@ -77,7 +78,7 @@ export const MAPS = {
     // wrong - so this is a measured origin correction, not a re-fit. The
     // anchor table is kept as the record of the scale fit and now carries
     // that same 42.7 px in its lat residuals; a proper re-fit
-    // (docs/map-coordinates.md) supersedes it.
+    // (docs/coordinates.md) supersedes it.
     //
     // RE-FIT AFTER ANY MAP ART CHANGE - the constants describe THIS image.
     world: {

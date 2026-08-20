@@ -9,7 +9,8 @@
  *
  * Do not "fix" the seed to the obvious names without committing the SVGs first:
  * a missing file 404s silently and only a human looking at the map notices.
- * See docs/bookmarks.md "Category icons — why they are not the obvious names".
+ * "Category icons — why they are not the obvious names" is the design note this
+ * followed; not shipped in this repo.
  */
 const FILES = {
   "book": true, "box": true, "building-community": true, "building-fortress": true,

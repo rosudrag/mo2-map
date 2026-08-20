@@ -40,7 +40,7 @@ map.on("mouseout", function () {
 map.on("click", function (e) {
   // A feature may own the empty-map click (bookmark edit mode places a pin
   // there). With no claimant the original clipboard-copy gesture runs — that is
-  // how calibration anchors are taken (see docs/map-coordinates.md).
+  // how calibration anchors are taken (see docs/coordinates.md).
   if (mapClickClaimed(e.latlng)) { return; }
   lastLat = e.latlng.lat;
   lastLng = e.latlng.lng;
