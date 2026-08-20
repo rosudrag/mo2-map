@@ -34,24 +34,38 @@
 }
 
 /*
- * Cluster bubbles, same faded treatment. filter-panel.css styles .marker-cluster-*
- * globally WITH !important for the curated group, so these have to out-specify
- * it — through the class Leaflet puts on our own pane (leaflet-discoveries-pane)
+ * Cluster bubbles. filter-panel.css styles .marker-cluster-* globally WITH
+ * !important for the curated group, so these have to out-specify it —
+ * through the class Leaflet puts on our own pane (leaflet-discoveries-pane)
  * rather than by adding a second global rule that would then race the first.
+ *
+ * Furniture, not headline: a screen at island zoom can hold forty of these,
+ * and a curated pin — a town, a door, a vendor — has to keep reading as the
+ * map's skeleton over that many bubbles, not lose to them. The outer ring is
+ * a near-invisible neutral halo (hit-area, not a colour statement); the inner
+ * circle carries the dominant kind's own colour at moderate alpha
+ * (discoveries/state.js's clusterIcon sets it inline, one rgba() per bubble,
+ * because a CSS custom property cannot itself carry the alpha blend without
+ * color-mix(), which the chrome70 build target does not have) so a reader
+ * scans colour first — green ground cover, red-brown spawns — the same
+ * language the pin dots and the filter panel already use, before ever
+ * reading the count.
  */
 .leaflet-discoveries-pane .marker-cluster-small,
 .leaflet-discoveries-pane .marker-cluster-medium,
 .leaflet-discoveries-pane .marker-cluster-large {
-  background-color: rgba(107, 98, 87, .34) !important;
+  background-color: rgba(232, 220, 200, .10) !important;
 }
 .leaflet-discoveries-pane .marker-cluster-small div,
 .leaflet-discoveries-pane .marker-cluster-medium div,
 .leaflet-discoveries-pane .marker-cluster-large div {
-  background-color: rgba(30, 26, 20, .86) !important;
-  color: var(--text) !important;
-  border: 1px dashed var(--bronze-dim);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+  width: 26px; height: 26px; margin: 4px;
+  color: #f4ecdd !important;
+  border: 1px solid; /* colour set inline, per bubble */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
+  font-size: 11px; font-weight: 600;
 }
+.leaflet-discoveries-pane .marker-cluster span { line-height: 26px; }
 
 /* ---- popup ---------------------------------------------------------- */
 /*

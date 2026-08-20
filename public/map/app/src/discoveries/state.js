@@ -46,27 +46,64 @@ const kindEnabled = Object.create(null);
 let serverSeq = 0;
 let pollOk = true;
 
+/**
+ * `#rrggbb` -> `rgba(r,g,b,a)`. No CSS `color-mix()` here: the build targets
+ * chrome70 (main-static.js's own header, bin/build.mjs's ESBUILD_TARGET) for
+ * the embedded browsers this map is also viewed through, and color-mix landed
+ * in 2023. Doing the blend in JS keeps the bubble tintable at build time
+ * without needing a CSS feature that old engine does not have.
+ */
+function withAlpha(hex, alpha) {
+  const n = parseInt(hex.slice(1), 16);
+  return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + alpha + ")";
+}
+
+/** `1193` -> `"1.2k"`. A four-digit count in a 26px circle is not legible; a
+ * rounded-to-one-decimal abbreviation still answers "roughly how much". */
+function shortCount(n) {
+  if (n < 1000) { return String(n); }
+  const k = (n / 1000).toFixed(1).replace(/\.0$/, "");
+  return k + "k";
+}
+
 /*
- * The bubble counts ENTITIES, not rows.
- *
- * Leaflet's default is the child-marker count, which would put "2" on a bubble
- * holding `Akrep ×3` and `Gamal ×1` — a number that matches nothing the user
- * can see and sits in a circle that looks just like the pin's own ×N badge.
- * Summing the counts answers the question actually being asked of a camp:
- * how much is in there.
+ * The bubble counts ENTITIES, not rows, and is now tinted by whichever kind
+ * contributes the most of them — a reader scanning the island should see
+ * "green over there" (resources) or "red-brown there" (spawns) before they
+ * ever read a number, the same way a curated pin's colour already works.
+ * Leaflet's default is the child-marker count, which would put "2" on a
+ * bubble holding `Akrep ×3` and `Gamal ×1` — a number that matches nothing
+ * the user can see and sits in a circle that looks just like the pin's own
+ * ×N badge. Summing the counts answers the question actually being asked of
+ * a camp: how much is in there.
  */
 function clusterIcon(cluster) {
   let total = 0;
+  const byKind = Object.create(null);
   const children = cluster.getAllChildMarkers();
   for (let i = 0; i < children.length; i++) {
     const row = children[i]._discovery;
-    total += row && row.count > 0 ? row.count : 1;
+    const n = row && row.count > 0 ? row.count : 1;
+    total += n;
+    if (row) { byKind[row.kind] = (byKind[row.kind] || 0) + n; }
   }
+  let dominant = null, dominantN = -1;
+  for (const slug of Object.keys(byKind)) {
+    if (byKind[slug] > dominantN) { dominant = slug; dominantN = byKind[slug]; }
+  }
+  const color = kindMeta(dominant).color;
   const size = total < 10 ? "small" : total < 100 ? "medium" : "large";
   return L.divIcon({
-    html: "<div><span>" + total + "</span></div>",
+    // !important on the inline style, not just the value: filter-panel.css's
+    // OWN cluster default (the curated pin catalogue's) is a global
+    // `!important` rule with no pane scope, and an important stylesheet
+    // declaration beats a plain inline style regardless of specificity — only
+    // an important INLINE declaration outranks it.
+    html: '<div style="background-color:' + withAlpha(color, .58) +
+      " !important;border-color:" + withAlpha(color, .9) + ' !important"><span>' +
+      shortCount(total) + "</span></div>",
     className: "marker-cluster marker-cluster-" + size,
-    iconSize: L.point(40, 40)
+    iconSize: L.point(34, 34)
   });
 }
 
