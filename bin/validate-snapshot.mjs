@@ -34,11 +34,17 @@ const FORBIDDEN_FIELDS = new Set([
 
 const ALLOWED_UPDATED_BY = new Set(["seed", "gamefiles", "community"]);
 
-// Timestamp precision check: match YYYY-MM-DD followed by T or space and time digits.
-// This detects sub-day precision (ISO 8601 timestamps) while avoiding false positives on
-// legitimate data like class names (BP_Camp_T2_C) and label text (12:30, Waypoint T3).
-// Matches: 2026-08-19T14:23:11Z, 2026-08-19 14:23, 2026-08-19T14:23:11.123Z
-// Does NOT match: 2026-08-19, BP_Camp_T2_C, 14:23:11, "12:30 meeting"
+// Timestamp precision check: two-layer defense against sub-day precision.
+// Layer 1 (this regex): scan all strings for full ISO date-times (YYYY-MM-DD[T ]digits).
+// This is necessarily broad (any field may leak a timestamp) but anchored narrowly
+// (only match date followed by time separator, not bare times or "T2" in class names).
+// Layer 2 (isValidDate): date fields (first_seen_date, last_seen_date, snapshot_date)
+// have their own strict validator requiring exactly YYYY-MM-DD, rejecting any time component.
+// Together: sub-day precision cannot reach a date field; bare times (12:30, 14:23:11)
+// in free-text fields (label, class_name) are permitted, so "12:30 meeting" is legal.
+// Rationale: per-row sub-day timestamps across thousands of rows reconstruct an
+// individual's activity sessions, movement, and behavior. Day granularity keeps
+// freshness signal and respawn analysis intact while killing the activity pattern.
 const TIMESTAMP_PRECISION_REGEX = /\d{4}-\d{2}-\d{2}[T ]\d/;
 class Validator {
   constructor(dir) {

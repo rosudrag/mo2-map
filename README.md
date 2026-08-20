@@ -29,7 +29,7 @@ been there*, not *nothing is there*.
 |---|---|
 | `src/coordinates.js` | world metres ↔ canvas pixels — the single source of truth |
 | `docs/coordinates.md` | the fit, its residuals, the origin correction, and the open scale question |
-| `test/coordinates.test.mjs` | contract tests: anchors, round-trip, axis orientation, refusals |
+| `docs/snapshot.md` | snapshot contract: file format, field schema, privacy rules, validator enforcement |
 
 ```bash
 npm test        # no dependencies, Node 20+
