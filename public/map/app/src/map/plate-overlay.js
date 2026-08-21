@@ -21,8 +21,13 @@ const warnedMissing = {};
  * `pane`/`paneZIndex`: the Leaflet pane every overlay of this kind paints
  * into - reuse an existing pane (same name) to share stacking order with
  * another overlay kind, or a fresh name to own it.
- * `minZoom`: below this, the layer is removed from the map entirely rather
- * than merely hidden - these are multi-megabyte images, never nine at once.
+ * `minZoom`: below this, every entry is faded out and dropped - "removed from
+ * the map" used to mean the whole plateLayer group was detached instantly at
+ * this line, which made the fade-out below a fade-in-only effect (nothing to
+ * animate once the parent group is already gone). plateLayer now stays
+ * attached once added; an empty LayerGroup costs nothing, so there is no
+ * multi-megabyte-image cost to leaving it there - the per-entry show/hide in
+ * syncPlates is what keeps at most a handful of images loaded at once.
  * `className`: CSS hook on the underlying `.leaflet-image-layer`.
  * `noun`: only for the console warning when a manifest is missing.
  *
@@ -96,16 +101,53 @@ export function createPlateOverlay({ manifestUrl, pane, paneZIndex, minZoom, cla
         const show = want && view.intersects(e.bounds);
         if (show === e.shown) { continue; }
         if (show) {
+          if (e.cancelFadeOut) {
+            // A fade-out was in flight (zoomed/panned back before it finished) -
+            // drop the pending removal so the layer already on the map is not
+            // yanked out from under the fade-in about to start.
+            e.cancelFadeOut();
+            e.cancelFadeOut = null;
+          }
           if (!e.overlay) {
             e.overlay = L.imageOverlay(e.plate.file, e.bounds, {
               pane,
               interactive: false,
-              className
+              className,
+              opacity: 0
             });
+          } else {
+            // A reused overlay (hidden by panning away, now back in view) keeps
+            // whatever opacity it last had - reset it so every appearance fades
+            // in the same way a fresh one does, not just the very first.
+            e.overlay.setOpacity(0);
           }
           e.overlay.addTo(plateLayer);
+          // The CSS transition (townplates.css) only animates a CHANGE, so the
+          // opacity:0 above has to actually be PAINTED before flipping it - one
+          // rAF fires before the browser's own style/paint step for that frame,
+          // so the flip has to wait for the frame AFTER that one, or the two
+          // writes coalesce into a single paint and the transition never plays.
+          // Same pattern the style-switch fade already relies on, now covering
+          // the PLATE_MIN_ZOOM pop too: a plate popping wholesale into
+          // existence at one zoom step read as a rendering glitch, not a
+          // detail increase.
+          requestAnimationFrame(() => requestAnimationFrame(() => e.overlay.setOpacity(1)));
         } else if (e.overlay) {
-          plateLayer.removeLayer(e.overlay);
+          // Symmetric with the fade in: drop to opacity 0 and only pull the
+          // layer once the CSS transition actually finishes, so crossing the
+          // threshold outbound reads as the same cross-fade as inbound instead
+          // of an instant pop-out. `transitionend` (not a fixed setTimeout) so
+          // this never drifts from whatever duration townplates.css names.
+          const overlay = e.overlay;
+          overlay.setOpacity(0);
+          const img = overlay.getElement();
+          if (img) {
+            const onEnd = () => { plateLayer.removeLayer(overlay); e.cancelFadeOut = null; };
+            img.addEventListener("transitionend", onEnd, { once: true });
+            e.cancelFadeOut = () => img.removeEventListener("transitionend", onEnd);
+          } else {
+            plateLayer.removeLayer(overlay);
+          }
         }
         e.shown = show;
       }
@@ -114,9 +156,7 @@ export function createPlateOverlay({ manifestUrl, pane, paneZIndex, minZoom, cla
     function sync() {
       const z = map.getZoom();
       const wantPlates = z >= minZoom;
-      if (wantPlates !== map.hasLayer(plateLayer)) {
-        wantPlates ? plateLayer.addTo(map) : map.removeLayer(plateLayer);
-      }
+      if (!map.hasLayer(plateLayer)) { plateLayer.addTo(map); }
       syncPlates(wantPlates);
     }
     map.on("zoomend moveend", sync);

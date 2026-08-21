@@ -24,7 +24,7 @@
   {
    "key": "belrim",
    "town": "Belrim",
-   "file": "assets/townplates/belrim.24bf4329f9.webp",
+   "file": "assets/townplates/belrim.e4812e90c8.webp",
    "metresPerPx": 0.25,
    "size": [
     5244,
@@ -44,7 +44,7 @@
   {
    "key": "aur",
    "town": "Aur",
-   "file": "assets/townplates/aur.0e5147ad00.webp",
+   "file": "assets/townplates/aur.7924e221a9.webp",
    "metresPerPx": 0.25,
    "size": [
     4043,
@@ -64,7 +64,7 @@
   {
    "key": "pash",
    "town": "Pash",
-   "file": "assets/townplates/pash.fd3d082bde.webp",
+   "file": "assets/townplates/pash.58805b7a9c.webp",
    "metresPerPx": 0.25,
    "size": [
     4312,
@@ -84,7 +84,7 @@
   {
    "key": "ashir",
    "town": "Ashir",
-   "file": "assets/townplates/ashir.477e25349e.webp",
+   "file": "assets/townplates/ashir.be0c5af330.webp",
    "metresPerPx": 0.25,
    "size": [
     3842,
@@ -144,7 +144,7 @@
   {
    "key": "khwar_migdal",
    "town": "Khwar Migdal",
-   "file": "assets/townplates/khwar_migdal.cc1e25a43c.webp",
+   "file": "assets/townplates/khwar_migdal.3285c1fa83.webp",
    "metresPerPx": 0.25,
    "size": [
     3419,

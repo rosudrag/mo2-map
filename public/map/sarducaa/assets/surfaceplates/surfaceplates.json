@@ -27,7 +27,7 @@
    "key": "jungle",
    "dungeon": "Jungle",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates/jungle.699cb376a3.webp",
+   "file": "assets/surfaceplates/jungle.6bb82a92e9.webp",
    "metresPerPx": 0.25,
    "size": [
     5611,
@@ -71,7 +71,7 @@
    "key": "yelkeskarhideout",
    "dungeon": "Yel Keskar",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates/yelkeskarhideout.efa7480946.webp",
+   "file": "assets/surfaceplates/yelkeskarhideout.87af0a3b6c.webp",
    "metresPerPx": 0.25,
    "size": [
     4175,
