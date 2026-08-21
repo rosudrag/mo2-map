@@ -3,7 +3,7 @@
  * frame as the realistic extraction (map/instance.js), built by the offline
  * pipeline and published to
  * assets/tiles-art/v2/{z}/{x}/{y}.webp + assets/tiles-art/v2/tiles.json. The
- * manifest shares tiles/v4/tiles.json's exact schema and pyramid geometry.
+ * manifest shares tiles/v5/tiles.json's exact schema and pyramid geometry.
  *
  * Exactly one base pyramid is ever attached to the map - see map/style.js,
  * which is the only caller of setArtworkActive(). This module owns nothing
@@ -17,7 +17,7 @@
  */
 import { map, bounds, realisticLayer } from "./instance.js";
 
-// A version directory is IMMUTABLE, like assets/tiles/v4 - a rebuild bumps it
+// A version directory is IMMUTABLE, like assets/tiles/v5 - a rebuild bumps it
 // (v1 -> v2 when the ground families and the town footprints landed) so a cache
 // can never serve a mixture of two renderings.
 const MANIFEST = "assets/tiles-art/v2/tiles.json";

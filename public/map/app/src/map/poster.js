@@ -138,7 +138,7 @@ async function runExport(manifest, opt) {
   // outputScale is destW / rectW (the chosen multiplier, reduced by any
   // pixel-cap step-down above), i.e. how many poster pixels stand for one
   // base canvas pixel. world.pxPerMetre (0.213641) is the same projection
-  // constant assets/tiles/v4/tiles.json's own "projection" note carries,
+  // constant assets/tiles/v5/tiles.json's own "projection" note carries,
   // which the artwork manifest shares by construction (identical geometry
   // per the pyramid's own contract) - so the bar always matches the actual
   // raster, not a guess.

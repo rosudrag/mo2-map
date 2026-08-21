@@ -14,6 +14,65 @@ as such rather than folded into "seen live" unless this session's own
 browser tool actually rendered them. As of this round, this document is
 current on the whole tree — see "Publishable state" at the bottom.
 
+## The island-wide props-render round (new since the last version of this document)
+
+`registry.js`'s realistic pyramid was switched from `assets/tiles/v4/` (the landscape-material
+bake, 2.34 m/px at z=0, native z −5..1) to `assets/tiles/v5/` (the game's own placed geometry —
+buildings, trees, rocks, ground clutter — rendered chunk by chunk, 0.585 m/px native to z=3,
+native z −5..3). Full context: `auxilliary/mo2-terrain-map/README.md`'s "Island map for
+trainer-web" section and this repo's own `public/map/app/README.md` "Island tile pyramid"
+bullet, both rewritten this round. `v4/` stays on disk, byte-untouched, as the rollback path.
+
+Two data-quality bugs were found and fixed in the offline renderer before this promotion (not
+in this repo — `auxilliary/mo2-terrain-map/tools/island_render.py`):
+- a ground-cover density blur with no halo margin, producing a visible chunk-boundary tint seam;
+- a per-instance loading halo that filtered on an instance's own POSITION with a flat 50 m
+  radius, so a real (non-abusive) 856 m cliff mesh centred 250+ m outside a chunk vanished from
+  it entirely — dropped geometry, not a rounding artifact, fixed by widening the halo by each
+  instance's own footprint.
+
+Verified before promotion, island-wide: 328 of 329 real adjacent chunk-boundary pairs match
+each chunk's own local pixel-noise floor (no seam); the one residual is a named, isolated
+z-buffer sensitivity among several heavily overlapping giant cliff meshes at one boundary, not a
+data-loading gap. Coverage checked against v4's own land footprint: zero gaps (every v4 z=1 tile
+with content has a corresponding v5 z=3 tile); v5's own z=1 tile count is higher than v4's (654
+vs 650); every one of the 13 apparent "interior holes" in v5's z=3 coverage is a real water body,
+confirmed transparent in v4 at the same location too.
+
+Gates: all three automated gates (below) re-run and green after the switch, including the
+asset-manifest test that checks `registry.js`'s hardcoded tile config against the manifest — it
+now points at `tiles/v5/tiles.json`, not `v4`'s.
+
+**Live-browser check: not performed this round.** No browser tool and no Chrome/Edge/Chromium
+binary were available in this execution environment — confirmed with the owner directly, not
+assumed. In its place, three checks were run that a browser would not have added evidence beyond:
+- **A real HTTP sweep**, `node server/serve.mjs` + `fetch`, driven from `registry.js`'s own
+  `tiles.url` template and zoom range: every one of the 12,593 real v5 tiles resolved 200 with
+  `image/webp` content-type and a non-trivial byte length (2.3s for the full sweep); 120 sampled
+  missing positions across every zoom, minZoom..maxZoom, resolved a clean 404, never a 500 or
+  wrong content-type; the artwork pyramid's full declared grid (1,499 tiles) also resolved 200,
+  confirming `assets/tiles-art/v2/` is untouched and still serving.
+- **Offline composites**, built the way the app itself would (base pyramid tiles assembled at
+  z=3, plate pasted at its manifest `bounds` through the same world→canvas affine `registry.js`
+  carries) — `auxilliary/mo2-terrain-map/work/verify_town_beth_jedda_v5.png` and
+  `verify_dungeon_argkepher_v5.png`. Pixel-exact and reproducible, arguably stronger evidence
+  than a screenshot for the one thing a browser check would have caught by eye here: whether the
+  plate transform still lands square on its surroundings. Both do.
+- **Invariant assertions**: both plates' bounds land inside the canvas frame; v5's z=0 tile count
+  matches v4's exactly (183 = 183, same canvas-tile grid); a real coastal v5 tile sampled and
+  composited on a magenta backdrop (`verify_coastal_alpha_v5.png`) shows a clean, organic
+  land/transparent boundary — coverage is genuinely absent over open sea, not silently filled.
+
+**What this does NOT establish, and is marked open rather than assumed clean:** whether Kam's
+own corner of the tile pyramid (item 1 in "Publishable state" below, originally measured against
+v4) has the same, a different, or no coverage thinness under v5 — the global coverage check above
+found zero gaps against v4's OWN footprint island-wide, which is a stronger and more general
+result than a single-corner spot check would have been, but it is not the same claim as "Kam's
+neighbourhood specifically was re-driven and found clean." Console-error/network-activity
+behaviour during real interaction (style switching, panning, search, dungeon entry/exit) was also
+not re-driven this round, for the same no-browser reason — the prior round's results for that
+behaviour predate the pyramid switch and are not being carried forward as still-current.
+
 ## Automated gates — always current
 
 Re-run at every step of this session; all three green as of the last
@@ -235,7 +294,9 @@ before the first navigation:
   plate visible over the tile pyramid in both styles, interior renders
   correctly in both styles, `Leave` returns cleanly.
 
-**Network/console baseline.** Every page load in the default/mainstream
+**Network/console baseline** (this record is from the town-plate round, against `assets/tiles/v4/`
+- the pyramid the island-wide props-render round later replaced as the default with `v5`; not
+re-driven against v5, see that round's own section above). Every page load in the default/mainstream
 viewing area (the landing view, Beth Jedda, Arg Kepher's entrance and
 interior) showed exactly three failed requests and no others:
 `assets/tiles/v4/-1/7/{-2,-3,-5}.webp` (404) — the three known-absent
@@ -246,7 +307,9 @@ point across style switches, filter panel use, search, dungeon
 entry/exit, the continent switcher, or Beth Jedda's town plate in either
 style.
 
-**One real deviation, found and reported, not papered over: Kam's own
+**One real deviation, found and reported, not papered over (this record predates the
+island-wide props-render round; it describes `v4`, not the `v5` pyramid now live - see
+that round's own section above): Kam's own
 corner of the map has more tile-pyramid gaps than the three documented
 ones.** Navigating to Kam — a remote volcanic corner of the island —
 pulled in a couple dozen additional `assets/tiles/v4/{z}/{x}/{y}.webp`
@@ -519,10 +582,21 @@ above. Kept as a section header rather than deleted, since it is where the
 
 ## Known gaps — honest, not silent
 
-- Kam's own corner of the realistic tile pyramid has more gaps than the
-  three documented edge tiles — found and reported above ("Network/
-  console baseline"), not fixed; fixing it means re-running the tile
-  extraction, outside this task's scope.
+- Kam's own corner of the tile pyramid had more gaps than the three
+  documented edge tiles, measured against `v4` — found and reported above
+  ("Network/console baseline"), not fixed at the time; fixing it meant
+  re-running the tile extraction, outside that task's scope. `v4` was
+  replaced as the default pyramid by `v5` in the island-wide props-render
+  round (above); whether Kam's corner has the same, a different, or no
+  gap under `v5` was not specifically re-checked (see that round's own
+  "does NOT establish" paragraph) — an island-wide coverage check against
+  v4's own footprint found zero gaps in v5, which is evidence but not the
+  same claim as a Kam-specific re-check.
+- **No live-browser check this round** (island-wide props-render round,
+  above) — no browser tool or Chrome/Edge/Chromium binary available in
+  this execution environment. Substituted with a real HTTP sweep, offline
+  pixel-exact composites, and structural invariant checks; not the same
+  evidence tier as an actual rendered, interacted-with page.
 - `townplates-art/`'s real cropping headroom (content bounding boxes as
   low as 1.9% of canvas, see "Page weight") was measured but not acted
   on — recomputing `bounds` to match a crop is coordinated work across
@@ -574,21 +648,29 @@ definitive "no bug" rather than left as an open question.
 What a reader should know is still open, in order of how much it should
 affect that yes:
 
-1. **Kam's own corner of the realistic tile pyramid is thinner than the
-   rest of the island** — a genuine gap, unrelated to the town-plate fix
-   and out of this task's scope to close, but real, and a player who
-   wanders there will notice.
-2. **`townplates-art/` has real, measured cropping headroom** (content
+1. **Whether Kam's own corner of the tile pyramid is thinner than the
+   rest of the island under `v5`** is not established — this was measured
+   against `v4` (the pyramid `v5` replaced as the default this round, see
+   "The island-wide props-render round" above) and not specifically
+   re-checked. An island-wide check against v4's own land footprint found
+   zero coverage gaps in v5, which is broader evidence but not the same
+   claim.
+2. **No live-browser check for the island-wide props-render round** — no
+   browser tool or binary available in this environment; substituted with
+   a real HTTP sweep, offline pixel-exact composites, and structural
+   invariant checks (see that round's own section above for exactly what
+   was and was not covered).
+3. **`townplates-art/` has real, measured cropping headroom** (content
    bounding boxes as low as 1.9% of canvas) that the dungeon/surface
    plates do not — a genuine opportunity, not a defect, flagged as a
    candidate task rather than acted on inside a verification pass.
-3. Two smaller, lower-stakes items carried from earlier rounds: the
+4. Two smaller, lower-stakes items carried from earlier rounds: the
    first-run-legend/search-summary/plate-layer chrome was reasoned safe
    against the aggregation round rather than freshly re-driven; and
    whether `discoveries.css`'s dead-looking rules are genuinely dead in
    the private live build can't be answered from this repository alone.
 
-None of these three is a defect anyone has observed — they are places
+None of these four is a defect anyone has observed — they are places
 this document is honest about not having looked, or opportunities it
 found and left for someone to decide on, not places it found something
 wrong and left it. That is the entire point of grouping by evidence

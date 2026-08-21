@@ -43,8 +43,8 @@ const MIME = new Map(Object.entries({
  * Cache policy, and the reason it is not one rule.
  *
  * A map tile and an HTML page have opposite failure modes. A tile at
- * .../tiles/v4/0/12/-7.webp is content-addressed by its path: that URL will
- * never hold different bytes, because a rebuilt pyramid becomes v5. Caching it
+ * .../tiles/v5/0/12/-7.webp is content-addressed by its path: that URL will
+ * never hold different bytes, because a rebuilt pyramid becomes v6. Caching it
  * for a year is free. An HTML page is the opposite: it carries the ?v= stamps
  * that point at the current bundles, so a stale copy pins a visitor to a
  * previous deploy's JavaScript. It must be revalidated every time.

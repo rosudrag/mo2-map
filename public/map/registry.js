@@ -39,19 +39,26 @@ export const MAPS = {
       defaultZoom: -1,
       center: [1789.5, 2560]
     },
-    // OUR OWN extraction of the shipped game data: the engine's per-tile
-    // ground colour bake, our hillshade and our water, at 2.34 m per pixel
-    // (built by the offline pipeline). Placed with the
-    // `world` constants below rather than fitted to anything, so terrain and
-    // pins share one transform. Zoom 0 is one canvas pixel per tile pixel;
-    // tile y is negative, counting up from lat 0. v1 was a composite that
-    // took its colour from the game's art and therefore looked like it -
-    // deleted, not kept as a fallback.
+    // OUR OWN extraction of the shipped game data - not the landscape
+    // material's own bake, the actual PLACED GEOMETRY (buildings, trees,
+    // rocks, ground clutter), rendered top-down chunk by chunk and z-buffer
+    // composited over our own terrain/water raster (island_render.py). z=0
+    // through the native z=3 (0.585 m/px) come straight from that render;
+    // z<0 overview levels are box-filter downsamples of that same raster,
+    // not a separate coarser bake - a forest or a rock field still reads as
+    // real regional colour several zooms out, not landscape-material grey.
+    // Placed with the `world` constants below rather than fitted to
+    // anything, so terrain and pins share one transform. Zoom 0 is one
+    // canvas pixel per tile pixel; tile y is negative, counting up from lat
+    // 0. v1 was a composite that took its colour from the game's art and
+    // therefore looked like it - deleted, not kept as a fallback. The prior
+    // landscape-only pyramid (v4, 1.17 m/px native) is kept on disk as the
+    // rollback path but is no longer referenced here.
     tiles: {
-      url: "assets/tiles/v4/{z}/{x}/{y}.webp",
+      url: "assets/tiles/v5/{z}/{x}/{y}.webp",
       tileSize: 256,
       minNativeZoom: -5,
-      maxNativeZoom: 1
+      maxNativeZoom: 3
     },
     // Which optional layers this continent has published, for anything that
     // wants to know without probing a manifest (e.g. a future map switcher).

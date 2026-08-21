@@ -1,8 +1,8 @@
 /*
  * Which base tile pyramid is on the map: the hand-drawn artwork pyramid
- * (map/artwork-layer.js), which is the DEFAULT, or the realistic 2.34 m/px
- * extraction (map/instance.js), which is one click away and is also the
- * fallback whenever the artwork manifest is not on disk.
+ * (map/artwork-layer.js), which is the DEFAULT, or the realistic 0.585 m/px
+ * placed-geometry render (map/instance.js), which is one click away and is
+ * also the fallback whenever the artwork manifest is not on disk.
  *
  * The artwork is the default because it is the same measurements: the ground
  * families, the DEM, the coastline and the 38 M placed instances are the ones

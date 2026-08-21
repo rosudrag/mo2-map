@@ -9,7 +9,7 @@
  * holds one clean raster of the area being exported - see instance.js and
  * README.md's "island tile pyramid" section. Everything here reads
  * assets/tiles-art/v2/tiles.json for geometry; it never touches
- * assets/tiles/v4/ (the realistic pyramid) at all.
+ * assets/tiles/v5/ (the realistic pyramid) at all.
  *
  * Rectangles are in the pyramid's own canvas-pixel frame, top-down like any
  * ordinary image: row 0 is the TOP. docs/coordinates.md is explicit that
@@ -72,7 +72,7 @@ function levelFor(manifest, z) {
  * where each one lands in "zoomed" pixel space (canvas pixels * 2^z).
  *
  * The pyramid's own {y} is NEGATIVE, counting up from canvas lat 0 (the
- * bottom edge) - assets/tiles/v4/tiles.json documents the same scheme this
+ * bottom edge) - assets/tiles/v5/tiles.json documents the same scheme this
  * one mirrors. `row` below is the ordinary top-down tile row (0 = top);
  * `row - level.rows` is the arithmetic Leaflet's CRS.Simple performs
  * internally for a live TileLayer, reproduced here because this pyramid has

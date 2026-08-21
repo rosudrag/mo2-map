@@ -250,12 +250,15 @@ test("dungeon plates: realistic and artwork manifests publish the same dungeon k
 // asserted, generated the same way planTiles() builds a tile URL from the
 // manifest (col in [0,cols), row in [0,rows), y = row - level.rows).
 //
-// assets/tiles/v4/tiles.json (the realistic pyramid) is NOT fetched at
-// runtime - registry.js hardcodes its own copy of the same facts instead
-// (url/tileSize/minNativeZoom/maxNativeZoom) - and its own note says a
-// missing tile there is fine ("fully transparent, not an error"), so no
-// coverage check applies; what IS checked is that registry.js's hardcoded
-// copy has not drifted from the tiles.json the offline pipeline generated.
+// assets/tiles/v5/tiles.json (the realistic pyramid, placed-geometry render
+// - assets/tiles/v4/ is the retired landscape-only bake, kept on disk as
+// the rollback path but no longer referenced by registry.js) is NOT
+// fetched at runtime - registry.js hardcodes its own copy of the same
+// facts instead (url/tileSize/minNativeZoom/maxNativeZoom) - and its own
+// note says a missing tile there is fine ("fully transparent, not an
+// error"), so no coverage check applies; what IS checked is that
+// registry.js's hardcoded copy has not drifted from the tiles.json the
+// offline pipeline generated.
 // ---------------------------------------------------------------------------
 
 test("tiles-art manifest parses and carries the fields artwork-layer.js/artwork-raster.js dereference", () => {
@@ -291,10 +294,10 @@ test("tiles-art: every tile implied by its level grid exists on disk (its own no
   assert.deepEqual(missing.slice(0, 20), [], (missing.length > 20 ? missing.length + " tiles missing, first 20: " : "tile(s) missing: ") + missing.slice(0, 20).join(", "));
 });
 
-test("tiles/v4 (realistic pyramid) manifest and registry.js's hardcoded tile config agree", () => {
-  const { data } = loadManifest("assets/tiles/v4/tiles.json");
+test("tiles/v5 (realistic pyramid) manifest and registry.js's hardcoded tile config agree", () => {
+  const { data } = loadManifest("assets/tiles/v5/tiles.json");
   const registryTiles = MAPS.sarducaa.tiles;
-  assert.equal(registryTiles.url, data.urlTemplate, "registry.js's tiles.url has drifted from assets/tiles/v4/tiles.json's urlTemplate");
+  assert.equal(registryTiles.url, data.urlTemplate, "registry.js's tiles.url has drifted from assets/tiles/v5/tiles.json's urlTemplate");
   assert.equal(registryTiles.tileSize, data.tileSize, "registry.js's tiles.tileSize has drifted from tiles.json's tileSize");
   assert.equal(registryTiles.minNativeZoom, data.minZoom, "registry.js's tiles.minNativeZoom has drifted from tiles.json's minZoom");
   assert.equal(registryTiles.maxNativeZoom, data.maxZoom, "registry.js's tiles.maxNativeZoom has drifted from tiles.json's maxZoom");

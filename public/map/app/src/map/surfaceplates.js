@@ -8,9 +8,10 @@ import { createPlateOverlay } from "./plate-overlay.js";
  * render_dungeon_surface, town_plate.py's own extraction/rasterising
  * machinery pointed at a dungeon's entrance packages instead of a town).
  *
- * Before these existed, a dungeon entrance sat on bare 2.34 m/px island
- * tile - the one place on the map with no high-res plate at all, since a
- * town's buildings are the only other thing outside the landscape bake.
+ * Before these existed, a dungeon entrance sat on bare island tile - 2.34 m/px
+ * in the artwork style, 0.585 m/px in the realistic style - the one place on
+ * the map with no high-res plate at all, since a town's buildings are the
+ * only other thing outside the landscape bake.
  * Drawn exactly like map/townplates.js (same pane, same view-gating, same
  * per-style manifest with a REALISTIC fallback): plate-overlay.js is the
  * shared implementation, this module only names the manifests.

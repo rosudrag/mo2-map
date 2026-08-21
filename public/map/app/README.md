@@ -28,7 +28,7 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
 - World→pixel projection: that same entry's `world` block, the ONLY copy of the constants — see [../../../docs/coordinates.md](../../../docs/coordinates.md). Re-fit it whenever the map art changes.
 - Page sea backdrop (shared, not Sarducaa-specific): CSS on `body` → `../app/assets/map-bg.webp`
 - Map layers: `../registry.js`'s `sarducaa.tiles` — `tiles` = the zoomable island pyramid at
-  `assets/tiles/v4/{z}/{x}/{y}.webp`, and that is the ONLY art layer. `image` is now just the
+  `assets/tiles/v5/{z}/{x}/{y}.webp`, and that is the ONLY art layer. `image` is now just the
   canvas descriptor (pixel size, zoom window, opening view) and carries no file.
 - **No old-art layer, and no old art in `assets/`.** A `background` imageOverlay of the whole
   previous map and an `image` fallback of the previous island both existed until 2026-08-18; the
@@ -38,23 +38,27 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
   `map-overlay_2_older.{png,webp}`, `sarducaa.jpeg`, `map-bg.png` (unused twin of the `.webp`) —
   about 75 MB. The art that fed the hybrid lives with the offline pipeline that
   consumes it, not duplicated in this repo.
-- **Island tile pyramid** (`assets/tiles/v4/`, 906 tiles, committed — deploy is a plain
-  rsync). It is OUR OWN extraction of the shipped game data — the engine's per-tile ground
-  colour bake, hillshade and water, at 2.34 m/px — with two regions patched from the
-  mortalonline2map.com render: the cook's missing-components gap (7.4% of the island) and
-  the crater area east of Ben Jedda (17.4%), and five painted towns (0.28%) whose buildings
-  are actors the ground bake cannot contain - each re-anchored to our tone and flagged in
-  provenance. Built by the offline pipeline. It is placed with the `world`
-  calibration below applied directly, so terrain
-  and every pixel-stored community pin share one transform. v1 (art composite), v2 (pure extraction) and v3 are deleted; nothing falls back to them.
-  - Zoom 0 is one canvas pixel per tile pixel; the pyramid runs z −5..1 and Leaflet upscales
-    beyond z1 (`maxNativeZoom`).
+- **Island tile pyramid** (`assets/tiles/v5/`, 12,593 tiles, ~79 MB, committed — deploy is a
+  plain rsync). Unlike every version before it, this is not a landscape-material bake: it is
+  the game's own PLACED GEOMETRY (buildings, trees, rocks, ground clutter), rendered top-down
+  chunk by chunk and z-buffer composited over our own terrain/water raster
+  (`island_render.py`), at 0.585 m/px native to z=3. z<0 overview levels are box-filter
+  downsamples of that same raster, not a separate coarser bake, so a forest or a rock field
+  still reads as real regional colour several zooms out instead of flattening to landscape-
+  material grey. It is placed with the `world` calibration below applied directly, so terrain
+  and every pixel-stored community pin share one transform.
+  `assets/tiles/v4/` — the landscape-material-only extraction this replaced as the default,
+  z −5..1 native, 2.34 m/px at z0 — is kept on disk as the rollback path but is no longer
+  referenced by `registry.js`. v1 (art composite) and v2/v3 (pure extraction, pre-v4 revisions)
+  are deleted; nothing falls back to them.
+  - Zoom 0 is one canvas pixel per tile pixel; the pyramid runs z −5..3 and Leaflet upscales
+    beyond z3 (`maxNativeZoom`).
   - Tile **y is negative** and counts upwards from canvas lat 0 — that is where `CRS.Simple`
     anchors its grid. A missing tile file is fully transparent by design, hence the blank
     `errorTileUrl` in `src/map/instance.js`.
   - It uses Leaflet's own `tilePane`. Nothing else may be given z-index 200: the deleted
     `mapBg` pane was exactly that, created later, and it painted over the tiles.
-  - Rebuilding the pyramid: bump the version directory (`tiles … v5`) and the `tiles.url` in
+  - Rebuilding the pyramid: bump the version directory (`tiles … v6`) and the `tiles.url` in
     `../registry.js`'s `sarducaa.tiles` together, so caches cannot serve a mixture — a version
     directory is immutable.
 - **Town plates** (`assets/townplates/`, all 9 Sarducaa cities, ~11 MB total): 0.25 m/px
@@ -174,14 +178,16 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
       that belongs to another storey keeps its own position and gets a hollow ring.
     - Which doors and rooms are on which level is the RECORD's own `map`, never geometry
       (see **Maps** below).
-    - The surface panel is the artwork pyramid enlarged to the panel box, and its caption
-      prints BOTH resolutions (`0.96 m/px, from 2.34 m/px tiles`) because 2.34 m/px is the
-      finest surface raster **published**, so anything sharper on this page would be an
-      upscale sold as a survey. It is not a limit of the game data: all 12 entrance
-      packages hold placed geometry (85-3,397 instances each, `poihunt Sarducaa/Dungeons`),
-      so a 0.25 m/px entrance plate per door is renderable - it needs a `dungeon_plate.py`
+    - The surface panel is the artwork pyramid enlarged to the panel box (deliberately - a
+      dungeon poster is the illustrated style regardless of which style the live map has
+      active), and its caption prints BOTH resolutions (`0.96 m/px, from 2.34 m/px tiles`)
+      because 2.34 m/px is the finest this panel draws from, so anything sharper on this page
+      would be an upscale sold as a survey. (The realistic pyramid is finer now, 0.585 m/px -
+      not a limit of the game data even for artwork's own style: all 12 entrance packages hold
+      placed geometry (85-3,397 instances each, `poihunt Sarducaa/Dungeons`), so a 0.25 m/px
+      entrance plate per door is renderable in either style - it needs a `dungeon_plate.py`
       pass for above-ground exteriors and a published plate set, which this export does not
-      have and does not fake.
+      have and does not fake.)
     - Every panel carries its OWN scale bar: one bar for a sheet whose surface panel is a
       different scale from its level panels would be wrong on at least one panel.
 - Pins: a committed snapshot at `data/static/pins.json` (`sources/static/pins.js`, `data.js`), read-only, with taxonomy derived from the rows themselves. A missing or broken snapshot no longer hides the YOU blip — the page boots an empty catalogue instead.

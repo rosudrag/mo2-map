@@ -3,9 +3,10 @@
  *
  * Exporting the surface from inside a dungeon was the bug this module fixes.
  * dungeonmode.js hides the terrain on purpose - a dungeon is a MODE, and the
- * lit 2.34 m/px overworld reading through a floor plan is exactly what that
- * mode exists to stop - so a poster that quietly re-fetched the surface tiles
- * handed back the one image the reader had just navigated away from.
+ * lit island overworld (2.34 m/px artwork, 0.585 m/px realistic) reading
+ * through a floor plan is exactly what that mode exists to stop - so a
+ * poster that quietly re-fetched the surface tiles handed back the one
+ * image the reader had just navigated away from.
  *
  * Two products, both composited here:
  *
@@ -20,15 +21,18 @@
  *     the whole reason to put them on one page.
  *
  * The surface panel is the one place where a wider rectangle is the honest
- * choice. The finest surface raster in existence here is the artwork pyramid at
- * 2.34 m/px, and a level panel is 0.25 m/px: drawn over the same rectangle the
- * surface would be a ~9x upscale of a tile - a blur captioned "high res". So it
+ * choice. This panel always draws the artwork pyramid (deliberately - a
+ * dungeon poster is the illustrated style, not whichever style the live map
+ * happens to have active), and the finest it draws from is 2.34 m/px; a
+ * level panel is 0.25 m/px, so drawn over the same rectangle the surface
+ * would be a ~9x upscale of a tile - a blur captioned "high res". So it
  * takes the same panel BOX and a wider rectangle (entrances plus the dungeon's
  * own footprint, padded), which lands near the raster's native resolution and
  * answers the question a surface page is actually asked: where on the island is
  * this door. Its true metres-per-pixel is printed in its own caption, and every
  * panel carries its OWN scale bar rather than the sheet carrying one bar that
- * would be wrong for at least one panel on it.
+ * would be wrong for at least one panel on it. (The realistic pyramid is finer
+ * now, 0.585 m/px - not used here on purpose, see above.)
  *
  * Entrances are numbered structurally, from the `poi_id` migration 019 wrote
  * (`dungeon.argkepher.entrance.02` -> "2"), never from the pin's name: the
