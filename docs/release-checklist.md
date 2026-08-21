@@ -326,31 +326,55 @@ anywhere.**
   already verified in the prior round); Jungle and the other two are
   mostly-blank parchment with sparse outline ink, consistent and clean.
 
-**`townplates/` and `townplates-art/` — settled since this section was
-written, not swept the same exhaustive way.** The town-plate round
-finished and republished all nine towns in both styles; this document's
-"Verified live" section above covers what was actually checked
-afterward — Beth Jedda (the control) live in both styles, and Kam (the
-town that had the defect) both by reading the published bytes directly
-and live in the browser, with the DOM/network evidence to back it. What
-was *not* done: the same image-by-image sweep of all 18 town files
-(9 towns × 2 styles) that the dungeon/surface plates got above. The
-asset-manifest tests (27/27, re-run standalone after the republish)
-cover the structural failure modes — a manifest naming a file that
-doesn't exist, an orphaned image, a style mismatch — but not a visual
-look at the other seven towns. Recorded as an open item below, not
-silently claimed as covered.
+**`townplates/` and `townplates-art/` (18 images: all nine currently-
+published towns, both styles) — swept the same way, this round.**
+Directories re-listed fresh for current filenames rather than reusing
+any named earlier in this document, since every one was re-rendered
+since anyone last looked; even Beth Jedda and Kam (already checked live,
+above) were re-read from disk here rather than treated as covered.
+
+What was being looked for, given this renderer's specific history: large
+flat grey/featureless slabs (the scale-abuse defect this whole round
+exists to fix — two guards have landed, checking none survived at a
+scale or span they still miss); blue-violet squares (a mis-bound normal
+map); near-black crushed regions with no internal detail (the gamma
+defect); near-white blown-out foliage (the achromatic-tint defect).
+
+**Verdict: all 18 good. None of the four defect patterns appears
+anywhere.**
+
+- **Realistic** (`townplates/`), 9/9: Ashir, Aur, Bedia, Belrim, Beth
+  Jedda, Kam, Khwar Migdal, Pash, Yesil. Foliage reads green throughout
+  (Ashir's and Aur's canopies, Pash's and Yesil's palms) — no blown-out
+  white. No blue-violet squares on any of the nine. No flat grey slabs:
+  every rock formation (Yesil's, Khwar Migdal's cliff, Kam's boulders)
+  shows genuine surface variation, not a uniform block. No crush: full
+  tonal range everywhere, including Beth Jedda's three dark barn roofs
+  (already known and documented as legitimately dark wood, not a bug)
+  and Kam's dark basalt cliff face (shows visible vertical banding, not
+  a flat black mass). Kam's ground reads genuinely red-volcanic and its
+  rock genuinely paler than its siblings' — real content, matching what
+  was flagged going in, not a defect.
+- **Artwork** (`townplates-art/`), 9/9: same nine, ink-on-parchment.
+  Consistently legible line art. Two patches worth naming, neither a
+  defect: Belrim has a dense solid-black cross-hatch block over one
+  courtyard building (~880–1235px of 5244×4469, a legitimate
+  high-density hatch fill, the same technique the dungeon plates use for
+  depth); Pash has a soft smooth-gradient wash over its canyon
+  (~2340–2860×2255–2750 of 4312×4158) layered under the hatch texture —
+  a deliberate depth wash, not a flat slab or a colour-channel artefact.
+  Kam's own drawing is a small, sparse cluster near canvas centre,
+  correctly understated for a minor settlement rather than absent.
+
+This closes the top item from the previous round's "Known gaps" — see
+"Publishable state" below.
 
 ## Page weight
 
-Measured, not attempted before this round. Scope: the same four
-directories reviewed above (`dungeonplates/`, `dungeonplates-art/`,
-`surfaceplates/`, `surfaceplates-art/`, 26 files). `townplates/` and
-`townplates-art/` were mid-republish when this measurement was taken and
-are still excluded here — not because they're in flight any more (they
-settled by the end of this session), but because this specific
-measurement pass was never re-run against them afterward. Their weight is
-simply unmeasured, not stale.
+Measured for the dungeon/surface directories in an earlier round of this
+session; `townplates/` and `townplates-art/` folded into the same pass
+this round, now that they've settled — cheap to add, same method, same
+script.
 
 **Method.** File size and pixel dimensions read directly from disk/decode.
 "Empty" estimated by decoding each image to a 256px-wide thumbnail,
@@ -362,11 +386,12 @@ pixels, as a fraction of the full canvas area — this is what a crop could
 actually remove, as opposed to how speckled the canvas is. Both are
 approximate: a fixed colour-distance threshold misclassifies soft
 gradients (the realistic plates' vignette borders) and faint texture at
-the margin either way, and the realistic surface plates in particular
-have no genuine flat "unused" region to measure — they're full-bleed
-photographic renders with a soft feathered edge, not blank canvas, so
-their low computed "empty%" (0–35%) means something different from the
-same figure on an ink plate and should not be read as "65–100% useful".
+the margin either way, and the realistic plates (surface *and* town) in
+particular have no genuine flat "unused" region to measure — they're
+full-bleed photographic renders with a soft feathered edge, not blank
+canvas, so their low computed "empty%" means something different from
+the same figure on an ink plate and should not be read as "mostly
+useful".
 
 **Totals.**
 
@@ -376,25 +401,43 @@ same figure on an ink plate and should not be read as "65–100% useful".
 | `dungeonplates-art/` | 9 | 5.20 MB |
 | `surfaceplates/` | 4 | 8.14 MB |
 | `surfaceplates-art/` | 4 | 13.98 MB |
-| **Grand total** | **26** | **30.37 MB** (31,846,058 bytes) |
+| `townplates/` | 9 | 8.36 MB |
+| `townplates-art/` | 9 | 3.17 MB |
+| **Grand total, all six plate directories** | **44** | **41.90 MB** (43,934,388 bytes) |
 
 Dimensions range 1683×1494 (the smallest dungeon level) to 6464×6546 (the
 largest surface plates, Arg Kepher realistic and artwork both).
 
-**The cropping question: measured, and the numbers say no.** Per-pixel
-"empty" runs high wherever it's a meaningful measure — 74–95% on dungeon
-interiors in both styles, 66–84% on the ink surface plates. That looks
-like a cropping opportunity on first read. It is not one: the *bounding
-box* of actual content is 88–100% of the full canvas in **every single
-one of the 26 images**, dungeon and surface, both styles, with no
-exception. Dungeon layouts snake diagonally from one corner of their
-canvas to the opposite corner; the ink surface plates scatter
+**The cropping question: measured, and the answer splits by directory.**
+Per-pixel "empty" runs high wherever it's a meaningful measure — 74–95%
+on dungeon interiors in both styles, 66–84% on the ink surface plates,
+92–99.5% on the ink town plates, though for realistic town plates
+(0.1–31%, like the realistic surface plates) it means the different
+"full-bleed photograph, not blank canvas" thing explained above.
+
+For dungeon and surface plates (30 images, both styles), that high
+per-pixel emptiness is *not* a cropping opportunity: the *bounding box*
+of actual content is 88–100% of the full canvas in every one of them,
+dungeon and surface, both styles, no exception. Dungeon layouts snake
+diagonally corner to corner; the ink surface plates scatter
 resource/terrain-boundary outlines across the whole plate. The "empty"
-pixels are interspersed *between* content that already reaches every edge
-of the canvas, not walled off in one excisable margin a rectangular crop
-could remove. **Recomputing `bounds` and cropping would recover close to
-nothing on this dataset — do not dispatch that as a task; the numbers
-don't justify it.**
+pixels are interspersed *between* content that already reaches every
+edge, not walled off in one excisable margin a rectangular crop could
+remove. **Recomputing `bounds` and cropping the dungeon/surface plates
+would recover close to nothing — do not dispatch that as a task.**
+
+**`townplates-art/` is genuinely different, and worth a second look.**
+Its nine files' content bounding boxes run 1.9–17.0% of their canvases —
+Kam and Khwar Migdal as low as 1.9%, none above 17%. A small settlement
+drawn once, centred, on a large empty-parchment apron leaves a real,
+large, contiguous excisable margin, unlike the diagonal-snake dungeons or
+the whole-plate-scattered surface outlines. This is a real difference in
+kind, not degree, from the dungeon/surface finding above, and — unlike
+that finding — the numbers here *do* suggest cropping has genuine
+headroom. Not attempted this round: recomputing `bounds` to match a
+crop is real coordinated work across the renderer, the manifest and the
+published files, not a diagnostic pass, and belongs as its own dispatched
+task if this is worth pursuing.
 
 **Where the actual weight is going, and the jungle outlier chased to a
 verdict: no bug, the content is what it is.** Bytes-per-megapixel across
@@ -406,8 +449,9 @@ directory is 13.98 MB — 46% of the 30.37 MB total.
 Chased with real numbers, not estimates:
 - **Encode settings are identical across all four `surfaceplates-art/`
   files, confirmed by reading the publisher** (`auxilliary/mo2-terrain-map/
-  tools/dungeon_plate.py`, read only — it's the other worker's file while
-  the town-plate fix is in flight). All four route through the same
+  tools/dungeon_plate.py`, read only — never edited, including this
+  round, while it was and is the other worker's file). All four route
+  through the same
   `_publish_surface_plates()`, same `quality=84, method=5`, same RGBA
   save call; nothing in the repo ever calls `publish-surface-art` with a
   non-default quality. No per-file override exists to be a bug.
@@ -475,17 +519,15 @@ above. Kept as a section header rather than deleted, since it is where the
 
 ## Known gaps — honest, not silent
 
-- `townplates/` and `townplates-art/` were not swept image-by-image the
-  way the dungeon/surface plates were (see "Verified by direct image
-  inspection" above) — only Beth Jedda (control) and Kam (the fix) got a
-  direct look, live and/or by reading the published bytes. The other
-  seven towns rest on the asset-manifest tests (structural: files exist,
-  no orphans, style parity) plus the fact they share the identical
-  publish/guard code path Kam's fix landed in, not on anyone's eyes.
 - Kam's own corner of the realistic tile pyramid has more gaps than the
   three documented edge tiles — found and reported above ("Network/
   console baseline"), not fixed; fixing it means re-running the tile
   extraction, outside this task's scope.
+- `townplates-art/`'s real cropping headroom (content bounding boxes as
+  low as 1.9% of canvas, see "Page weight") was measured but not acted
+  on — recomputing `bounds` to match a crop is coordinated work across
+  the renderer, manifest and published files, not something to do inside
+  a verification pass. Flagged as a candidate task, not dispatched.
 - The first-run legend, search-summary correctness, and the town/dungeon/
   surface plate layer set were not *re-driven* end-to-end against the new
   aggregated data this session (they were previously verified live, before
@@ -495,17 +537,6 @@ above. Kept as a section header rather than deleted, since it is where the
   so there is no plausible mechanism by which it broke them, but that is
   an argument from code review, not a fresh observation, and is recorded
   as such rather than silently claimed as re-verified.
-
-One gap a browser was never going to close, now measured instead — see
-"Page weight" above:
-
-- Byte-size of the plate images: measured for the four dungeon/surface
-  directories (30.37 MB, 26 files). Cropping was checked and ruled out
-  by the numbers, not left unattempted; the compression-efficiency lead
-  (`surfaceplates-art/jungle.b41432c225.webp`) was chased to a verdict —
-  no bug, the content is what it is. `townplates/` and `townplates-art/`
-  remain unmeasured — settled, but this pass was never re-run against
-  them.
 
 One more gap a browser will not close:
 
@@ -529,32 +560,36 @@ fixed: read directly from the published bytes and confirmed live in the
 browser, by two independent navigation paths, with zero console errors
 and zero failed `townplates` requests either way. The control town (Beth
 Jedda) renders identically to how it always has, in both styles, proving
-the guard fix touched only what needed touching. Every focus-ring target
-this document ever listed as unseen is now seen. The jungle
+the guard fix touched only what needed touching. **Every one of the
+eighteen currently-published town-plate images — all nine towns, both
+styles — has now been individually eyeballed, directly from the
+published bytes, and none shows the scale-abuse slabs, a mis-bound
+normal map, gamma crush, or blown-out foliage.** This was the single
+item this document itself ranked as most worth closing, and it is now
+closed clean, not converted into a finding. Every focus-ring target this
+document ever listed as unseen is now seen. The jungle
 compression-weight outlier flagged two rounds ago is chased to a
 definitive "no bug" rather than left as an open question.
 
 What a reader should know is still open, in order of how much it should
 affect that yes:
 
-1. **Seven of nine towns were not individually eyeballed this round** —
-   only Beth Jedda and Kam were. They rest on the same guard fix and the
-   same manifest tests as Kam, not on anyone having looked. This is the
-   single item most worth closing before calling the town-plate round
-   fully verified, not just gate-clean.
-2. **Kam's own corner of the realistic tile pyramid is thinner than the
+1. **Kam's own corner of the realistic tile pyramid is thinner than the
    rest of the island** — a genuine gap, unrelated to the town-plate fix
    and out of this task's scope to close, but real, and a player who
    wanders there will notice.
-3. Three smaller, lower-stakes items carried from earlier rounds:
-   `townplates`' page weight was never measured; the first-run-legend/
-   search-summary/plate-layer chrome was reasoned safe against the
-   aggregation round rather than freshly re-driven; and whether
-   `discoveries.css`'s dead-looking rules are genuinely dead in the
-   private live build can't be answered from this repository alone.
+2. **`townplates-art/` has real, measured cropping headroom** (content
+   bounding boxes as low as 1.9% of canvas) that the dungeon/surface
+   plates do not — a genuine opportunity, not a defect, flagged as a
+   candidate task rather than acted on inside a verification pass.
+3. Two smaller, lower-stakes items carried from earlier rounds: the
+   first-run-legend/search-summary/plate-layer chrome was reasoned safe
+   against the aggregation round rather than freshly re-driven; and
+   whether `discoveries.css`'s dead-looking rules are genuinely dead in
+   the private live build can't be answered from this repository alone.
 
-None of the three is a defect anyone has observed — they are places this
-document is honest about not having looked, not places it found something
+None of these three is a defect anyone has observed — they are places
+this document is honest about not having looked, or opportunities it
+found and left for someone to decide on, not places it found something
 wrong and left it. That is the entire point of grouping by evidence
 strength instead of by feature.
-
