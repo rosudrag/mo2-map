@@ -299,25 +299,62 @@ could remove. **Recomputing `bounds` and cropping would recover close to
 nothing on this dataset — do not dispatch that as a task; the numbers
 don't justify it.**
 
-**Where the actual weight is going: compression, not geometry.**
-Bytes-per-megapixel across the 26 files ranges from ~13,000 B/MP
-(`dungeonplates/jungle_l1.b68d2e1194.webp`, cheap) to ~172,000 B/MP
-(`surfaceplates-art/jungle.b41432c225.webp` — the single worst outlier by
-a wide margin, nearly double its next-worst sibling despite being flat
-ink-on-parchment content that should compress cheaply). `surfaceplates-art/`
-as a directory is 13.98 MB — 46% of the entire 30.37 MB total — despite
-being line art over blank parchment; its four files average noticeably
-worse bytes-per-megapixel than the visually similar `dungeonplates-art/`
-files. **The single best specific lead: `surfaceplates-art/jungle.b41432c225.webp`
-(5.53 MB, 171,835 B/MP)** is worth checking against its siblings' webp
-encode settings (quality/method) before assuming a structural cause.
-Rough extrapolation — if `surfaceplates-art/`'s four files matched
-`dungeonplates-art/`'s per-megapixel efficiency (itself not known to be
-aggressively tuned), that alone is roughly 3–6 MB off the 30.37 MB grand
-total, call it 10–20%. This is a rough, stated-method estimate from
-bytes-per-megapixel extrapolation, not a promise — an actual
-re-encode-and-measure pass would be needed to confirm, and is the
-concrete next step if this is worth dispatching.
+**Where the actual weight is going, and the jungle outlier chased to a
+verdict: no bug, the content is what it is.** Bytes-per-megapixel across
+the 26 files ranges from ~13,000 B/MP (`dungeonplates/jungle_l1.b68d2e1194.webp`,
+cheap) to ~172,000 B/MP (`surfaceplates-art/jungle.b41432c225.webp`, the
+outlier this round's follow-up chased). `surfaceplates-art/` as a
+directory is 13.98 MB — 46% of the 30.37 MB total.
+
+Chased with real numbers, not estimates:
+- **Encode settings are identical across all four `surfaceplates-art/`
+  files, confirmed by reading the publisher** (`auxilliary/mo2-terrain-map/
+  tools/dungeon_plate.py`, read only — it's the other worker's file while
+  the town-plate fix is in flight). All four route through the same
+  `_publish_surface_plates()`, same `quality=84, method=5`, same RGBA
+  save call; nothing in the repo ever calls `publish-surface-art` with a
+  non-default quality. No per-file override exists to be a bug.
+- **Re-encoded all four raw source PNGs** (present in this checkout at
+  `auxilliary/mo2-terrain-map/work/surfaceplates-art/*.png`) at the exact
+  publish settings, into system temp
+  (`%TEMP%\platecheck_3lodxc41\*.webp`, not the repo). All four
+  reproduced their published byte count **exactly** — jungle's
+  5,527.0 KB, argkepher's 3,333.6 KB, tuz salt mines' 3,119.9 KB, yel
+  keskar's 2,335.0 KB, byte-for-byte. The published files are exactly
+  what quality 84/method 5 produces from current content: deterministic,
+  no drift, no misapplied setting.
+- **The size difference is real content, not waste.** Jungle's own
+  header (`jungle_surface.json`) records the *lowest* coverage fraction
+  of the four (0.398, vs Arg Kepher 0.621, Tuz Salt Mines 0.56, Yel
+  Keskar 0.415) — less canvas has terrain footprint at all. But a
+  Laplacian (high-frequency edge energy) measurement on the published
+  pixels puts jungle at 3× Arg Kepher's value and above both other
+  siblings. Lowest area, highest edge energy, is exactly what a more
+  convoluted coverage boundary looks like — and that matches the QA
+  pass above by eye: jungle's plate is dominated by a single huge tree
+  root/canopy system, not the compact rock footprints the other three
+  dungeons sit under. `paint_surface_artwork`'s wall-ink and cross-hatch
+  (`dungeon_plate.py` ~L730–772) both trace the coverage mask's own
+  gradient at a fixed 6px period — a longer, more convoluted boundary
+  genuinely produces more ink detail for a lossy encoder to spend bits
+  on, independent of quality setting.
+- **Quality/size curve, measured for jungle** (temp re-encodes of the
+  same source PNG, not the repo): q90 → 5,916.7 KB, q84 (published) →
+  5,527.0 KB, q75 → 5,185.9 KB, q70 → 5,133.5 KB. Diminishing returns
+  below the published quality: dropping to 75 recovers ~341 KB (6.2%);
+  dropping further to 70 barely moves it another 52 KB. That is the
+  signature of a real detail floor, not compressor slack left on the
+  table.
+
+**Verdict: no bug.** The encode path is identical and deterministic
+across all four `surfaceplates-art/` files; jungle is larger because its
+content genuinely has more edge/hatch detail (a more convoluted terrain
+boundary), not a wasted alpha channel, an unwanted colour depth, or an
+accidentally-lossless path. A quality-84→75 change would buy roughly 6%
+on this one file at reduced fidelity — a taste/tradeoff call for whoever
+owns that number, not a defect to fix. No reason from this evidence to
+expect the other three are mis-encoded either, since they share the
+identical deterministic path.
 
 ## Verified by direct inspection of the rendered images — not through this session's browser
 
