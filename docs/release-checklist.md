@@ -17,8 +17,8 @@ current on the whole tree — see "Publishable state" at the bottom.
 ## The island-wide props-render round (new since the last version of this document)
 
 `registry.js`'s realistic pyramid was switched from `assets/tiles/v4/` (the landscape-material
-bake, 2.34 m/px at z=0, native z −5..1) to `assets/tiles/v5/` (the game's own placed geometry —
-buildings, trees, rocks, ground clutter — rendered chunk by chunk, 0.585 m/px native to z=3,
+bake, 4.68 m/px at z=0, 2.34 m/px at its own maxNativeZoom of z=1) to `assets/tiles/v5/` (the
+game's own placed geometry — buildings, trees, rocks, ground clutter — rendered chunk by chunk,
 native z −5..3). Full context: `auxilliary/mo2-terrain-map/README.md`'s "Island map for
 trainer-web" section and this repo's own `public/map/app/README.md` "Island tile pyramid"
 bullet, both rewritten this round. `v4/` stays on disk, byte-untouched, as the rollback path.

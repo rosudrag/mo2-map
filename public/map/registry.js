@@ -52,7 +52,7 @@ export const MAPS = {
     // canvas pixel per tile pixel; tile y is negative, counting up from lat
     // 0. v1 was a composite that took its colour from the game's art and
     // therefore looked like it - deleted, not kept as a fallback. The prior
-    // landscape-only pyramid (v4, 1.17 m/px native) is kept on disk as the
+    // landscape-only pyramid (v4, 2.34 m/px native) is kept on disk as the
     // rollback path but is no longer referenced here.
     tiles: {
       url: "assets/tiles/v5/{z}/{x}/{y}.webp",

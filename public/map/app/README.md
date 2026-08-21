@@ -48,9 +48,9 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
   material grey. It is placed with the `world` calibration below applied directly, so terrain
   and every pixel-stored community pin share one transform.
   `assets/tiles/v4/` — the landscape-material-only extraction this replaced as the default,
-  z −5..1 native, 2.34 m/px at z0 — is kept on disk as the rollback path but is no longer
-  referenced by `registry.js`. v1 (art composite) and v2/v3 (pure extraction, pre-v4 revisions)
-  are deleted; nothing falls back to them.
+  z −5..1 native (4.68 m/px at z0, 2.34 m/px at its own maxNativeZoom of z1) — is kept on disk
+  as the rollback path but is no longer referenced by `registry.js`. v1 (art composite) and
+  v2/v3 (pure extraction, pre-v4 revisions) are deleted; nothing falls back to them.
   - Zoom 0 is one canvas pixel per tile pixel; the pyramid runs z −5..3 and Leaflet upscales
     beyond z3 (`maxNativeZoom`).
   - Tile **y is negative** and counts upwards from canvas lat 0 — that is where `CRS.Simple`
