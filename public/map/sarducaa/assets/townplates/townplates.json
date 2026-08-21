@@ -24,7 +24,7 @@
   {
    "key": "belrim",
    "town": "Belrim",
-   "file": "assets/townplates/belrim.38c2525528.webp",
+   "file": "assets/townplates/belrim.e7a3eab406.webp",
    "metresPerPx": 0.25,
    "size": [
     5244,
@@ -44,7 +44,7 @@
   {
    "key": "aur",
    "town": "Aur",
-   "file": "assets/townplates/aur.f307704832.webp",
+   "file": "assets/townplates/aur.0e5147ad00.webp",
    "metresPerPx": 0.25,
    "size": [
     4043,
@@ -84,7 +84,7 @@
   {
    "key": "ashir",
    "town": "Ashir",
-   "file": "assets/townplates/ashir.edaa199761.webp",
+   "file": "assets/townplates/ashir.f5c79923f0.webp",
    "metresPerPx": 0.25,
    "size": [
     3842,
@@ -104,7 +104,7 @@
   {
    "key": "bedia",
    "town": "Bedia",
-   "file": "assets/townplates/bedia.1ea7cce66f.webp",
+   "file": "assets/townplates/bedia.a727819a23.webp",
    "metresPerPx": 0.25,
    "size": [
     3898,
@@ -124,7 +124,7 @@
   {
    "key": "kam",
    "town": "Kam",
-   "file": "assets/townplates/kam.c26689da9d.webp",
+   "file": "assets/townplates/kam.2546d131f6.webp",
    "metresPerPx": 0.25,
    "size": [
     3460,
@@ -144,7 +144,7 @@
   {
    "key": "khwar_migdal",
    "town": "Khwar Migdal",
-   "file": "assets/townplates/khwar_migdal.fdfe1e80b2.webp",
+   "file": "assets/townplates/khwar_migdal.13557978c3.webp",
    "metresPerPx": 0.25,
    "size": [
     3419,
@@ -164,7 +164,7 @@
   {
    "key": "yesil",
    "town": "Yesil",
-   "file": "assets/townplates/yesil.b088bccf35.webp",
+   "file": "assets/townplates/yesil.99dd7496d6.webp",
    "metresPerPx": 0.25,
    "size": [
     3667,
