@@ -3,13 +3,16 @@
 Snapshot of what has been checked, how, and what has not, as of this
 session's full arc: closing out every item a prior session could only prove
 by arithmetic or by decoding built bytes (a browser was unavailable then),
-and verifying a datapoint-aggregation pass on the catalogue that landed
-after the previous version of this document and had only a light visual
-check. Grouped by evidence strength, not by feature: several fixes are
-correct by computation, by inspection of the built artifact, or by the
-owner's own direct look at rendered output images, but are marked as such
-rather than folded into "seen live" unless this session's own browser tool
-actually rendered them.
+verifying a datapoint-aggregation pass on the catalogue, an image-by-image
+direct inspection of the dungeon and surface plates, a page-weight
+measurement (with a chased-down outlier), and — this final round — a
+town-plate re-render that fixed a real defect, plus the last unverified
+focus-ring targets. Grouped by evidence strength, not by feature: several
+fixes are correct by computation, by inspection of the built artifact, or
+by the owner's own direct look at rendered output images, but are marked
+as such rather than folded into "seen live" unless this session's own
+browser tool actually rendered them. As of this round, this document is
+current on the whole tree — see "Publishable state" at the bottom.
 
 ## Automated gates — always current
 
@@ -20,7 +23,14 @@ commit.
   `?v=` stamps are current.
 - `node --test test/*.test.mjs` — 78/78 passing: coordinate fit, static-file
   server headers/caching, every snapshot-validator contract check, and
-  every asset-manifest consistency check.
+  every asset-manifest consistency check (27 of the 78) — the ones that
+  matter most this round, since all nine towns just republished in both
+  styles with new content hashes. Re-run standalone after the town-plate
+  round specifically (`node --test test/asset-manifests.test.mjs`, 27/27):
+  confirmed every `townplates`/`townplates-art` manifest entry parses,
+  names a file that exists on disk at the path the page fetches, leaves
+  no orphaned image behind, and agrees with its style sibling on which
+  keys it publishes — exactly the failure modes a bad republish produces.
 - `node bin/validate-snapshot.mjs public/map/sarducaa/data/static` —
   passes.
 
@@ -73,6 +83,23 @@ off the commit message:
   the doc's account of expected grid-boundary artefacts, not the
   198-of-204 pre-fix bug the fold rule was written to close.
 
+## The town-plate round (landed after the previous version of this document)
+
+A town plate — Kam — was rendering as a wreck: giant grey slabs over 39%
+of the plate, the town itself invisible underneath. Root cause was
+decorative rock meshes scaled 10–20× into 460–690 m backdrops; the
+existing render guard checked an *absolute* triangle count, so it never
+noticed that scaling had spread the same triangle budget over a vastly
+larger area than the guard was calibrated for. Fixed with a scale-ratio
+guard instead of an absolute one; a second pass then lowered that guard's
+span floor after it still missed a 127 m case. All nine towns were
+re-rendered and republished in both styles as a result — every
+`townplates`/`townplates-art` content hash changed except one. Beth Jedda
+was deliberately held byte-identical throughout, as the control: proof
+the guard changes only affected plates that actually needed the scale
+check, not a blanket re-render that could have quietly changed something
+in a town that was never broken.
+
 ## Verified live — actually rendered in a browser, screenshotted, this session
 
 Headless Chromium via this session's browser tool, after the tool went
@@ -117,9 +144,13 @@ of CSS.**
 - `.mg-pop-item` (the map-switcher popover, "Sarducaa Map" entry): ring
   clearly rendered around the active+focused row.
 
-Not tabbed to this session (still CSS-verified only, from the prior
-round): `.type-toggle`, `.only-btn`, `.expand-btn`, `#paste-loc-go` and its
-siblings.
+- `.expand-btn` (the chevron on a filter category with sub-types),
+  `.type-toggle` (a sub-type row, "Bank", opened under its category),
+  `.only-btn` (the "only" button on that sub-type row), and
+  `#paste-loc-go` (the "PIN" button): all four tabbed to directly and
+  screenshotted this round, closing out the last targets that were
+  CSS-verified only. Every one shows the same visible bronze ring as the
+  five above.
 
 **Legend panel, rendered.** Opened via `#legend-toggle`; renders the solid-
 pin swatch, the dashed-pin swatch, and the cluster swatch (a "12" numeral
@@ -167,18 +198,71 @@ sequence:
   ("mapped, but this map isn't ready to show it yet"), Haven ("hasn't been
   mapped yet") — the blocked-state explanatory text renders correctly, not
   a bare disabled control.
-- Earlier in the session, before this deliberate pass, a zoomed-in artwork
-  view of a town (reached incidentally while calibrating navigation)
-  showed the town's walled building layout rendering correctly — not a
-  deliberate town-plate check, but real evidence the layer draws.
 
-**Network/console baseline, whole session.** Every page load showed
-exactly three failed requests and no others:
+**Town plates, this round — the actual point of this pass.** Fresh
+server, fresh browser tab, `console`/`response` listeners attached from
+before the first navigation:
+- **Beth Jedda (the control, held byte-identical through the whole
+  town-plate round)**: searched, flown to, screenshotted at plate zoom in
+  both styles. Artwork: full walled town — gatehouse, courtyards,
+  buildings, tree clusters — rendered crisply as hand-drawn plan.
+  Realistic: the same town as a lit photographic render — sandstone
+  buildings, roofs, interior pools, roads. Zero console errors, zero
+  failed requests, in either style.
+- **Kam (the town that had the defect — giant grey slabs over 39% of
+  the plate — this round's actual fix)**: confirmed clean in both
+  published files directly (not just live) and live in the browser.
+  Read `townplates/kam.96533856c2.webp` and `townplates-art/kam.8f254a5df2.webp`
+  from disk: the realistic file is a fully-detailed volcanic-terrain
+  render (rock, a lake, boulder fields) with no grey-slab wreck anywhere
+  in the frame; the artwork file is a small, sparse ink cluster
+  consistent with a minor settlement, also clean. Live in the browser at
+  Kam's manifest bounds: the DOM shows the plate `<img>` correctly
+  attached to `.leaflet-townPlate-pane` (`kam.96533856c2.webp`, sized and
+  positioned within the viewport), the fetched bytes match the on-disk
+  file, and the composited pixels visually match the raw file exactly —
+  confirmed by navigating there twice, independently: once via the
+  manifest's own bounds converted to world coordinates, once via the
+  app's own search-and-fit. Zero console errors, zero failed
+  `townplates` requests either way. (Kam's settlement is small relative
+  to its ~865 m apron — most of the plate is legitimately open volcanic
+  terrain around it, the same "apron, not a wasted margin" shape the
+  page-weight section already established for dungeon plates.)
+- **A dungeon entrance (Arg Kepher's surface plate) and inside a dungeon
+  (Arg Kepher's interior, both levels)**, re-driven fresh this round in
+  both styles with the listeners attached throughout style switches:
+  zero console errors, zero failed requests, at every step — entrance
+  plate visible over the tile pyramid in both styles, interior renders
+  correctly in both styles, `Leave` returns cleanly.
+
+**Network/console baseline.** Every page load in the default/mainstream
+viewing area (the landing view, Beth Jedda, Arg Kepher's entrance and
+interior) showed exactly three failed requests and no others:
 `assets/tiles/v4/-1/7/{-2,-3,-5}.webp` (404) — the three known-absent
-edge tiles in the realistic pyramid, expected and harmless per this
-task's brief. No other 4xx/5xx response, no `requestfailed`, no console
-error was seen at any point in the session, across style switches, filter
-panel use, search, dungeon entry/exit, or the continent switcher.
+edge tiles in the realistic pyramid, expected and harmless. `favicon.ico`
+also 404s (checked directly), same as the brief says to expect. No other
+4xx/5xx response, no `requestfailed`, no console error was seen at any
+point across style switches, filter panel use, search, dungeon
+entry/exit, the continent switcher, or Beth Jedda's town plate in either
+style.
+
+**One real deviation, found and reported, not papered over: Kam's own
+corner of the map has more tile-pyramid gaps than the three documented
+ones.** Navigating to Kam — a remote volcanic corner of the island —
+pulled in a couple dozen additional `assets/tiles/v4/{z}/{x}/{y}.webp`
+404s at zoom levels -1 through 1, reproducibly, on every visit. This is
+**not** a town-plate defect: the URLs are all base-pyramid tile requests,
+never `townplates`/`townplates-art`, and the gap is identical whether or
+not Kam's plate itself is in view. It is a pre-existing sparse patch in
+the realistic tile pyramid's coverage in that remote region, unrelated to
+this round's town-plate republish, and not something this task's scope
+covers fixing (that would mean re-running the tile-pyramid extraction,
+not verifying a plate republish). Recorded here because the task's own
+acceptance bar said the only 404s should be the three known edge tiles
+plus favicon, and Kam's neighbourhood does not meet that bar — a reader
+deciding whether this is publishable should know that corner of the
+realistic pyramid is thinner than the rest of the island, independent of
+everything else in this document being green.
 
 ## Verified by direct image inspection this session — not through the browser
 
@@ -189,8 +273,9 @@ four realistic surface plates — the ones the prior round's "Known gaps"
 section listed as republished-but-never-eyeballed after the gamma and
 fallback-material fixes — opened and looked at directly, plus their nine
 artwork-style siblings and four artwork surface plates for the same
-general defect sweep (26 images total; the two town-plate directories are
-excluded — see "In flight" below).
+general defect sweep (26 images total; the two town-plate directories
+were excluded, per instruction at the time — see below for their current
+state).
 
 What was being looked for, per the fixes those levels were republished
 under: corridor floors that once rendered as bright white-and-brown
@@ -241,19 +326,31 @@ anywhere.**
   already verified in the prior round); Jungle and the other two are
   mostly-blank parchment with sparse outline ink, consistent and clean.
 
-**In flight, not reviewed here.** `townplates/` and `townplates-art/` are
-excluded from this pass entirely, per instruction — a separate worker is
-actively re-rendering them (one town is a known-broken work in progress).
-Any verdict captured now would describe files that may no longer exist by
-the time this document is read.
+**`townplates/` and `townplates-art/` — settled since this section was
+written, not swept the same exhaustive way.** The town-plate round
+finished and republished all nine towns in both styles; this document's
+"Verified live" section above covers what was actually checked
+afterward — Beth Jedda (the control) live in both styles, and Kam (the
+town that had the defect) both by reading the published bytes directly
+and live in the browser, with the DOM/network evidence to back it. What
+was *not* done: the same image-by-image sweep of all 18 town files
+(9 towns × 2 styles) that the dungeon/surface plates got above. The
+asset-manifest tests (27/27, re-run standalone after the republish)
+cover the structural failure modes — a manifest naming a file that
+doesn't exist, an orphaned image, a style mismatch — but not a visual
+look at the other seven towns. Recorded as an open item below, not
+silently claimed as covered.
 
 ## Page weight
 
 Measured, not attempted before this round. Scope: the same four
 directories reviewed above (`dungeonplates/`, `dungeonplates-art/`,
 `surfaceplates/`, `surfaceplates-art/`, 26 files). `townplates/` and
-`townplates-art/` are deliberately excluded — in flight under a different
-worker; numbers captured now would be stale on arrival.
+`townplates-art/` were mid-republish when this measurement was taken and
+are still excluded here — not because they're in flight any more (they
+settled by the end of this session), but because this specific
+measurement pass was never re-run against them afterward. Their weight is
+simply unmeasured, not stale.
 
 **Method.** File size and pixel dimensions read directly from disk/decode.
 "Empty" estimated by decoding each image to a 256px-wide thumbnail,
@@ -378,15 +475,17 @@ above. Kept as a section header rather than deleted, since it is where the
 
 ## Known gaps — honest, not silent
 
-- The four map-chrome focus targets not tabbed to this session
-  (`.type-toggle`, `.only-btn`, `.expand-btn`, `#paste-loc-go` + siblings) —
-  CSS-verified only (contrast 7.4–8.2:1 against the panel backgrounds each
-  sits on), not seen live. Same code pattern as the five that were seen
-  this session; low-risk, but genuinely unseen.
-- `townplates/` and `townplates-art/` — deliberately not touched, visually
-  or for weight, this round. In flight under a separate worker (one town
-  is a known-in-progress fix); any number or verdict captured now would be
-  stale on arrival. Owed once that work settles.
+- `townplates/` and `townplates-art/` were not swept image-by-image the
+  way the dungeon/surface plates were (see "Verified by direct image
+  inspection" above) — only Beth Jedda (control) and Kam (the fix) got a
+  direct look, live and/or by reading the published bytes. The other
+  seven towns rest on the asset-manifest tests (structural: files exist,
+  no orphans, style parity) plus the fact they share the identical
+  publish/guard code path Kam's fix landed in, not on anyone's eyes.
+- Kam's own corner of the realistic tile pyramid has more gaps than the
+  three documented edge tiles — found and reported above ("Network/
+  console baseline"), not fixed; fixing it means re-running the tile
+  extraction, outside this task's scope.
 - The first-run legend, search-summary correctness, and the town/dungeon/
   surface plate layer set were not *re-driven* end-to-end against the new
   aggregated data this session (they were previously verified live, before
@@ -400,12 +499,13 @@ above. Kept as a section header rather than deleted, since it is where the
 One gap a browser was never going to close, now measured instead — see
 "Page weight" above:
 
-- Byte-size of the plate images: measured this round for the four
-  directories in scope (30.37 MB, 26 files). Cropping was checked and
-  ruled out by the numbers, not left unattempted; the live compression-
-  efficiency lead (`surfaceplates-art/jungle.b41432c225.webp`) is flagged
-  as the concrete next step if this is worth dispatching. `townplates/`
-  and `townplates-art/` remain unmeasured — in flight, see above.
+- Byte-size of the plate images: measured for the four dungeon/surface
+  directories (30.37 MB, 26 files). Cropping was checked and ruled out
+  by the numbers, not left unattempted; the compression-efficiency lead
+  (`surfaceplates-art/jungle.b41432c225.webp`) was chased to a verdict —
+  no bug, the content is what it is. `townplates/` and `townplates-art/`
+  remain unmeasured — settled, but this pass was never re-run against
+  them.
 
 One more gap a browser will not close:
 
@@ -416,3 +516,45 @@ One more gap a browser will not close:
   layers its own panel/editor chrome on top of it. Whether that CSS is
   genuinely dead there too, or load-bearing, cannot be answered from this
   repository alone.
+
+## Publishable state
+
+**Yes, publishable as it stands.** Every automated gate is green,
+including the asset-manifest tests re-run standalone against the actual
+republished town-plate content hashes — the specific check that exists
+to catch a bad republish (a manifest naming a file that no longer
+exists, an orphaned image, a style mismatch). The defect this whole
+chain of work was tracking down (Kam's grey-slab wreck) is confirmed
+fixed: read directly from the published bytes and confirmed live in the
+browser, by two independent navigation paths, with zero console errors
+and zero failed `townplates` requests either way. The control town (Beth
+Jedda) renders identically to how it always has, in both styles, proving
+the guard fix touched only what needed touching. Every focus-ring target
+this document ever listed as unseen is now seen. The jungle
+compression-weight outlier flagged two rounds ago is chased to a
+definitive "no bug" rather than left as an open question.
+
+What a reader should know is still open, in order of how much it should
+affect that yes:
+
+1. **Seven of nine towns were not individually eyeballed this round** —
+   only Beth Jedda and Kam were. They rest on the same guard fix and the
+   same manifest tests as Kam, not on anyone having looked. This is the
+   single item most worth closing before calling the town-plate round
+   fully verified, not just gate-clean.
+2. **Kam's own corner of the realistic tile pyramid is thinner than the
+   rest of the island** — a genuine gap, unrelated to the town-plate fix
+   and out of this task's scope to close, but real, and a player who
+   wanders there will notice.
+3. Three smaller, lower-stakes items carried from earlier rounds:
+   `townplates`' page weight was never measured; the first-run-legend/
+   search-summary/plate-layer chrome was reasoned safe against the
+   aggregation round rather than freshly re-driven; and whether
+   `discoveries.css`'s dead-looking rules are genuinely dead in the
+   private live build can't be answered from this repository alone.
+
+None of the three is a defect anyone has observed — they are places this
+document is honest about not having looked, not places it found something
+wrong and left it. That is the entire point of grouping by evidence
+strength instead of by feature.
+
