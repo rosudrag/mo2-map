@@ -3,10 +3,10 @@
  *
  * Exporting the surface from inside a dungeon was the bug this module fixes.
  * dungeonmode.js hides the terrain on purpose - a dungeon is a MODE, and the
- * lit island overworld (2.34 m/px artwork, 0.585 m/px realistic) reading
- * through a floor plan is exactly what that mode exists to stop - so a
- * poster that quietly re-fetched the surface tiles handed back the one
- * image the reader had just navigated away from.
+ * lit island overworld (0.585 m/px, either style now) reading through a
+ * floor plan is exactly what that mode exists to stop - so a poster that
+ * quietly re-fetched the surface tiles handed back the one image the reader
+ * had just navigated away from.
  *
  * Two products, both composited here:
  *
@@ -23,16 +23,16 @@
  * The surface panel is the one place where a wider rectangle is the honest
  * choice. This panel always draws the artwork pyramid (deliberately - a
  * dungeon poster is the illustrated style, not whichever style the live map
- * happens to have active), and the finest it draws from is 2.34 m/px; a
- * level panel is 0.25 m/px, so drawn over the same rectangle the surface
- * would be a ~9x upscale of a tile - a blur captioned "high res". So it
- * takes the same panel BOX and a wider rectangle (entrances plus the dungeon's
- * own footprint, padded), which lands near the raster's native resolution and
- * answers the question a surface page is actually asked: where on the island is
- * this door. Its true metres-per-pixel is printed in its own caption, and every
- * panel carries its OWN scale bar rather than the sheet carrying one bar that
- * would be wrong for at least one panel on it. (The realistic pyramid is finer
- * now, 0.585 m/px - not used here on purpose, see above.)
+ * happens to have active), and the finest it draws from is now 0.585 m/px
+ * (tiles-art/v3 - it was 2.34 m/px when SURFACE_CONTEXT below was tuned,
+ * a ~9x upscale against a level panel's 0.25 m/px; it is a ~2.3x upscale
+ * now, a much smaller gap SURFACE_CONTEXT has not been re-measured against).
+ * So it takes the same panel BOX and a wider rectangle (entrances plus the
+ * dungeon's own footprint, padded), which lands near the raster's native
+ * resolution and answers the question a surface page is actually asked:
+ * where on the island is this door. Its true metres-per-pixel is printed in
+ * its own caption, and every panel carries its OWN scale bar rather than the
+ * sheet carrying one bar that would be wrong for at least one panel on it.
  *
  * Entrances are numbered structurally, from the `poi_id` migration 019 wrote
  * (`dungeon.argkepher.entrance.02` -> "2"), never from the pin's name: the
@@ -77,9 +77,13 @@ const M_PER_PX = 1 / PX_PER_M;
 // How far past the dungeon the surface panel reaches when NO high-res
 // surface plate exists for it yet (dungeon_plate.py: render_dungeon_surface
 // / map/surfaceplates.js), as a multiple of the level panels' own rectangle.
-// Big enough that the pyramid is drawn near its native 2.34 m/px instead of
-// upscaled, small enough that the doors are still the subject of the
-// picture rather than four dots in a desert. When a surface plate DOES
+// Tuned when the artwork pyramid's native resolution was 2.34 m/px, to stay
+// big enough that the pyramid drew near-native instead of upscaled, small
+// enough that the doors are still the subject of the picture rather than
+// four dots in a desert. The pyramid is 0.585 m/px now (tiles-art/v3, ~2.3x
+// upscale at this constant's box rather than the ~9x it was tuned against)
+// - NOT re-measured against that; unchanged pending review, not because the
+// new number was checked and found still right. When a surface plate DOES
 // exist the panel is sized around the plate's own bounds instead - it
 // already carries the same apron-plus-feather margin past its entrances
 // that this constant approximates for the fallback, so there is nothing

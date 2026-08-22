@@ -51,7 +51,10 @@ const PLATE_PANE = "dungeonPlatePane";
 // plate's own bounds, same as entering fits a level's bounds. Without one
 // (not yet rendered for this dungeon) it falls back to a flat zoom close
 // enough to see the door without landing inside a single blurred island
-// tile (2.34 m/px in the artwork style, 0.585 m/px in the realistic style).
+// tile - both styles' island pyramids are 0.585 m/px at their own native
+// zoom now (tiles-art/v3 matched tiles/v5's resolution; before that the
+// artwork style topped out at 2.34 m/px and this zoom was chosen to avoid
+// its blur specifically).
 const SURFACE_STEP_ZOOM = 3;
 
 // Built from SURFACE_MAP rather than a literal /^sarducaa\//: a map id is
@@ -65,8 +68,8 @@ const DUNGEON_LINK_RE = new RegExp(
 );
 
 // While an interior is on screen the SURFACE has to get out of the way. As a
-// plain overlay it did not: lit island terrain (2.34 m/px artwork / 0.585 m/px
-// realistic) surrounded the plate's footprint and still read through the 10%
+// plain overlay it did not: lit island terrain (0.585 m/px, either style)
+// surrounded the plate's footprint and still read through the 10%
 // backdrop the renderer leaves, so a dungeon looked like the overworld with a
 // floor plan pasted on it. Styles in dungeonmode.css.
 const MODE_CLASS = "in-dungeon";
@@ -310,7 +313,7 @@ export async function initDungeonMap() {
       // bounds for the right zoom, then re-centre on the actual door at that
       // zoom. No surface plate published for this dungeon yet: the old flat
       // zoom, close enough to see the door without landing inside one
-      // blurred island tile (2.34 m/px artwork / 0.585 m/px realistic).
+      // blurred island tile (0.585 m/px, either style).
       const fromKey = state ? state.dungeon.key : null;
       if (state) {
         if (state.overlay) { map.removeLayer(state.overlay); }

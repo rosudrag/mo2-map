@@ -14,6 +14,124 @@ as such rather than folded into "seen live" unless this session's own
 browser tool actually rendered them. As of this round, this document is
 current on the whole tree — see "Publishable state" at the bottom.
 
+## The artwork island-wide render round (new since the last version of this document)
+
+`style.js`'s artwork pyramid was switched from `assets/tiles-art/v2/` (2.34 m/px native,
+maxZoom 1, 1,499 tiles) to `assets/tiles-art/v3/` (0.585 m/px native, maxZoom 3, 23,899
+tiles) — matching `tiles/v5`'s own native resolution, so neither style falls off a
+resolution cliff at the other's max zoom. `v2/` stays on disk, byte-untouched, as the
+rollback path, same as `v4/` for the realistic style. Full context:
+`auxilliary/mo2-terrain-map/README.md`'s "The artwork map" section (rewritten this
+round) and `public/map/app/README.md`'s "Artwork rendering" bullet (also rewritten).
+
+**The switch itself.** Only two files carry the manifest path — confirmed by grepping the
+whole `app/src` tree for `tiles-art/v2`, not assumed: `map/artwork-layer.js`'s `MANIFEST`
+and `map/artwork-raster.js`'s `MANIFEST_URL`, both literal strings, both repointed at
+`v3`. Neither hardcodes `maxNativeZoom` — both read it from the fetched manifest
+(`manifest.maxZoom`), so the new zoom range (native to z=3) is live with no other code
+change. `registry.js` carries no `tiles-art` reference at all — confirmed, not assumed
+either. The built `dist/app-static.js` was checked directly (not just `src/`, which
+`build.mjs --verify` already confirms match): fetched the actual bundle the page's own
+`<script>` tag references and it contains the literal string `tiles-art/v3`, not
+`tiles-art/v2`.
+
+**Two bugs were found and fixed in the offline renderer before this promotion (not in
+this repo — `auxilliary/mo2-terrain-map/tools/`):**
+- `cmd_tiles`'s whole-canvas-as-RGB materialisation (`artwork_map.py`) measured 13.94 GB
+  peak RSS at factor 8, for a step that only ever needed one 256×256 crop in hand at a
+  time. Rewritten to crop straight from the memmapped raw raster for the finest level,
+  and a bit-exact striped LANCZOS halving for every coarser level (margin verified
+  against a whole-array resize in a controlled test before being trusted). Measured
+  6.41 GB peak RSS for the real factor-8 run — a 54% reduction, not an estimate.
+- Building the artwork raster at factor 8 directly from the native source
+  (`canvas_island.py build`) silently skipped `canvas_ref.py`'s reference-render merge
+  patch (the cook gap, the crater, every settlement's built-up pixels — ~12% of the
+  frame) — that tool is hardcoded end to end to the 2× frame. The worst-affected
+  landscape tile's ground classification flipped from 81.5% sand / 15.1% rock to 0.0%
+  sand / 100% rock — found by computing per-tile sand/rock deltas across the whole
+  island grid and looking at the worst case, not the average, at native 1:1. New command
+  `canvas_island.py upsample-merged <factor>` fixes it: bilinear-upsamples the
+  ALREADY-MERGED 2× raster instead of rebuilding from the native source (principled, not
+  a workaround — the reference donor is itself only ~2.5 m/px, coarser than any factor
+  above 2, so re-registering it at a finer canvas scale would add no real information).
+  Re-verified after the fix: whole-island ground-family percentages match the factor-2
+  build almost exactly (57.9/12.5/24.6/5.0 vs 57.9/12.6/24.5/5.0 rock/veg/sand/ash), and
+  the worst remaining per-tile delta anywhere on the island is ±3.1 percentage points,
+  consistent with ordinary resampling noise. `cmd_build` now prints a loud warning if run
+  at a non-2 factor while a 2× merge exists, so this can't silently reintroduce itself.
+
+**Byte-identity acceptance test, factor 2.** The `cmd_tiles` rewrite above is a
+from-scratch reimplementation of how the pyramid is cut; before trusting it at factor 8,
+it was run at factor 2 into a throwaway directory and every file SHA-256'd against the
+real shipped `tiles-art/v2/`: all 1,499 WebP tiles byte-identical. The only difference
+anywhere was `tiles.json`'s own version-specific `urlTemplate` string, exactly as
+expected. This proves both the rewrite's correctness and the opaque-full-coverage
+invariant (every grid cell written, edge tiles padded with the paper colour, no alpha
+channel) in one check, since a materialisation bug or a coverage gap would each have
+shown up as a byte difference somewhere in that 1,499-file set.
+
+**Sparse-region gate, closed rather than assumed.** A concern going in: does the artwork
+style's ink linework (which has a natural stroke weight, unlike a photograph) go thin and
+empty-looking at 4× finer resolution? Checked the actual failure mode directly: the
+densest-content v3 z=3 tile in its own column (`v3/3/80/-87.webp`, real content, not a
+flat region) compared at native 1:1 against what a reader actually sees TODAY at that
+same on-screen zoom — the corresponding `v2/1/20/-22.webp` tile, cropped to the matching
+64×64 sub-region and upscaled 4× with the same bilinear filter the browser's default
+`image-rendering` applies (no `pixelated`/`crisp-edges` override exists anywhere in this
+app's CSS — confirmed, not assumed). **Verdict: v3 is better, not worse or merely equal.**
+The v2-upscaled panel shows visibly blurred contour lines and a mushier, less legible
+stipple texture (an artifact of blur increasing perceived "noise" density, not real
+detail); the v3-native panel shows crisp single-width ink strokes and cleanly legible
+individual stipple marks — genuinely thinner in apparent dot COUNT, but that reads as
+correct pen work rather than as sparseness, once compared directly rather than assumed
+from a static image. A second check on the flattest tile found on the island (a
+cook-gap-interior tile, intentionally blank paper by design — `paint_bare`'s own
+contract) confirmed the SAME flat colour appears identically in both v2 and v3 at that
+location: not a v3-introduced regression, the same intentional design already present in
+the shipped pyramid. Comparison image:
+`auxilliary/mo2-terrain-map/work/artwork/_gate_sparse_x80y-87.png` (left: v2 upscaled
+4×, today's reader; right: v3 native).
+
+**Real HTTP sweep**, `node server/serve.mjs` + `fetch`, driven from the artwork
+manifest's own declared grid and zoom range (not a hardcoded assumption): every one of
+the 23,899 real v3 tiles resolved 200 with `image/webp` content-type and non-zero byte
+length, in 9.5 s. 36 sampled missing positions (outside each level's declared grid)
+resolved a clean 404, never a 500 or wrong content-type. `v2/` was spot-checked and still
+serves normally (rollback path intact). `tiles/v5/` (realistic, untouched this round) was
+spot-checked too and still serves normally.
+
+**Live-browser check: not performed this round**, for the same reason as the island-wide
+props-render round above — no browser tool or Chrome/Edge/Chromium binary available in
+this execution environment, confirmed with the owner directly. Substituted with the byte
+identity test, the sparse-region comparison, the real HTTP sweep, and direct inspection
+of the served bundle bytes above — the same evidence-substitution pattern the
+island-wide props-render round used, not a new one invented for this round.
+
+**Docs updated to match**: `public/map/app/README.md` (tile count/size, version history,
+poster caption reasoning), `src/map/dungeonmode.js`, `poster-dungeon.js`,
+`surfaceplates.js`, `townplates.js` (stale "2.34 m/px artwork / 0.585 m/px realistic"
+comments — both are 0.585 now). `poster-dungeon.js`'s `SURFACE_CONTEXT` constant was
+tuned against the old 2.34 m/px figure and has NOT been re-measured against the new
+0.585 m/px one — flagged in its own comment as unchanged pending review, not silently
+left looking correct. `AGENTS.md` (workspace root, size-budgeted at 16 KB, was at
+16,376/16,384 bytes already): the one stale routing-table entry was fixed with a
+byte-neutral digit swap (`ground 2/render 2/tiles 2 256 v2` → `ground 8/render
+8/tiles 8 256 v3`) rather than adding detail that would have pushed it over budget; the
+fuller `upsample-merged` prerequisite detail was added to
+`auxilliary/mo2-terrain-map/README.md` instead, which the routing table links to and
+which is not budget-constrained. `docs/doc-map.md` checked and left alone — its artwork
+routing row is already abstract enough (`symbols → render → tiles`) that it named no
+specific factor or version to go stale.
+
+**What this does NOT establish, and is marked open rather than assumed clean:**
+`mo2-map/public/map/sarducaa/assets/surfaceplates/surfaceplates.json`'s published `note`
+field still reads "the 2.34 m/px tiles" — that string is DATA, generated by
+`dungeon_plate.py`'s `cmd_publish_surface` (fixed this round, in the private repo), and
+will only carry the correct number after the next real `publish-surface` run, which is
+full pipeline work outside a wiring-switch's scope. Not hand-patched here on purpose: a
+manually-edited generated artifact would silently drift from what the fixed generator
+actually produces next time it runs, which is a worse failure than a known-stale field.
+
 ## The island-wide props-render round (new since the last version of this document)
 
 `registry.js`'s realistic pyramid was switched from `assets/tiles/v4/` (the landscape-material
@@ -592,6 +710,19 @@ above. Kept as a section header rather than deleted, since it is where the
   "does NOT establish" paragraph) — an island-wide coverage check against
   v4's own footprint found zero gaps in v5, which is evidence but not the
   same claim as a Kam-specific re-check.
+- **No live-browser check for the artwork island-wide render round** (above) —
+  same no-browser-in-this-environment reason as the island-wide props-render
+  round below; substituted with the byte-identity test, the sparse-region
+  comparison, the real HTTP sweep, and direct served-bundle inspection.
+- `surfaceplates.json`'s published `note` field still names the pre-switch
+  2.34 m/px figure — the generator (`dungeon_plate.py`) is fixed, but the
+  currently-published JSON is data and won't carry the correct number until
+  the next real `publish-surface` run, out of scope for a wiring switch.
+- `poster-dungeon.js`'s `SURFACE_CONTEXT` constant was tuned against the old
+  2.34 m/px artwork resolution and has not been re-measured against the new
+  0.585 m/px one — the trade-off it approximates (near-native vs. upscaled)
+  is now looser than when it was chosen, not wrong, but unverified at the
+  new number.
 - **No live-browser check this round** (island-wide props-render round,
   above) — no browser tool or Chrome/Edge/Chromium binary available in
   this execution environment. Substituted with a real HTTP sweep, offline
@@ -643,7 +774,12 @@ item this document itself ranked as most worth closing, and it is now
 closed clean, not converted into a finding. Every focus-ring target this
 document ever listed as unseen is now seen. The jungle
 compression-weight outlier flagged two rounds ago is chased to a
-definitive "no bug" rather than left as an open question.
+definitive "no bug" rather than left as an open question. **The artwork
+pyramid switch to v3 (this round) is included in that "publishable":**
+byte-identity proven at factor 2, the worst-case ground defect this round
+found and fixed rather than shipped, the sparse-region concern closed with
+a direct comparison rather than assumed, and every one of the 23,899 real
+tiles resolved over HTTP.
 
 What a reader should know is still open, in order of how much it should
 affect that yes:
@@ -655,22 +791,32 @@ affect that yes:
    re-checked. An island-wide check against v4's own land footprint found
    zero coverage gaps in v5, which is broader evidence but not the same
    claim.
-2. **No live-browser check for the island-wide props-render round** — no
-   browser tool or binary available in this environment; substituted with
-   a real HTTP sweep, offline pixel-exact composites, and structural
-   invariant checks (see that round's own section above for exactly what
-   was and was not covered).
+2. **No live-browser check for the island-wide props-render round or the
+   artwork island-wide render round** — no browser tool or binary
+   available in this environment; substituted with a real HTTP sweep,
+   offline pixel-exact composites, and structural invariant checks (see
+   each round's own section above for exactly what was and was not
+   covered).
 3. **`townplates-art/` has real, measured cropping headroom** (content
    bounding boxes as low as 1.9% of canvas) that the dungeon/surface
    plates do not — a genuine opportunity, not a defect, flagged as a
    candidate task rather than acted on inside a verification pass.
-4. Two smaller, lower-stakes items carried from earlier rounds: the
+4. **`surfaceplates.json`'s published `note` field is stale** (names the
+   pre-switch 2.34 m/px figure) until the next real `publish-surface` run
+   — the generator is already fixed, the published data just hasn't been
+   regenerated through it yet.
+5. **`poster-dungeon.js`'s `SURFACE_CONTEXT` constant is unverified at the
+   artwork pyramid's new 0.585 m/px resolution** — it was tuned against
+   the old 2.34 m/px figure and the trade-off it approximates is now
+   looser, not wrong, but nobody has re-measured what "near-native" means
+   at the new number.
+6. Two smaller, lower-stakes items carried from earlier rounds: the
    first-run-legend/search-summary/plate-layer chrome was reasoned safe
    against the aggregation round rather than freshly re-driven; and
    whether `discoveries.css`'s dead-looking rules are genuinely dead in
    the private live build can't be answered from this repository alone.
 
-None of these four is a defect anyone has observed — they are places
+None of these six is a defect anyone has observed — they are places
 this document is honest about not having looked, or opportunities it
 found and left for someone to decide on, not places it found something
 wrong and left it. That is the entire point of grouping by evidence

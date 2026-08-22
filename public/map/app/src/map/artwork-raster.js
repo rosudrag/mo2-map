@@ -2,13 +2,13 @@
  * The artwork tile pyramid as a RASTER SOURCE, for code that composites its own
  * image instead of putting a layer on the map.
  *
- * Composition fetches the pyramid's OWN tiles (assets/tiles-art/v2/) for a
+ * Composition fetches the pyramid's OWN tiles (assets/tiles-art/v3/) for a
  * requested rectangle and draws them by hand, rather than screenshotting
  * Leaflet's DOM: Leaflet's tile <img>s are CSS-transformed for panning/zooming
  * and partially unloaded outside the viewport (`keepBuffer`), so the DOM never
  * holds one clean raster of the area being exported - see instance.js and
  * README.md's "island tile pyramid" section. Everything here reads
- * assets/tiles-art/v2/tiles.json for geometry; it never touches
+ * assets/tiles-art/v3/tiles.json for geometry; it never touches
  * assets/tiles/v5/ (the realistic pyramid) at all.
  *
  * Rectangles are in the pyramid's own canvas-pixel frame, top-down like any
@@ -20,7 +20,7 @@
  */
 import { clamp } from "./sheet.js";
 
-export const MANIFEST_URL = "assets/tiles-art/v2/tiles.json";
+export const MANIFEST_URL = "assets/tiles-art/v3/tiles.json";
 
 // Simultaneous tile fetches. High enough that a ~650-tile whole-island export
 // finishes in a reasonable number of round trips, low enough that it does not

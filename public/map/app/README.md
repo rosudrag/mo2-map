@@ -123,7 +123,7 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
     category, and at island zoom they used to vanish into a bubble with 90 other landmarks);
     the dungeon itself carries a town-style label, its entrances do not, because four labels
     inside 500 m is a pile rather than a map. Boss rooms stay ordinary pins - they are inside.
-- **Artwork rendering** (`assets/tiles-art/v2/`, 1,499 tiles, ~9 MB) is the **DEFAULT**
+- **Artwork rendering** (`assets/tiles-art/v3/`, 23,899 tiles, ~104 MB) is the **DEFAULT**
   base map; the realistic pyramid above is one click away and is also the fallback when
   this manifest is missing. The SAME island drawn as period cartography - parchment,
   iron-gall ink, a hypsometric glaze, contours at 40 m, hachures on every slope, ground
@@ -132,8 +132,11 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
   on the game's own instances,
   built by the offline pipeline.
   - A version directory is immutable: `v1` was the first cut, `v2` added the ground
-    families and the town footprints. Bump the directory and `artwork-layer.js`'s
-    `MANIFEST` together, exactly as for `tiles/v4`.
+    families and the town footprints, `v3` moved the island-wide render from 2.34 m/px
+    to 0.585 m/px - matching `tiles/v5`'s own native resolution, so neither style falls
+    off a resolution cliff at the other's max zoom. `v2` stays on disk as the rollback
+    path, same as `tiles/v4` for the realistic style. Bump the directory and
+    `artwork-layer.js`'s `MANIFEST` (and `artwork-raster.js`'s `MANIFEST_URL`) together.
   Same canvas frame, same affine, same pyramid geometry as `assets/tiles/v4`, so the two are
   one map in two hands and every pin lands in both.
   - **A style, not a layer.** `src/map/style.js` owns which base pyramid is attached and
@@ -141,7 +144,7 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
     and it lives in the code rather than in the absence of a key, so a first visit and a
     cleared browser agree; only an explicit stored `realistic` switches back.
     `src/map/artwork-layer.js` still builds the artwork `L.tileLayer` lazily - normally
-    that happens immediately, but a reader who stored `realistic` must not pay for 1,499
+    that happens immediately, but a reader who stored `realistic` must not pay for 23,899
     tiles they never look at - and exactly one base pyramid is on the map at any time. The
     button is the top of the bottom-right stack and is **not created at all** when the
     manifest is absent: with no artwork on disk the realistic map is all there is, and a
@@ -180,14 +183,19 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
       (see **Maps** below).
     - The surface panel is the artwork pyramid enlarged to the panel box (deliberately - a
       dungeon poster is the illustrated style regardless of which style the live map has
-      active), and its caption prints BOTH resolutions (`0.96 m/px, from 2.34 m/px tiles`)
-      because 2.34 m/px is the finest this panel draws from, so anything sharper on this page
-      would be an upscale sold as a survey. (The realistic pyramid is finer now, 0.585 m/px -
-      not a limit of the game data even for artwork's own style: all 12 entrance packages hold
-      placed geometry (85-3,397 instances each, `poihunt Sarducaa/Dungeons`), so a 0.25 m/px
-      entrance plate per door is renderable in either style - it needs a `dungeon_plate.py`
-      pass for above-ground exteriors and a published plate set, which this export does not
-      have and does not fake.)
+      active), and its caption prints BOTH resolutions (the achieved panel density, and
+      "from N m/px tiles" where N is `artwork.maxZoom`'s own resolution - 0.585 m/px now,
+      it read 2.34 m/px before `tiles-art/v3`) because that second number is the finest
+      this panel draws from, so anything sharper on this page would be an upscale sold as
+      a survey. `SURFACE_CONTEXT` (`poster-dungeon.js`) sizes the panel's rectangle and was
+      tuned against the 2.34 m/px figure; it has not been re-measured against 0.585 m/px,
+      so the achieved-density number in the caption may now read finer than it used to
+      without that box having been re-checked for what "near-native" means at the new
+      resolution. (Not a limit of the game data even for artwork's own style: all 12
+      entrance packages hold placed geometry (85-3,397 instances each,
+      `poihunt Sarducaa/Dungeons`), so a 0.25 m/px entrance plate per door is renderable in
+      either style - it needs a `dungeon_plate.py` pass for above-ground exteriors and a
+      published plate set, which this export does not have and does not fake.)
     - Every panel carries its OWN scale bar: one bar for a sheet whose surface panel is a
       different scale from its level panels would be wrong on at least one panel.
 - Pins: a committed snapshot at `data/static/pins.json` (`sources/static/pins.js`, `data.js`), read-only, with taxonomy derived from the rows themselves. A missing or broken snapshot no longer hides the YOU blip — the page boots an empty catalogue instead.

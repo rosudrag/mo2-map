@@ -3,9 +3,9 @@ import { createPlateOverlay } from "./plate-overlay.js";
 
 // Town plates: 0.25 m/px orthographic renders of each town, built from the GAME'S
 // OWN placed geometry via the offline pipeline. The island tiles top out at
-// 2.34 m/px in the artwork style, 0.585 m/px in the realistic style - and a
-// town's buildings are actors the landscape bake cannot contain, so without
-// these a town is a smudge of ground colour no matter how far you zoom.
+// 0.585 m/px now (either style) - and a town's buildings are actors the
+// landscape bake cannot contain, so without these a town is a smudge of
+// ground colour no matter how far you zoom.
 //
 // Each plate reaches ~380 m PAST the town and fades out over its last 110 m, so
 // zooming in near a town keeps real rocks, roads, trees and shore at plate

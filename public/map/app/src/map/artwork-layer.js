@@ -2,7 +2,7 @@
  * The hand-drawn artwork pyramid: a second `L.tileLayer` for the SAME canvas
  * frame as the realistic extraction (map/instance.js), built by the offline
  * pipeline and published to
- * assets/tiles-art/v2/{z}/{x}/{y}.webp + assets/tiles-art/v2/tiles.json. The
+ * assets/tiles-art/v3/{z}/{x}/{y}.webp + assets/tiles-art/v3/tiles.json. The
  * manifest shares tiles/v5/tiles.json's exact schema and pyramid geometry.
  *
  * Exactly one base pyramid is ever attached to the map - see map/style.js,
@@ -18,9 +18,12 @@
 import { map, bounds, realisticLayer } from "./instance.js";
 
 // A version directory is IMMUTABLE, like assets/tiles/v5 - a rebuild bumps it
-// (v1 -> v2 when the ground families and the town footprints landed) so a cache
-// can never serve a mixture of two renderings.
-const MANIFEST = "assets/tiles-art/v2/tiles.json";
+// (v1 -> v2 when the ground families and the town footprints landed; v2 -> v3
+// when the island-wide render moved from 2.34 m/px to 0.585 m/px, matching the
+// realistic pyramid's own native zoom - v2 stays on disk as the rollback path,
+// same as tiles/v4 for the realistic style) so a cache can never serve a
+// mixture of two renderings.
+const MANIFEST = "assets/tiles-art/v3/tiles.json";
 const ERROR_TILE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 // Memoized: the manifest is small JSON and is fetched once at boot, because it
