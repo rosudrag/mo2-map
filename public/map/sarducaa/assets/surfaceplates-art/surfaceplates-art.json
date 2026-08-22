@@ -1,11 +1,11 @@
 {
- "note": "Surface-above-dungeon plates, same geometry/bounds/schema as surfaceplates.json, styled as a hand-inked plan (town_plate.py: paint_town_artwork) - parchment paper, iron-gall ink walls, hatch density for height. Same canvas frame as the tiles and surfaceplates.json.",
+ "note": "Surface-above-dungeon plates, same geometry/bounds/schema as surfaceplates.json, styled as a hand-inked plan of the entrance structures alone (town_plate.py: paint_town_artwork, applied unmodified against a dungeon-surface geometry dict - entrances are this plate's own subject the same way a town's buildings are its subject). The surrounding landscape apron is left transparent: at 0.585 m/px the artwork island pyramid (tiles-art/v3) now draws that same rock/cliff/forest richer than this plate's own flat parchment did, so the plate shows only iron-gall ink walls and hatch density for height, and lets the island stand as its own context. Same canvas frame as the tiles and surfaceplates.json.",
  "plates": [
   {
    "key": "argkepher",
    "dungeon": "Arg Kepher",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates-art/argkepher.185ce519e0.webp",
+   "file": "assets/surfaceplates-art/argkepher.7509d1f37e.webp",
    "metresPerPx": 0.25,
    "size": [
     6464,
@@ -27,7 +27,7 @@
    "key": "jungle",
    "dungeon": "Jungle",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates-art/jungle.b41432c225.webp",
+   "file": "assets/surfaceplates-art/jungle.e959a282ce.webp",
    "metresPerPx": 0.25,
    "size": [
     5611,
@@ -49,7 +49,7 @@
    "key": "tuzsaltmines",
    "dungeon": "Tuz Salt Mines",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates-art/tuzsaltmines.bbb25be217.webp",
+   "file": "assets/surfaceplates-art/tuzsaltmines.025223a2c7.webp",
    "metresPerPx": 0.25,
    "size": [
     4568,
@@ -71,7 +71,7 @@
    "key": "yelkeskarhideout",
    "dungeon": "Yel Keskar",
    "kind": "dungeon-surface",
-   "file": "assets/surfaceplates-art/yelkeskarhideout.af4d4e9130.webp",
+   "file": "assets/surfaceplates-art/yelkeskarhideout.f7ad318029.webp",
    "metresPerPx": 0.25,
    "size": [
     4175,
