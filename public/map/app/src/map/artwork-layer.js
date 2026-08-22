@@ -30,7 +30,7 @@ const ERROR_TILE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALA
 // is what tells style.js whether there is an artwork pyramid at all. The layer
 // itself is still built lazily by loadLayer() - artwork is the default style, so
 // normally that happens immediately, but a reader who has stored `realistic`
-// must not pay for 1,499 artwork tiles they never look at.
+// must not pay for 23,899 artwork tiles they never look at.
 let manifestPromise = null;
 function loadManifest() {
   if (!manifestPromise) {
