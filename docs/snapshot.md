@@ -47,8 +47,8 @@ to know or care which pipeline found the row.
   `manifest.json`, declared once instead of reconstructed per row. Adds the
   `map`/`dungeon` fields a level-aware reader needs, drops the duplicate
   canvas-pixel position, and removes several classes of noise measured in the
-  underlying survey (see "What the sanitisation removed" below). 1,977
-  points, one file, 154 KB.
+  underlying survey (see "What the sanitisation removed" below). 1,520
+  points, one file, 115 KB.
 
 ## Files
 
@@ -109,7 +109,7 @@ text — there is exactly one place a category can be declared.
 
 | Group | Category | Label | Count |
 |---|---|---|---|
-| Gathering | `resource` | Resources | 925 |
+| Gathering | `resource` | Resources | 468 |
 | Wildlife | `creature` | Creatures | 442 |
 | Wildlife | `bandit` | Hostile humanoids | 61 |
 | Wildlife | `camp` | Camps & lairs | 88 |
@@ -164,8 +164,8 @@ on that key rather than on the category.
 
 ## What the sanitisation removed
 
-v2 published 3,953 points across two files, 454 KB. v3 publishes 1,977 points
-in one file, 154 KB. The cuts below are each measured and reported by the
+v2 published 3,953 points across two files, 454 KB. v3 publishes 1,520 points
+in one file, 115 KB. The cuts below are each measured and reported by the
 producer on every export run — one row per rule, in the same "measure it,
 don't assume it" style as the rest of this document.
 
@@ -173,10 +173,12 @@ don't assume it" style as the rest of this document.
 |---|---|---|
 | Wrong continent | 327 | v2 published 305 points from Haven, the tutorial island, as Sarducaa — 8.6% of its catalogue, including 91 of its 136 Granum rows. Sarducaa's rows sit in `z` ∈ [−407.2, +231.8]; Haven's in `z` ∈ [−1641.6, −1301.7] — an 894.5 m gap with nothing at all inside it. v2's only guard was a class-name regex that caught 18 of 1,569 raw Haven rows (1.1%). |
 | Loot containers | 376 | Chest/urn/barrel/crate — 11% of v2's published catalogue, and the 2nd/3rd/5th most ubiquitous classes in the whole surveyed dataset (Chest present in 25.3% of surveyed 500 m patches, Barrel 19.5%, Urn 18.7%). |
-| Ubiquitous classes | 3,032 | A class present in more than 15% of surveyed 500 m patches describes the species, not the map. v2 applied this test to plants only; v3 extends it to creatures — Jungle Horse (40.2% spread, and alone 10% of every point on v2's map), Ratzar Worker, Terrorbird, Desert Clothos Spider, Panther and Gamal Ruah. |
+| Ubiquitous classes | 1,081 | A class present in more than 15% of surveyed 500 m patches describes the species, not the map. v2 applied this test to plants only; v3 extends it to creatures — Jungle Horse (40.2% spread, and alone 10% of every point on v2's map), Ratzar Worker, Terrorbird, Desert Clothos Spider, Panther and Gamal Ruah. Its plant half is now mostly subsumed by the foliage rule below, which runs first. |
+| Foliage stands | 2,272 | Vegetation the game spawns in stands (`HerbNode_*`) rather than places one plant at a time (`BP_PickableField_*`) — Ficos Leaves, Muse Fruit, Capsicum, Tiansia Moss, Brown Shorekelp, Argus Sponge, Green Spica, Beaver Tail Rose, Prickly Pear Flower, Saguaro Pearl, Common Reedmace, Steppe Rush, Spargia Reed, Toghair Globule. The client's own two classes of gatherable plant ARE the line between "growing everywhere in this biome" and "a herb somebody placed", so what survives is the hand-placed alchemy stock (Nymph Herb, Umbilica, Drakon, Glimmercap, Salvia, Sea Dew, Celaeno, Tidewrack …) plus two named exceptions: Aloevera, a stand measured as localised (5 of 59 surveyed areas), and Purified Water, which is a refill point and not vegetation. |
+| Bulk wood | 154 | Lumber stands (`LumberNode_*`), all of it Brownwood — 451 raw rows, and the forest that sits on top of the Sarducaa desert floor. The woods worth a trip are kept by name: Stonewood (which the client ships as a *mining* node, `Stone_Stonewood`) and Ironwood, the rarest and not yet surveyed. |
 | Hostile humanoids near a camp | 92 | Within 300 m of a camp the game files already name — the camp's own position and faction were already published from an authoritative source, so a nearby individual humanoid added a pin without adding a fact. |
 | Duplicate town-plan points | 80 | Standing on an extracted point that already said more. 160 of v2's 397 pins shared a position with another pin; 66 of its 125 town-plan pins (53%) sat on the exact pixel of an extracted pin — `Ashir Craft` under `Armour Bench` + `Bow Bench` + `Shield Bench`, `Beth Jedda Extractors` under `Crusher` + `Grinder` + `Grizzly`. |
-| No level to file on | 37 rows + 4 extracted POIs | Measured to be inside a dungeon, but the source data names which dungeon without saying which level — withheld rather than drawn on the surface. See "Known gaps" below. |
+| No level to file on | 19 rows + 4 extracted POIs | Measured to be inside a dungeon, but the source data names which dungeon without saying which level — withheld rather than drawn on the surface. See "Known gaps" below. |
 | Loot props | 17 | Props, not containers — see "Loot containers" above for the class-level cut. |
 | Event content | 3 | Rows tied to time-limited event content, not the standing map. |
 | Engine placeholders | 9 | Rows whose own identity reduces to no name (e.g. a raw class of `PickableFieldInstance`) — tell a reader less than an absent row does. |

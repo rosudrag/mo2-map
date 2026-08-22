@@ -84,21 +84,19 @@
  * widening the shared generic to a naming rule it would need for no other
  * caller.
  *
- * ---- read-only, and the `n` popup fact ----------------------------------
+ * ---- read-only ----------------------------------------------------------
  *
  * This descriptor declares no save/create/remove, `can.drag` is false (so
  * poi/markers.js never constructs a marker draggable in the first place —
  * see isDragCapable()'s own doc), and it never calls poi/markers.js's
  * setMarkerActions, so the popup built there renders no Edit / Drag / Delete
- * button. `n` — how many things a merged point represents, OMITTED when 1 —
- * gets its own read-only line through poi/markers.js's setPopupFacts(), the
- * same slot shape as setMarkerActions/setDungeonLink and NOT a reuse of
- * discoveries/markers.js's setDiscoveryPopupFacts (see that function's own
- * doc for why the two `count`-shaped facts cannot share a renderer).
+ * button. A published row's `n` (how many things a merged point represents)
+ * is deliberately NOT surfaced: it is a publishing detail, not something a
+ * reader of the map wants in a popup.
  */
 import { boot } from "../../poi/index.js";
 import { getCategories } from "../../poi/state.js";
-import { presentCountFor, setPopupFacts } from "../../poi/markers.js";
+import { presentCountFor } from "../../poi/markers.js";
 import { iconName } from "../../ui/icons.js";
 import { worldToMap } from "../../map/projection.js";
 import { adopt, attachStore, presentation, wireNotifications } from "../../poi/view.js";
@@ -189,32 +187,12 @@ function reshape(manifest, rows) {
       dungeon: row.dungeon || null,
       note: null,
       disposition: null,
-      // `n` (>= 2, omitted when 1 by the publish contract) is the only extra
-      // fact a point carries. It has nowhere else to live — this source has
-      // no note/disposition/provenance of its own to fold into `meta` the
-      // way pins.js once did with world_x/y — so it is meta's only member,
-      // read back out by the popupFacts function registered below.
-      meta: Number.isFinite(row.n) && row.n > 1 ? { n: row.n } : null
+      meta: null
     });
   }
 
   return { categories: categories, types: {}, counts: {}, type_counts: {}, markers: markers, can: CAN };
 }
-
-/**
- * The `n` line: "how many things share this exact point", the one fact a
- * published row carries beyond its name, category and position. Registered
- * once, at import time, exactly like discoveries.js's old setDiscoveryPopupFacts
- * call — this module is the only one that will ever ask poi/markers.js for a
- * facts line, so there is nothing to guard against a second caller
- * overwriting it.
- */
-function popupFacts(poi) {
-  const n = poi.meta && poi.meta.n;
-  if (!(n > 1)) { return ""; }
-  return n + " things share this exact point";
-}
-setPopupFacts(popupFacts);
 
 const source = {
   id: "points",

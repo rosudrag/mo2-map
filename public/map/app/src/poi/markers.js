@@ -27,21 +27,6 @@ let markerActions = null;
 // dungeon offers a way in. Registered rather than imported because dungeonmode
 // imports this module to ask what a marker is.
 let dungeonLink = null;
-// Same idea again, for one read-only fact line under the category line — e.g.
-// sources/static/points.js's `n` (how many things share this exact point).
-// Optional and additive like the two slots above: a source that never calls
-// this renders no extra line, so nothing changes for a source that has never
-// needed one. Deliberately its OWN slot rather than a reuse of
-// discoveries/markers.js's setDiscoveryPopupFacts — that one's `count` means
-// "records merged into a live grid cell", a different fact from this
-// catalogue's `n`, and a shared renderer cannot label both honestly from one
-// string (see that module's own popupFacts doc).
-let popupFacts = null;
-
-/** Registers one read-only facts line, appended under the category line. */
-export function setPopupFacts(fn) {
-  popupFacts = fn;
-}
 
 /** Registers the popup action handlers: { edit, drag, askDelete }. */
 export function setMarkerActions(actions) {
@@ -121,18 +106,6 @@ function buildPopupNode(marker) {
     "<h5>" + escapeHtml(poi.name) + "</h5>" +
     '<div class="layer"><img src="' + resolveIconSrc(poi.typeIcon, poi.icon || cat.icon) +
     '" alt="" width="14" height="14" />' + typeLine + "</div>";
-  if (popupFacts) {
-    const factsText = popupFacts(poi);
-    if (factsText) {
-      // Reuses the same muted single-line style as the category line above
-      // it (and paste-location.js's own pin popup) rather than a new class —
-      // one more read-only fact does not earn its own layout.
-      const facts = document.createElement("div");
-      facts.className = "layer";
-      facts.textContent = factsText;
-      root.appendChild(facts);
-    }
-  }
 
   // The way IN, and the reason the dungeon map needs no zooming to find: the pin
   // that names a dungeon is the door. First in the row, and styled primary,

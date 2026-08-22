@@ -139,6 +139,45 @@ on every load so no saved filter state or stale bundle could carry a result:
 holds 2 of the 7 tiles its neighbour has, `-1/8` does not exist) and dates from
 the commit that promoted the v5 pyramid, not from anything here.
 
+## The flora and lumber round (new since the last version of this document)
+
+Two more exclusions in `trainer-web/bin/export-snapshot.mjs`, both on
+`resource` rows, both keyed on the GAME's own node classes rather than on a
+rarity guess or a per-name lore call: `LumberNode_*` (a wood stand) and
+`HerbNode_*` (a foliage stand) are cut, while `BP_PickableField_*` — a herb an
+author placed one at a time — is published. Contract text and the measured
+counts: `docs/snapshot.md`'s "Bulk wood" and "Foliage stands" rows.
+
+**Named exceptions, and why each is one:** `Aloevera` (a stand, but measured
+localised at 5 of 59 surveyed areas and the alchemy stock worth riding to) and
+`PurifiedWater` (a HerbNode that is not vegetation — it is where you refill)
+stay; `Stonewood` and `Ironwood` are named in the wood keep set even though
+Stonewood ships as `MiningNode_Stonewood` and Ironwood has never been
+surveyed, so a future re-dump cannot quietly publish either under the other's
+class.
+
+**Measured before/after**: 1,977 points / 154 KB → 1,520 points / 115 KB;
+`resource` 925 → 468. The two new rules removed 154 rows (all Brownwood) and
+2,272 rows of foliage; the ubiquity rule now reports 1,081 rather than 3,032
+because the foliage cut runs first and takes the plant half of what it used to
+catch — the threshold itself is unchanged.
+
+**Verified against the regenerated files**, not off the exporter's log:
+`node bin/validate-snapshot.mjs public/map/sarducaa/data/static` passes, and
+`npm test` is 88/88. The 26 `resource` names left in `points.json` are the
+hand-placed herbs (Nymph Herb 62, Umbilica 29, Drakon 24, Glimmercap 22,
+Salvia 5, Sea Dew 5, Yellow Cepa 5, Gamun 4, Celaeno 1, Tidewrack 1), the
+minerals and stones (Calx 76, Granum 44, Calamine 42, Rock Crystal 16, Sweat
+Salt 14, Coal 12, Salt 10, Bor 6, Gabore 3, Nitre 2, Salt Crystal 2, Sulfur 2,
+Tephra 2, Stonewood 1), and the two exceptions (Aloevera 73, Purified Water 5).
+No `LumberNode`/`HerbNode` name survives except those two.
+
+**Verified live in a real browser** (headless Chromium against the local
+server): the surface filter head reads `1499` — 1,520 minus the 21
+dungeon-interior points, exactly as before this round — `Resources` reads
+`468`, and the only `wood`-named rows on the whole map are the one Stonewood
+resource node and the three extracted `Stonewood Tree` landmarks.
+
 ## The artwork island-wide render round (new since the last version of this document)
 
 `style.js`'s artwork pyramid was switched from `assets/tiles-art/v2/` (2.34 m/px native,
