@@ -1,18 +1,21 @@
 /*
  * Everything about the discovery catalogue that is presentation, not transport:
  * the store mirror, the list/editor descriptor pieces (title, groups, sorts,
- * fields…) and reveal-on-the-map. Both the private repo's own live
- * discoveries source (the live source, DELETE-capable) and this
- * package's sources/static/discoveries.js (the read-only public build) build
- * their descriptor by spreading `presentation` over their own
- * id/can/attach/load/save/create/remove — the two things that actually differ
- * between "rows arrive from a poll" and "rows arrive once from a committed
- * snapshot".
+ * fields…) and reveal-on-the-map.
+ *
+ * A downstream consumer of this package boots its own live, DELETE-capable
+ * discoveries source and builds its descriptor by spreading `presentation` over
+ * its own id/can/attach/load/save/create/remove. This package's own static page
+ * no longer has a discoveries source at all: snapshot v3 publishes one
+ * `points.json` under a single public category vocabulary and drives the poi/
+ * layer instead (sources/static/points.js), so discoveries/ is now consumed
+ * only from outside. It stays because that consumer imports it directly - this
+ * module, state.js and markers.js are public API, not dead code.
  *
  * Nothing here imports discoveries/api.js or discoveries/sync.js: every
  * function operates on rows already in discoveries/state.js, however they got
- * there, which is what lets the static build import this module with zero
- * network code in its bundle.
+ * there, which is what let a static build import this module with zero network
+ * code in its bundle and is why the split is still worth keeping.
  */
 import { map } from "../map/instance.js";
 import { worldToMap } from "../map/projection.js";

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "4afa4678",
+    "cat": "resource",
+    "name": "Test Spawn",
+    "x": 100,
+    "y": 200,
+    "n": 5,
+    "first_seen_at": "2026-01-15"
+  }
+]

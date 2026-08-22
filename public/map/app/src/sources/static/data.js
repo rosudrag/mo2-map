@@ -7,7 +7,7 @@
  */
 const BASE = "data/static/";
 
-/** Fetches and parses one committed snapshot file, e.g. "pins.json". */
+/** Fetches and parses one committed snapshot file, e.g. "points.json". */
 export function loadSnapshot(name) {
   return fetch(BASE + name, { cache: "no-store" }).then(function (r) {
     if (!r.ok) { throw new Error(name + " " + r.status); }

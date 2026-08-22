@@ -17,6 +17,23 @@ let catEnabled = {};
 let typeEnabled = {};
 let expanded = {};
 let allMarkers = [];
+// Whether a marker this catalogue is about to build should ever be
+// construction-time draggable. Read from the OPTIONAL `data.can` a source's
+// load() hands to initState() (via poi/index.js's boot()); a source that
+// omits it — every source until this flag existed — gets `true`, so the live
+// catalogue's own editable behaviour does not change by not opting in.
+//
+// This exists because `draggable: true` used to be unconditional in
+// makePoiMarker regardless of `can.drag`: Leaflet stamps the
+// `leaflet-marker-draggable` CSS class onto a marker's icon the moment a
+// draggable-by-construction marker is added to the map (dragging.enable()
+// runs inside its own onAdd), before poi/view.js's watchMarker() gets a
+// chance to call dragging.disable() and strip it back off. On a source with
+// no editor to ever call dragging.enable() again (the public, static build)
+// that is a pointless flash of drag affordance in the DOM for a pin nothing
+// can move — cheaper and more honest to never construct the marker as
+// draggable in the first place.
+let dragCapable = true;
 
 // Declared here, beside the groups that use them, so the stacking order does
 // not depend on some other module having been imported first.
@@ -68,6 +85,28 @@ export function initState(data) {
   });
 
   allMarkers = [];
+  dragCapable = data.can ? !!data.can.drag : true;
+}
+
+export function isDragCapable() {
+  return dragCapable;
+}
+
+/**
+ * Whether `id` names a category whose points are PLACE NAMES: permanently
+ * labelled, never clustered, drawn on the top "towns" pane (poi/markers.js's
+ * `labelled`/`priority` and poi/icons.js's poiIcon()). Two spellings of one
+ * concept because two different producers name it: the live catalogue this
+ * app is booted with (a downstream consumer) calls the category "towns"
+ * (plural, its own long-standing id); the v3 snapshot
+ * (sources/static/points.js) calls it "town" (singular — manifest.json's own
+ * id, since the static build never had this category before v3). Centralised
+ * here, the bottom of the poi/ stack, so nothing above re-decides "is this a
+ * town" by string comparison a third time — map/poster.js's own labelling
+ * check imports this too.
+ */
+export function isTownCategory(id) {
+  return id === "towns" || id === "town";
 }
 
 // ---- change notification ----

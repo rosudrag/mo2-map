@@ -1,0 +1,10 @@
+[
+  {
+    "id": "invalid-id",
+    "cat": "invalid_kind",
+    "name": "Test",
+    "x": 100.5,
+    "y": 200,
+    "owner": "someone"
+  }
+]

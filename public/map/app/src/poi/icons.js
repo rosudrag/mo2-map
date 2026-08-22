@@ -1,24 +1,23 @@
 // Leaflet divIcons for the pin catalogue.
 import { escapeHtml } from "../util/html.js";
-import { TABLER, GAMEICONS } from "../util/assets.js";
+import { iconSrc } from "../util/assets.js";
+import { isTownCategory } from "./state.js";
 
 // Plain pins are interchangeable, so they are memoised per colour+glyph. Town
 // icons embed the place name and cannot be shared.
 const iconCache = {};
 
 /*
- * Glyph resolution order: a marker's own
- * type-level icon wins over its category icon, which falls back to the
- * generic pin — a type is a narrower classification than its category, so it
- * is always the more specific glyph when one is set. `game:<name>` names one
- * of the seven SVGs redrawn from the game's own icon set rather than the
- * closed Tabler set.
+ * Glyph resolution order: a marker's own type-level icon wins over its
+ * category icon, which falls back to the generic pin - a type is a narrower
+ * classification than its category, so it is always the more specific glyph
+ * when one is set. Turning the winner into a URL is util/assets.js's iconSrc,
+ * shared with the filter panel, because a category's icon is drawn in both
+ * places and a `game:` prefix only one of them understood is how the panel
+ * ended up requesting `tabler/game:town.svg`.
  */
 export function resolveIconSrc(typeIcon, categoryIcon) {
-  const icon = typeIcon || categoryIcon || "map-pin";
-  return icon.startsWith("game:")
-    ? GAMEICONS + icon.slice("game:".length) + ".svg"
-    : TABLER + icon + ".svg";
+  return iconSrc(typeIcon || categoryIcon);
 }
 
 export function markerIcon(color, categoryIcon, typeIcon) {
@@ -56,7 +55,7 @@ export function townIcon(color, categoryIcon, name, typeIcon) {
 }
 
 export function poiIcon(cat, displayName, typeIcon) {
-  if (cat.id === "towns") {
+  if (isTownCategory(cat.id)) {
     return townIcon(cat.color, cat.icon, displayName, typeIcon);
   }
   return markerIcon(cat.color, cat.icon, typeIcon);

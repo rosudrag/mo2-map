@@ -1,1 +1,264 @@
-{"id": "sarducaa", "schema_version": "v2", "generated": "2026-08-19", "counts": {}}
+{
+  "id": "sarducaa",
+  "schema_version": "v3",
+  "generated": "2026-08-19",
+  "groups": [
+    {
+      "id": "gathering",
+      "label": "Gathering"
+    },
+    {
+      "id": "wildlife",
+      "label": "Wildlife"
+    },
+    {
+      "id": "settlement",
+      "label": "Settlements"
+    },
+    {
+      "id": "crafting",
+      "label": "Crafting"
+    },
+    {
+      "id": "faith",
+      "label": "Faith"
+    },
+    {
+      "id": "world",
+      "label": "World"
+    },
+    {
+      "id": "interior",
+      "label": "Dungeon interior"
+    }
+  ],
+  "categories": [
+    {
+      "id": "resource",
+      "label": "Resources",
+      "group": "gathering"
+    },
+    {
+      "id": "creature",
+      "label": "Creatures",
+      "group": "wildlife"
+    },
+    {
+      "id": "bandit",
+      "label": "Hostile humanoids",
+      "group": "wildlife"
+    },
+    {
+      "id": "camp",
+      "label": "Camps & lairs",
+      "group": "wildlife"
+    },
+    {
+      "id": "town",
+      "label": "Towns",
+      "group": "settlement"
+    },
+    {
+      "id": "bank",
+      "label": "Banks",
+      "group": "settlement"
+    },
+    {
+      "id": "vendors",
+      "label": "Vendors",
+      "group": "settlement"
+    },
+    {
+      "id": "broker",
+      "label": "Brokers",
+      "group": "settlement"
+    },
+    {
+      "id": "guard",
+      "label": "Guards",
+      "group": "settlement"
+    },
+    {
+      "id": "stable",
+      "label": "Stables",
+      "group": "settlement"
+    },
+    {
+      "id": "postal",
+      "label": "Postal service",
+      "group": "settlement"
+    },
+    {
+      "id": "tasks",
+      "label": "Task givers",
+      "group": "settlement"
+    },
+    {
+      "id": "library",
+      "label": "Libraries",
+      "group": "settlement"
+    },
+    {
+      "id": "housing",
+      "label": "Housing",
+      "group": "settlement"
+    },
+    {
+      "id": "elevator",
+      "label": "Elevators",
+      "group": "settlement"
+    },
+    {
+      "id": "guild",
+      "label": "Guild stones",
+      "group": "settlement"
+    },
+    {
+      "id": "training",
+      "label": "Training",
+      "group": "settlement"
+    },
+    {
+      "id": "crafting",
+      "label": "Crafting benches",
+      "group": "crafting"
+    },
+    {
+      "id": "refining",
+      "label": "Refining",
+      "group": "crafting"
+    },
+    {
+      "id": "cooking",
+      "label": "Cooking",
+      "group": "crafting"
+    },
+    {
+      "id": "butchery",
+      "label": "Butchery",
+      "group": "crafting"
+    },
+    {
+      "id": "alchemy",
+      "label": "Alchemy & botany",
+      "group": "crafting"
+    },
+    {
+      "id": "trinkets",
+      "label": "Trinkets",
+      "group": "crafting"
+    },
+    {
+      "id": "priest",
+      "label": "Priests",
+      "group": "faith"
+    },
+    {
+      "id": "spiritism",
+      "label": "Spiritism",
+      "group": "faith"
+    },
+    {
+      "id": "wayshrine",
+      "label": "Wayshrines",
+      "group": "faith"
+    },
+    {
+      "id": "dungeon",
+      "label": "Dungeons",
+      "group": "world"
+    },
+    {
+      "id": "entrance",
+      "label": "Dungeon entrances",
+      "group": "world"
+    },
+    {
+      "id": "ruins",
+      "label": "Ruins",
+      "group": "world"
+    },
+    {
+      "id": "tower",
+      "label": "Supply towers",
+      "group": "world"
+    },
+    {
+      "id": "landmark",
+      "label": "Landmarks",
+      "group": "world"
+    },
+    {
+      "id": "cave",
+      "label": "Caves",
+      "group": "world"
+    },
+    {
+      "id": "exit",
+      "label": "Ways out",
+      "group": "interior"
+    },
+    {
+      "id": "boss",
+      "label": "Boss rooms",
+      "group": "interior"
+    },
+    {
+      "id": "journal",
+      "label": "Journals",
+      "group": "interior"
+    },
+    {
+      "id": "lever",
+      "label": "Levers",
+      "group": "interior"
+    },
+    {
+      "id": "loot",
+      "label": "Loot",
+      "group": "interior"
+    }
+  ],
+  "counts": {
+    "points": 1,
+    "by_category": {
+      "resource": 1,
+      "creature": 0,
+      "bandit": 0,
+      "camp": 0,
+      "town": 0,
+      "bank": 0,
+      "vendors": 0,
+      "broker": 0,
+      "guard": 0,
+      "stable": 0,
+      "postal": 0,
+      "tasks": 0,
+      "library": 0,
+      "housing": 0,
+      "elevator": 0,
+      "guild": 0,
+      "training": 0,
+      "crafting": 0,
+      "refining": 0,
+      "cooking": 0,
+      "butchery": 0,
+      "alchemy": 0,
+      "trinkets": 0,
+      "priest": 0,
+      "spiritism": 0,
+      "wayshrine": 0,
+      "dungeon": 0,
+      "entrance": 0,
+      "ruins": 0,
+      "tower": 0,
+      "landmark": 0,
+      "cave": 0,
+      "exit": 0,
+      "boss": 0,
+      "journal": 0,
+      "lever": 0,
+      "loot": 0
+    }
+  }
+}

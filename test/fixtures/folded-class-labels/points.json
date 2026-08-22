@@ -1,0 +1,24 @@
+[
+  {
+    "id": "76d9d725",
+    "cat": "resource",
+    "name": "Iron Ore",
+    "x": 1500,
+    "y": -2500,
+    "n": 4
+  },
+  {
+    "id": "686403d0",
+    "cat": "priest",
+    "name": "Red Priest",
+    "x": 1600,
+    "y": -2400
+  },
+  {
+    "id": "40196749",
+    "cat": "camp",
+    "name": "Wolf Den",
+    "x": 1800,
+    "y": -2200
+  }
+]

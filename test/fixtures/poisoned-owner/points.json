@@ -1,0 +1,10 @@
+[
+  {
+    "id": "b663fff4",
+    "cat": "resource",
+    "name": "Test",
+    "x": 100,
+    "y": 200,
+    "owner": "PlayerName"
+  }
+]

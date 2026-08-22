@@ -1,0 +1,24 @@
+[
+  {
+    "id": "cf7362b4",
+    "cat": "resource",
+    "name": "BP_Ore_Iron_C",
+    "x": 1500,
+    "y": -2500
+  },
+  {
+    "id": "8aeb5849",
+    "cat": "resource",
+    "name": "HerbNode_FicosLeaves",
+    "x": 1600,
+    "y": -2400,
+    "n": 2
+  },
+  {
+    "id": "06ce2704",
+    "cat": "resource",
+    "name": "MiningNode_Granum",
+    "x": 1700,
+    "y": -2300
+  }
+]

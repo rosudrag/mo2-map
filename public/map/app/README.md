@@ -198,7 +198,7 @@ Paths below are relative to `public/map/sarducaa/` unless stated otherwise.
       published plate set, which this export does not have and does not fake.)
     - Every panel carries its OWN scale bar: one bar for a sheet whose surface panel is a
       different scale from its level panels would be wrong on at least one panel.
-- Pins: a committed snapshot at `data/static/pins.json` (`sources/static/pins.js`, `data.js`), read-only, with taxonomy derived from the rows themselves. A missing or broken snapshot no longer hides the YOU blip — the page boots an empty catalogue instead.
+- Points: a committed snapshot at `data/static/points.json` (`sources/static/points.js`, `data.js`), read-only, replacing the old `pins.js` + `discoveries.js` split — one row shape for every point regardless of which pipeline produced it. Taxonomy — categories, labels, group membership — is read from `manifest.json`'s `categories`/`groups` arrays, never derived by slugifying row text (see `../../../docs/snapshot.md`). A missing or broken snapshot no longer hides the YOU blip — the page boots an empty catalogue instead.
 - Icons: Tabler outline SVGs used by categories at `assets/tabler/` (committed). Full Tabler tree under `../tabler-icons-3.45.0/` is optional/local only.
 
 - **Maps** (`src/map/active-map.js`, `maps` table): the island's surface is one map and
@@ -256,6 +256,16 @@ This repo ships exactly one build: the public, API-less one
 allowed to carry network code to a live endpoint (see `main-static.js`'s own
 header comment for the enforced boundary).
 
+This app is also consumed as a package: a downstream consumer of this
+package imports `poi/`, `discoveries/`, `ui/`, `map/`, `view/`, `registry/`,
+`util/` and `you/` directly and supplies its own live data source. That is
+why `src/discoveries/` (`state.js`, `view.js`, `markers.js`) still ships even
+though `main-static.js` no longer registers a discoveries source of its own
+— the static build's only marker source is the v3 points source
+(`sources/static/points.js`) over the `poi/` layer below it; the
+`discoveries/` modules are that downstream consumer's own public API
+surface, not dead code left behind by the cutover.
+
 - `npm run build` (`bin/build.mjs`) bundles `src/main-static.js` with esbuild
   into `dist/app-static.js` / `dist/app-static.css`, then stamps
   `sarducaa/static.html` with the output's content hash so a stale cached
@@ -263,11 +273,12 @@ header comment for the enforced boundary).
 - `npm run serve` (`server/serve.mjs`) serves the built tree with the same
   caching headers production uses — no PHP, no database, no separate dev
   server to keep in sync with prod.
-- Pins and discoveries read a committed snapshot at
-  `<continent>/data/static/{pins,discoveries}.json`
-  (`sources/static/{pins,discoveries,data}.js`) instead of a live API;
-  the taxonomy pins need is derived from the rows themselves rather than
-  shipped separately, since there is no server here to own it.
+- Points read a committed snapshot at `<continent>/data/static/points.json`
+  (`sources/static/points.js`, `data.js`) instead of a live API; its
+  taxonomy — the closed category vocabulary and group membership — ships in
+  `manifest.json` rather than being derived from the rows themselves, so
+  there is exactly one place a category can be declared instead of one per
+  row's own label text (see `../../../docs/snapshot.md`).
 - `npm run validate` (`bin/validate-snapshot.mjs`) enforces the publish
   contract on those snapshot files: only the listed fields may appear (no
   `owner`, `seq`, `api_key`, `user`, `account`, `ip`, …), and every date is

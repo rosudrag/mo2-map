@@ -1,0 +1,18 @@
+[
+  {
+    "id": "295add60",
+    "cat": "resource",
+    "name": "Tier-2 Camp",
+    "x": 100,
+    "y": 200,
+    "n": 3
+  },
+  {
+    "id": "872d2679",
+    "cat": "creature",
+    "name": "Waypoint T3 Camp",
+    "x": 150,
+    "y": 250,
+    "n": 2
+  }
+]

@@ -38,9 +38,10 @@
  * section's backfill of groups the data has but the taxonomy never declared,
  * and the discovery section's single delegated listener plus aria-pressed.
  */
-import { TABLER } from "../util/assets.js";
+import { iconSrc } from "../util/assets.js";
 import { sources as allSources, get as sourceById } from "../registry/sources-registry.js";
 import { isActive as queryActive, matches, subscribe as subscribeQuery } from "../map/query.js";
+import { onActiveMap, onMapChange } from "../map/active-map.js";
 
 // Expansion and the active preset are presentation, not data: they belong to
 // this panel rather than to any source's store, and they do not outlive a load.
@@ -59,7 +60,7 @@ function elem(tag, cls) {
 
 function img(name) {
   const node = document.createElement("img");
-  node.src = TABLER + (name || "map-pin") + ".svg";
+  node.src = iconSrc(name);
   node.alt = "";
   return node;
 }
@@ -96,6 +97,17 @@ function presetsOf(source) {
  * unfilterable, which is the worst of both — you cannot see them and you cannot
  * find out why.
  *
+ * Rows on another map are skipped entirely, for both the backfill and the
+ * counts. "This group is not declared" and "this group's rows are somewhere
+ * else" are different facts and the backfill must not confuse them: a source
+ * may legitimately declare a category and then omit it from groups() because
+ * nothing of it is HERE (snapshot v3's ways out, journals, levers and loot
+ * exist only inside a dungeon), and without this filter the backfill
+ * immediately re-added each one as an undeclared group — labelled with its raw
+ * id, because a backfilled group has no label to borrow. It also makes the
+ * head honest: "1,977 points loaded" is the wrong number to show on the
+ * surface when 21 of them are on a dungeon level.
+ *
  * @returns {{groups: Array, total: number, matched: number}} total is the row
  *   count for the head; matched is how many of them pass the global query
  *   (equal to total while no query is active, in ONE pass over the rows —
@@ -112,6 +124,7 @@ function groupsOf(source) {
   let total = 0;
   let matched = 0;
   for (const row of source.rows()) {
+    if (!onActiveMap(row)) { continue; }
     total++;
     if (matches(source.searchText(row))) { matched++; }
     const id = source.groupOf(row);
@@ -327,6 +340,22 @@ function scheduleRender() {
     renderFilters();
   });
 }
+
+/*
+ * Where the reader is standing changes what the panel is describing. Every
+ * count in it is a count on the ACTIVE map (poi/markers.js's visibleCountFor
+ * gates on onActiveMap before anything else), and a source may hide a whole
+ * category that has no rows here at all, so entering or leaving a dungeon
+ * invalidates the panel exactly the way a toggle does.
+ *
+ * Subscribed here rather than by whatever calls setActiveMap: the two modules
+ * that already do this - poi/markers.js and discoveries/markers.js, each
+ * rebuilding its own layer - established that the thing being invalidated
+ * subscribes itself, and the panel is the third such thing. It was the missing
+ * one: before v3 gave points a `map`, no category could ever be empty on one
+ * map and full on another, so a stale panel was invisible.
+ */
+onMapChange(scheduleRender);
 
 /*
  * Sources can register after wireFilters() has run: each boots on its own

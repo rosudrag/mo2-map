@@ -1,0 +1,16 @@
+[
+  {
+    "id": "4afa4678",
+    "cat": "resource",
+    "name": "Test Spawn",
+    "x": 100,
+    "y": 200
+  },
+  {
+    "id": "85c57182",
+    "cat": "resource",
+    "name": "Calx",
+    "x": 300,
+    "y": 400
+  }
+]

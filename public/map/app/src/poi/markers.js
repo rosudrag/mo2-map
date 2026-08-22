@@ -11,6 +11,8 @@ import {
   getMarkers,
   getTypeEnabled,
   isCatEnabled,
+  isDragCapable,
+  isTownCategory,
   removeMarker
 } from "./state.js";
 import { matches } from "../map/query.js";
@@ -25,6 +27,21 @@ let markerActions = null;
 // dungeon offers a way in. Registered rather than imported because dungeonmode
 // imports this module to ask what a marker is.
 let dungeonLink = null;
+// Same idea again, for one read-only fact line under the category line — e.g.
+// sources/static/points.js's `n` (how many things share this exact point).
+// Optional and additive like the two slots above: a source that never calls
+// this renders no extra line, so nothing changes for a source that has never
+// needed one. Deliberately its OWN slot rather than a reuse of
+// discoveries/markers.js's setDiscoveryPopupFacts — that one's `count` means
+// "records merged into a live grid cell", a different fact from this
+// catalogue's `n`, and a shared renderer cannot label both honestly from one
+// string (see that module's own popupFacts doc).
+let popupFacts = null;
+
+/** Registers one read-only facts line, appended under the category line. */
+export function setPopupFacts(fn) {
+  popupFacts = fn;
+}
 
 /** Registers the popup action handlers: { edit, drag, askDelete }. */
 export function setMarkerActions(actions) {
@@ -104,6 +121,18 @@ function buildPopupNode(marker) {
     "<h5>" + escapeHtml(poi.name) + "</h5>" +
     '<div class="layer"><img src="' + resolveIconSrc(poi.typeIcon, poi.icon || cat.icon) +
     '" alt="" width="14" height="14" />' + typeLine + "</div>";
+  if (popupFacts) {
+    const factsText = popupFacts(poi);
+    if (factsText) {
+      // Reuses the same muted single-line style as the category line above
+      // it (and paste-location.js's own pin popup) rather than a new class —
+      // one more read-only fact does not earn its own layout.
+      const facts = document.createElement("div");
+      facts.className = "layer";
+      facts.textContent = factsText;
+      root.appendChild(facts);
+    }
+  }
 
   // The way IN, and the reason the dungeon map needs no zooming to find: the pin
   // that names a dungeon is the door. First in the row, and styled primary,
@@ -208,8 +237,15 @@ export function makePoiMarker(m) {
   // them disappeared into a numbered bubble with 90 other landmarks. The dungeon
   // itself is labelled like a town; its entrances are not, because four labels
   // inside 500 m is a pile rather than a map.
+  //
+  // "dungeon" is a category id, not a role: snapshot v3 files the four dungeons
+  // under a `dungeon` category and their twelve doors under `entrance`, so the
+  // dungeons are labelled by category while the doors are only kept out of
+  // clusters. `role` is the live catalogue's equivalent, derived from
+  // meta.poi_id. isTownCategory() covers the two spellings of the town concept
+  // itself (see its own doc, poi/state.js).
   const clusterable = !!cat.clusterable && !role;
-  const labelled = cat.id === "towns" || role === "dungeon";
+  const labelled = isTownCategory(cat.id) || cat.id === "dungeon" || role === "dungeon";
   const priority = !clusterable;
   const marker = L.marker([m.y, m.x], {
     icon: labelled
@@ -218,7 +254,7 @@ export function makePoiMarker(m) {
     title: displayName,
     pane: priority ? "towns" : "markerPane",
     zIndexOffset: priority ? (role ? 1500 : 2000) : 0,
-    draggable: true
+    draggable: isDragCapable()
   });
   if (marker.dragging) marker.dragging.disable();
   marker._poi = {
@@ -227,6 +263,13 @@ export function makePoiMarker(m) {
     // which is what every row written before maps existed is.
     map: mapOf(m),
     name: displayName,
+    // The label decision, published rather than recomputed: map/poster.js draws
+    // the same markers onto paper and has to give the same ones a name. It used
+    // to re-derive it from `category === "towns"`, which silently stopped
+    // labelling towns when v3 renamed the category to `town` and then, once
+    // widened, labelled all twelve dungeon entrances as well - the exact pile of
+    // overlapping text the comment above exists to prevent.
+    labelled: labelled,
     rawName: m.name || null,
     category: cat.id,
     type: typeLabel,
@@ -240,7 +283,12 @@ export function makePoiMarker(m) {
     // into the plain LayerGroup - no clustering at all, at any zoom.
     clusterable: clusterable,
     meta: m.meta || null,
-    dungeon: role ? dungeonKeyOf(m.meta) : null,
+    // The live catalogue derives this from `role` (meta.poi_id); snapshot v3
+    // rows (sources/static/points.js) publish the key directly as `dungeon`
+    // on the row instead of inventing a matching meta.poi_id — `m.dungeon`
+    // wins when a row has it, so map/dungeonmode.js's resolve() (which reads
+    // exactly this field) still finds the door on a v3 "dungeon" pin.
+    dungeon: m.dungeon || (role ? dungeonKeyOf(m.meta) : null),
     note: m.note || null,
     disposition: m.disposition || null
   };
@@ -283,6 +331,29 @@ export function visibleCountFor(categoryId, typeLabel) {
     if (poi.category !== categoryId) return;
     if (typeLabel && poi.type !== typeLabel) return;
     if (markerVisible(poi)) n++;
+  });
+  return n;
+}
+
+/*
+ * How many pins of a category are on the map currently shown, before any
+ * toggle or query - "does this category exist here at all", not "how many can
+ * you see".
+ *
+ * visibleCountFor cannot answer that: it runs the full markerVisible gate, so
+ * a caller using it to decide whether a category is PRESENT would delete the
+ * row the moment the reader switched that category off, and again the moment
+ * they typed a query that missed it. The distinction only started mattering
+ * with snapshot v3, which is the first data to put a category entirely on one
+ * map - the four dungeons' ways out, journals, levers and loot exist only
+ * inside, so on the surface they are not "all filtered out", they are not
+ * there.
+ */
+export function presentCountFor(categoryId) {
+  let n = 0;
+  getMarkers().forEach(function (mk) {
+    const poi = mk._poi;
+    if (poi.category === categoryId && onActiveMap(poi)) { n++; }
   });
   return n;
 }

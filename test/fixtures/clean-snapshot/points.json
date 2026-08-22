@@ -1,0 +1,41 @@
+[
+  {
+    "id": "1b2cbf17",
+    "cat": "resource",
+    "name": "Aloevera",
+    "x": -1682,
+    "y": 2128
+  },
+  {
+    "id": "b5cd61ae",
+    "cat": "resource",
+    "name": "Aloevera",
+    "x": -1646,
+    "y": 2106,
+    "n": 2
+  },
+  {
+    "id": "75ee2dab",
+    "cat": "town",
+    "name": "Ashir",
+    "x": -6336,
+    "y": -609
+  },
+  {
+    "id": "278fda3d",
+    "cat": "dungeon",
+    "name": "Arg Kepher",
+    "x": 366,
+    "y": -337,
+    "dungeon": "argkepher"
+  },
+  {
+    "id": "a970fb07",
+    "cat": "exit",
+    "name": "Way Out 1 (Arg Kepher)",
+    "x": 749,
+    "y": -459,
+    "map": "sarducaa/argkepher/1",
+    "dungeon": "argkepher"
+  }
+]

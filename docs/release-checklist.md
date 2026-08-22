@@ -14,6 +14,131 @@ as such rather than folded into "seen live" unless this session's own
 browser tool actually rendered them. As of this round, this document is
 current on the whole tree — see "Publishable state" at the bottom.
 
+## The data-sanitisation round (new since the last version of this document)
+
+The published catalogue moved from v2's two-file, five-`kind`-plus-42-category
+split (`discoveries.json` + `pins.json`) to a single v3 snapshot
+(`points.json` + `manifest.json`). Full contract, the closed vocabulary
+table, and every removal rule with its own measured count:
+`docs/snapshot.md`, rewritten this round.
+
+**Three judgement calls this round's investigation decided**, each recorded
+in `docs/snapshot.md` as an explicit rule rather than left implicit in the
+data:
+- Drop all 393 loot containers outright (376 chest/urn/barrel/crate rows plus
+  17 loot props) rather than publish a filtered subset — the class-level
+  ubiquity measurement alone (chest in 25.3% of surveyed 500 m patches,
+  barrel 19.5%, urn 18.7%) made a partial keep indefensible.
+- Extend the >15%-of-surveyed-patches ubiquity rule — applied to plants only
+  in v2 — to creatures too, landing on 3,032 rows including Jungle Horse
+  (40.2% spread, alone 10% of every point on v2's map).
+- Keep individual bandit/humanoid points on the open map, but fold the 84
+  camp-covered humanoid rows into the extracted camp point that already
+  publishes that camp's own position and faction from an authoritative
+  source, rather than deleting the individuals outright or leaving them as
+  separate, redundant pins next to a camp marker that already said the same
+  thing.
+
+**Measured before/after**: 3,953 points / 454 KB / 2 files / 5 kinds + 42
+categories → 1,977 points / 154 KB / 1 file / 37 categories in 7 groups.
+
+**Verified this round, against the actual shipped snapshot files**
+(`public/map/sarducaa/data/static/{points,manifest}.json`), not just read
+off the exporter's own log output:
+- Row count matches exactly: 1,977 rows in `points.json`, equal to
+  `manifest.json`'s own `counts.points`. Confirmed by a direct `node -e`
+  count over the shipped file.
+- `counts.by_category`'s 37 values sum to 1,977 exactly — every declared
+  category accounted for, `boss` legitimately at 0 (see `docs/snapshot.md`'s
+  "Known gaps").
+- `manifest.json` declares 37 categories in 7 groups; unioning every row's
+  own key set across the whole file (not a sample) finds exactly the 8
+  contract keys (`id`, `cat`, `name`, `x`, `y`, `n`, `map`, `dungeon`) and
+  nothing else — no `z`, no `kind`, no `map_x`/`map_y`, no `count` anywhere.
+- Spot-checked the `id` hash formula (`sha256("cat|name|x|y")[0:8]`) against
+  a live row from the shipped file (`resource|Aloevera|-1682|2128` →
+  `1b2cbf17`) and it matches that row's own published `id`.
+- `discoveries.json` and `pins.json` are gone from
+  `public/map/sarducaa/data/static/` — confirmed by a directory listing, not
+  assumed from the export having said it removed them.
+
+**Bugs fixed this round** (measurements behind each one are in
+`docs/snapshot.md`, not repeated here):
+- **Haven contamination** — 327 rows measured across an 894.5 m empty
+  z-gap between the two continents' point clouds; v2's own guard, a
+  class-name regex, caught 1.1% of it.
+- **The dead map gate** — both consumers already implement a map-visibility
+  check (`poi/markers.js`'s `markerVisible`, `discoveries/state.js`'s
+  `discoveryVisible`) that could never fire, because v2 shipped no `map`
+  field for either to read; 25 dungeon-interior pins rendered stacked on top
+  of their own surface entrances as a result.
+- **66 duplicate town-plan pins** — sat on the exact pixel of an extracted
+  point that already said more (`Ashir Craft` under `Armour Bench` +
+  `Bow Bench` + `Shield Bench`, among others).
+- **The dead `type` field** — v2's `pins.json` carried both a free-text
+  `type` (e.g. `"Dungeon"`) and a slug `category` (`"dungeon"`) as two
+  parallel, redundant classifications of the same fact; v3 has one `cat`
+  field.
+- **`z` published and discarded** — present on 3,556 v2 rows, read by no
+  consumer, and not part of the v3 contract at all.
+
+**Docs updated to match**: `docs/snapshot.md` (full rewrite — the v3
+contract, the 36-category vocabulary table, every removal rule with its
+measured count, the two known gaps stated honestly). `README.md` (the
+data-provenance paragraph — dropped the v2-specific "grid-merged"/
+"auto-discovery catalogue" language this round's contract no longer
+documents). `public/map/app/README.md` (the `data/static/pins.json` line and
+its "taxonomy derived from the rows themselves" claim, both false as of this
+round — replaced with `points.json` and a manifest-sourced taxonomy; also
+documented that `src/discoveries/` survives the cutover as this package's
+own public API surface for a downstream consumer, even though the static
+build's `main-static.js` no longer registers a discoveries source of its
+own). `docs/running.md`, `docs/coordinates.md` and `LICENSE-DATA.md` were
+checked and found to state nothing this round falsifies — none of the three
+names a v2-specific file, count or field.
+
+**Verified live in a real browser, after the app-side cutover landed.** Headless
+Chromium against a local server, `localStorage` cleared and a cache-busted URL
+on every load so no saved filter state or stale bundle could carry a result:
+
+- **Surface**: filter head reads `1956`, not 1,977 — the 21 dungeon-interior
+  points are correctly on another map and excluded from both the count and the
+  panel. 32 category rows: the 37 declared minus the 5 `interior`-group ones,
+  which is exactly right for the surface.
+- **Dungeon interior**: opening Arg Kepher from its own pin's popup switches the
+  panel to `Ways out 3`, `Journals 1`, `Levers 2`, head `6`, and 6 markers on
+  screen — `Journal (Arg Kepher)`, `Way Out 1/2/3 (Arg Kepher)`,
+  `Sliding Wall Lever (Floor)`, `Sliding Wall Lever (Brick1)`. The surface
+  categories are gone. Before this round every one of those 21 points rendered
+  on the SURFACE, stacked on the entrances, and a dungeon plate could show none
+  of them.
+- **No second filter level**: `document.querySelectorAll(".type-toggle").length`
+  is 0. v2 rendered 42 category rows each expanding to one identically-named
+  type row.
+- **Preset row**: 6 group buttons on the surface, 1 (`Dungeon interior`) inside a
+  dungeon — a preset that would select nothing is not drawn.
+- **Labels**: exactly 12 permanent labels on the surface, the 8 towns plus the 4
+  dungeons. The 12 dungeon entrances are deliberately unlabelled. v2 had no town
+  points at all.
+- **Read-only**: `.leaflet-marker-draggable` count is 0. v2's markers carried
+  that class despite the source declaring `can.drag === false`.
+- **Network**: zero requests for `pins.json` or `discoveries.json`; the only data
+  fetches are `data/static/manifest.json` and `data/static/points.json`.
+- **No icon 404s**: the filter panel had been requesting
+  `assets/tabler/game:town.svg` for every `game:`-prefixed category icon, because
+  it built its own URL and only the marker code understood the prefix. Both now
+  go through one resolver; the SVG 404 list is empty.
+- **Poster export**: a whole-island 1x export completes and writes a 5380x4019,
+  19.2 MB PNG. Inspected at 1:1: town and dungeon names are drawn, entrance names
+  are not. The first export of this round DID label all three `Arg Kepher
+  Entrance` pins on top of `Arg Kepher`, because `map/poster.js` re-derived the
+  label decision itself; it now reads the one `poi/markers.js` already made.
+
+**Known gap, pre-existing and not from this round:** 8 tile requests 404 at
+`assets/tiles/v5/-1/{7,8}/`. That directory is genuinely sparse on disk (`-1/7`
+holds 2 of the 7 tiles its neighbour has, `-1/8` does not exist) and dates from
+the commit that promoted the v5 pyramid, not from anything here.
+
 ## The artwork island-wide render round (new since the last version of this document)
 
 `style.js`'s artwork pyramid was switched from `assets/tiles-art/v2/` (2.34 m/px native,

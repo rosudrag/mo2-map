@@ -1,0 +1,16 @@
+[
+  {
+    "id": "abcd1234",
+    "cat": "resource",
+    "name": "Iron Ore",
+    "x": 1500,
+    "y": -2500
+  },
+  {
+    "id": "abcd1234",
+    "cat": "resource",
+    "name": "Calx",
+    "x": 1600,
+    "y": -2400
+  }
+]

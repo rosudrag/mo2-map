@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rosudrag/mo2-map/snapshot/v3/schema.json",
+  "title": "Snapshot Contract v3",
+  "description": "Schema for the versioned snapshot export. The export is defined by what the validator (bin/validate-snapshot.mjs) will accept; the validator lives in public so the validator cannot be coerced to accept what it should not. v3 replaces v2's two files — discoveries.json (grid-aggregated survey rows) and pins.json (curated/game-file POI catalogue) — with a single points.json, because the split was never a real seam in the published data: a consumer that wants 'everything at this coordinate' had to read both files and merge them itself, and the split let the same physical spot carry two independent, unlinked ids (160 of v2's 397 pins shared a position with a discovery row and neither file knew about the other). v3 also drops the row-level z coordinate (the only public consumer read it and threw it away) and the map_x/map_y canvas-pixel duplicate of every position (measured over all 397 v2 pins, it never disagreed with the world-metre position by more than 0.064px, so it was 21KB of a second truth that could only drift) — world metres are now the only published position, and the consumer derives canvas pixels from it.",
+
+  "definitions": {
+    "point_id": {
+      "type": "string",
+      "description": "First 8 hex characters of sha256(\"cat|name|x|y\") over the published row. Uniform for every point regardless of which pipeline produced it — v2 mixed 8-hex discovery ids with slugified pin ids (e.g. 'beth-jedda-bank-2'), so two id schemes had to be reconciled by every consumer that wanted a stable key across both files.",
+      "pattern": "^[0-9a-f]{8}$"
+    },
+
+    "category": {
+      "type": "string",
+      "description": "One of the 36 concepts in the closed category vocabulary manifest.json's 'categories' array declares. v2 had no such vocabulary: its consumer derived categories by slugifying pin labels, which is exactly how it ended up with 42 categories for 24 concepts (craft beside crafting, extraction beside extractors, four spellings of trinkets, and north-exit as a top-level category because one town plan had the words on it). A consumer of v3 reads the vocabulary from manifest.json; it never invents one from row content.",
+      "enum": [
+        "resource", "creature", "bandit", "camp",
+        "town", "bank", "vendors", "broker", "guard", "stable", "postal", "tasks", "library", "housing", "elevator", "guild", "training",
+        "crafting", "refining", "cooking", "butchery", "alchemy", "trinkets",
+        "priest", "spiritism", "wayshrine",
+        "dungeon", "entrance", "ruins", "tower", "landmark", "cave",
+        "exit", "boss", "journal", "lever", "loot"
+      ]
+    },
+
+    "group": {
+      "type": "string",
+      "description": "One of the 7 top-level filter groups manifest.json's 'groups' array declares. Every category belongs to exactly one group; grouping is a manifest fact, not something a consumer infers from a category id's spelling.",
+      "enum": ["gathering", "wildlife", "settlement", "crafting", "faith", "world", "interior"]
+    },
+
+    "world_coordinate": {
+      "type": "integer",
+      "description": "World metres, integer. The only published position — see the top-level description for why map_x/map_y/world_x/world_y/world_z are gone. A float here means an unquantised raw position leaked past the exporter's rounding step."
+    },
+
+    "count_hint": {
+      "type": "integer",
+      "minimum": 2,
+      "description": "How many things are at this point, when more than one. Omitted entirely when the count is 1 — a present n of 1 would mean the producer forgot to omit it, so the schema forbids it outright rather than accepting a redundant value."
+    },
+
+    "map_ref": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+/[a-z0-9_]+/[0-9]+$",
+      "description": "<continent>/<dungeon>/<level>, e.g. 'sarducaa/argkepher/1'. Present on every point in the 'interior' group and no other — those points sit inside a dungeon level, not on the surface plate, and the map gate both consumers already implement (poi/markers.js's onActiveMap, discoveries/state.js's discoveryVisible) needs this field to know which plate to draw them on. v2 never published it: 25 dungeon-interior pins rendered on the surface, stacked on their own entrances, because nothing told the renderer they belonged one level down."
+    },
+
+    "dungeon_key": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "description": "Lowercase key identifying which dungeon a point belongs to (currently one of argkepher, jungle, tuzsaltmines, yelkeskarhideout for this continent). Present on the 'dungeon' category's own point (the surface-level entrance marker) and on every point in the 'interior' group (what's inside that dungeon)."
+    },
+
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  },
+
+  "definitions_by_file": {
+    "points.json": {
+      "type": "array",
+      "description": "One row per published point — resource nodes, creatures, hostile camps, settlement services, crafting stations, faith fixtures, world landmarks, and dungeon interiors, all in one closed vocabulary (see #/definitions/category). This is the entire snapshot content; there is no second file to cross-reference.",
+      "items": {
+        "type": "object",
+        "required": ["id", "cat", "name", "x", "y"],
+        "properties": {
+          "id": { "$ref": "#/definitions/point_id" },
+          "cat": { "$ref": "#/definitions/category" },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "A folded human name (e.g. 'Aloevera', 'Way Out 1 (Arg Kepher)'), never a raw engine class token."
+          },
+          "x": { "$ref": "#/definitions/world_coordinate" },
+          "y": { "$ref": "#/definitions/world_coordinate" },
+          "n": { "$ref": "#/definitions/count_hint" },
+          "map": { "$ref": "#/definitions/map_ref" },
+          "dungeon": { "$ref": "#/definitions/dungeon_key" }
+        },
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "description": "map is required on interior-group points and forbidden everywhere else.",
+            "if": {
+              "properties": { "cat": { "enum": ["exit", "boss", "journal", "lever", "loot"] } },
+              "required": ["cat"]
+            },
+            "then": { "required": ["map"] },
+            "else": { "not": { "required": ["map"] } }
+          },
+          {
+            "description": "dungeon is required on the 'dungeon' category and every interior-group point, and forbidden everywhere else.",
+            "if": {
+              "properties": { "cat": { "enum": ["dungeon", "exit", "boss", "journal", "lever", "loot"] } },
+              "required": ["cat"]
+            },
+            "then": { "required": ["dungeon"] },
+            "else": { "not": { "required": ["dungeon"] } }
+          }
+        ]
+      }
+    },
+
+    "manifest.json": {
+      "type": "object",
+      "description": "Carries the category taxonomy alongside the row counts, deliberately — v2's consumer derived its taxonomy by slugifying row labels at read time, which is exactly how it ended up with 42 categories for 24 concepts. v3's manifest is the published source of truth for the vocabulary: a consumer reads 'groups' and 'categories' to build its filter UI and never invents a category from row content. counts.by_category MUST list every declared category, including ones with a legitimate zero (see 'boss' below) — a category present in the taxonomy but absent from the counts would look like an omission bug, not a deliberate zero.",
+      "required": ["id", "schema_version", "generated", "groups", "categories", "counts"],
+      "properties": {
+        "id": { "type": "string" },
+        "schema_version": {
+          "const": "v3",
+          "description": "A literal, not a range — a consumer that reads 'v3' is reading exactly this contract."
+        },
+        "generated": { "$ref": "#/definitions/date" },
+        "groups": {
+          "type": "array",
+          "description": "The 7 top-level filter groups, in display order.",
+          "items": {
+            "type": "object",
+            "required": ["id", "label"],
+            "properties": {
+              "id": { "$ref": "#/definitions/group" },
+              "label": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "categories": {
+          "type": "array",
+          "description": "The 36 categories, each filed under one of the 7 groups above.",
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "group"],
+            "properties": {
+              "id": { "$ref": "#/definitions/category" },
+              "label": { "type": "string", "minLength": 1 },
+              "group": { "$ref": "#/definitions/group" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "counts": {
+          "type": "object",
+          "required": ["points", "by_category"],
+          "properties": {
+            "points": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Must equal points.json's row count exactly."
+            },
+            "by_category": {
+              "type": "object",
+              "description": "One entry per declared category id (see 'categories' above), value equal to that category's actual row count in points.json. 'boss' legitimately reads 0 in this snapshot: the four boss rooms are withheld because the extraction knows which dungeon they are in but not which level, and drawing an interior room at its surface projection would be a lie about where it is. A declared category with zero points is legal and MUST NOT be rendered as an empty filter row by a consumer — it is a promise that the category exists in the game, not a bug in the export.",
+              "propertyNames": { "$ref": "#/definitions/category" },
+              "additionalProperties": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

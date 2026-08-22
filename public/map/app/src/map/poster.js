@@ -56,9 +56,13 @@ const VIEW_OPTIONS = [
  * Draws every marker the live filter state currently admits (poi/markers.js's
  * own markerVisible - so a category the user hid stays hidden on the poster
  * too) that falls inside the exported rectangle. Pulled straight from the
- * already-loaded poi/state.js catalogue - no re-fetch. Towns and dungeons get
- * a name (the same "labelled" set the live map itself gives a permanent
- * label, poi/markers.js's makePoiMarker); every other visible POI gets a
+ * already-loaded poi/state.js catalogue - no re-fetch. Which markers get a
+ * NAME is not decided here: poi/markers.js already made that call when it built
+ * the marker (`_poi.labelled`, the same set the live map gives a permanent
+ * label), and the poster reads it. Re-deriving it was a bug twice over - first
+ * as `category === "towns"`, which stopped matching when the published category
+ * became `town`, then as `|| !!poi.dungeon`, which named all twelve dungeon
+ * entrances and buried the dungeon under them. Everything else visible gets a
  * plain ink dot, so a whole-island poster does not drown in a thousand names.
  */
 function drawMarkers(ctx, manifest, rect, destX, destY, destScale) {
@@ -71,7 +75,7 @@ function drawMarkers(ctx, manifest, rect, destX, destY, destScale) {
     if (c < rect.c0 || c > rect.c1 || r < rect.r0 || r > rect.r1) return;
     const x = destX + (c - rect.c0) * destScale;
     const y = destY + (r - rect.r0) * destScale;
-    const labelled = poi.category === "towns" || !!poi.dungeon;
+    const labelled = poi.labelled;
     ctx.save();
     ctx.fillStyle = INK;
     ctx.beginPath();

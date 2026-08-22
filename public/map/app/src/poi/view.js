@@ -3,14 +3,15 @@
  * rendering, not transport: the row<->marker bridge, the list/editor
  * descriptor pieces (title, groups, sorts, fields…) and reveal-on-the-map.
  * Both the private repo's own live pins source (the live source, full CRUD)
- * and this package's sources/static/pins.js (the read-only public build)
+ * and this package's sources/static/points.js (the read-only public build)
  * build their descriptor by spreading `presentation` over their own
  * id/can/attach/load — and, live only, save/remove/create — which is the
  * actual difference between "rows arrive from /map-data" and "rows arrive
  * once from a committed snapshot".
  *
  * TWO THINGS ARE SPECIFIC TO THIS SOURCE AND SURVIVE AS CONTRACT MEMBERS
- * RATHER THAN AS SPECIAL CASES — carried over unchanged from pins.js:
+ * RATHER THAN AS SPECIAL CASES — carried over unchanged from the deleted
+ * pins.js, and still honoured by its replacement, sources/static/points.js:
  *
  *   Rows are CANVAS PIXELS, not world metres. `map_markers.map_x/map_y` are
  *   positions on the map art (docs/coordinates.md), so latLng returns them

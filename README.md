@@ -2,7 +2,8 @@
 
 A map of **Mortal Online 2** covering its three continents: **Myrland**, **Sarducaa**
 and **Haven**. Terrain and topography rendered from the game's authored data; places
-and things players have found, published as coordinates, grid-merged and de-identified.
+and things extracted from the game's own files and reported by a community survey,
+published as coordinates and de-identified.
 
 **Data published:** Sarducaa. **Rendered:** Myrland (not yet published).
 **Not yet mapped:** Haven.
@@ -11,15 +12,15 @@ and things players have found, published as coordinates, grid-merged and de-iden
 
 The terrain is the game's shipped landscape data: heightmaps stitched into an
 elevation model, the engine's own per-tile ground colour, water surfaces at
-their authored levels. The auto-discovery catalogue is a grid-merged record of what
-has been reported, not a survey — only part of the island has ever been walked, and
-the map has no way to tell a blank patch that is unexplored from one that is
-explored and genuinely empty. A coverage grid would say which is which; v1 shipped
-one and v2 retired it deliberately (see `docs/snapshot.md`), because a coverage grid
-is itself a record of where someone looked and how often — exactly the kind of
-collection-activity metadata this snapshot exists to not publish. So: absence on this
-map means *nobody has reported anything there*, not *nothing is there*, and the map
-cannot currently show you which.
+their authored levels. The point catalogue (`docs/snapshot.md`) is not a survey —
+only part of the island has ever been walked, and the map has no way to tell a
+blank patch that is unexplored from one that is explored and genuinely empty. A
+coverage grid would say which is which; v1 shipped one and v2 retired it
+deliberately, because a coverage grid is itself a record of where someone looked
+and how often — exactly the kind of collection-activity metadata this snapshot
+exists to not publish. So: absence on this map means *nobody has reported
+anything there*, not *nothing is there*, and the map cannot currently show you
+which.
 
 ## What is here today
 
